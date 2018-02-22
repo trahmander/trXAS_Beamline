@@ -1,0 +1,11 @@
+Sample: 
+Laser autoNLO (%): 
+          PoD (%):
+          Frequency (kHz): 
+          Divider: 
+          Wavelength (nm):
+TDC Voltage (kV): 
+Mode: Timing
+entrance and exit slit (µm):
+normal incidence
+Al filter out
