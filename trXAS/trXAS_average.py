@@ -39,6 +39,24 @@ def load_file(fileName):
     dataSet.sort(key= lambda x:x[0])
     dataSet = np.array(dataSet)
     return dataSet
+def find_peak(xlow, xhigh, step, func):
+    nearPeak = np.linspace(xhigh, xlow, step)
+    feature = func(nearPeak)
+    maxVal = feature[0] 
+    peak = nearPeak[0]
+    for i in range( len(feature) ):
+        if feature[i] > maxVal:
+            maxVal = feature[i]
+            peak = i
+    return nearPeak[peak]
+def get_spline(low, high, step, x, y):
+    line = np.linspace(low, high, step)
+#    splinE = itp.UnivariateSpline(photonE, yAllNorm, s=None, k=2)
+#    splinE = itp.InterpolatedUnivariateSpline(photonE, yAllNorm)
+#    splinE = itp.LSQUnivariateSpline(photonE, yAllNorm)
+#    print( "photonE sorted? " + all( photonE[i] <= photonE[i+1] for i in range(len(photonE)-1) ) ) #check if list is really sorted
+    spline = itp.interp1d(x, y, kind='slinear')                                   #This one does linear interpolation. kinda ugly
+    return line, spline
 def photonE_counts_plot(dataSet):
     (photonE, #SEphotonE,
         xRefNorm, #SExRefNorm,
@@ -69,24 +87,30 @@ def photonE_counts_plot(dataSet):
         BCLR, #SEBCLR,
         #SE, #SE2
         ) = dataSet.T
-#    print(yAllNorm)
-#    print (SE)
-#    print(SE2)
-#    print(photonE)
 #    lowE = np.amin(photonE)
 #    highE = np.amax(photonE)
     lowE = photonE[0]
     highE = photonE[-1]
-    linE = np.linspace(lowE, highE, 1000)
-#    splinE = itp.UnivariateSpline(photonE, yAllNorm, s=None, k=2)
-#    splinE = itp.InterpolatedUnivariateSpline(photonE, yAllNorm)
-#    splinE = itp.LSQUnivariateSpline(photonE, yAllNorm)
-#    print( "photonE sorted? " + all( photonE[i] <= photonE[i+1] for i in range(len(photonE)-1) ) ) #check if list is really sorted
-    splinE = itp.interp1d(photonE, yAllNorm, kind='slinear')                                   #This one does linear interpolation. kinda ugly
+    step = 1000
+    linE, splinE = get_spline(lowE, highE, step, photonE, yAllNorm)
+    firstPeak = find_peak(532, 537, 1000, splinE)             
     figure = plt.figure(dpi=100)
     plt.plot( photonE, yAllNorm, marker= 'd', linestyle='none' )
     plt.plot( linE, splinE(linE), linewidth=1 )
+    plt.axvline( firstPeak, linewidth = 1 )
     plt.show()
+#def shift_spline(spline, line, delta):
+#    spline(line) = spline(line+delta)
+
+#def average_splines(splineSet, line):
+#    splineSum = np.zeros_like(line)
+#    numSpline=0
+#    for i in range( len(splineSet) ):
+#        spline = splineSet[i](line)
+#        splineSum = splineSum + spline
+#        numSpline+=1
+#    splineAvg = splineSum/numSpline
+#    return splineAvg
 
 def main():
     dir = os.path.dirname(__file__)
@@ -95,93 +119,7 @@ def main():
     for file in dataFiles:
         dataSet = load_file(file)
         photonE_counts_plot(dataSet)
-#    fileName = input("What is the file name?")
-#    dir = os.path.dirname(__file__)
-#    fileName = os.path.join(dir,"trXAS data sample - date eval software/hv scans processed/0198_0199_0201_0202_avg/0198_0199_0201_0202_avg_pump_17-17_minus_ref_1-16.txt")
-#    fileName = "trXAS data sample - date eval software/hv scans processed/0198_CuO_O_K-edge_355nm_58pc/0198_diff_spect_pump_12-16_minus_ref_1-16_data.txt"
-#    dataSet = np.loadtxt(fileName, skiprows=1)
-#    print(dataSet[:,0])
-#    dataSet = dataSet.tolist()
-#    dataSet.sort(key= lambda x:x[0])
-#    dataSet = np.array(dataSet)
- #   numColumns = dataSet.shape[1]
- #   print(numColumns)
-        
-#    (photonE, SEphotonE,
-#        xRefNorm, SExRefNorm,
-#        xRef, SExRef,
-#        xPumpNorm, SExPumpNorm, 
-#        xPump, SExPump,
-#        yRefNorm, SEyRefNorm,
-#        yRef, SEyRef,
-#        yPumpNorm, SEyPumpNorm,
-#        yPump, SEyPump,
-#        xAllNorm, SExAllNorm,
-#        xAll, SExAll,
-#        yAllNorm, SEyAllNorm,
-#        yAll, SEyAll,
-#        xAllyRefNorm, SExAllyRefNorm,
-#        xAllyRef, SExAllyRef,
-#        yAllxRefNorm, SEyAllxRefNorm, 
-#        yAllxRef, SEyAllxRef,
-#        BCxHistNorm, SEBCxHistNorm, 
-#        BCyHistNorm, SEBCyHistNorm,
-#        stsNorm, SEstsNorm,
-#        BCSCNorm, SEBCSCNorm, 
-#        BCLRNorm, SEBCLRNorm,
-#        BCxHist, SEBCxHist,
-#        BCyHist, SEBCyHist,
-#        sts, SEsts,
-#        BCSC, SEBCSC, 
-#        BCLR, SEBCLR,
-#        SE, SE2) = np.loadtxt(fileName, skiprows=1, unpack=True)
-#    (photonE, #SEphotonE,
-#        xRefNorm, #SExRefNorm,
-#        xRef, #SExRef,
-#        xPumpNorm, #SExPumpNorm, 
-#        xPump, #SExPump,
-#        yRefNorm, #SEyRefNorm,
-#        yRef, #SEyRef,
-#        yPumpNorm, #SEyPumpNorm,
-#        yPump, #SEyPump,
-#        xAllNorm, #SExAllNorm,
-#        xAll, #SExAll,
-#        yAllNorm, #SEyAllNorm,
-#        yAll, #SEyAll,
-#        xAllyRefNorm, #SExAllyRefNorm,
-#        xAllyRef, #SExAllyRef,
-#        yAllxRefNorm, #SEyAllxRefNorm, 
-#        yAllxRef, #SEyAllxRef,
-#        BCxHistNorm, #SEBCxHistNorm, 
-#        BCyHistNorm, #SEBCyHistNorm,
-#        stsNorm, #SEstsNorm,
-#        BCSCNorm, #SEBCSCNorm, 
-#        BCLRNorm, #SEBCLRNorm,
-#        BCxHist, #SEBCxHist,
-#        BCyHist, #SEBCyHist,
-#        sts, #SEsts,
-#        BCSC, #SEBCSC, 
-#        BCLR, #SEBCLR,
-#        #SE, #SE2
-#        ) = dataSet.T
-#    print(yAllNorm)
-#    print (SE)
-#    print(SE2)
-#    print(photonE)
-#    lowE = np.amin(photonE)
-#    highE = np.amax(photonE)
-#    lowE = photonE[0]
-#    highE = photonE[-1]
-#    linE = np.linspace(lowE, highE, 1000)
-#    splinE = itp.UnivariateSpline(photonE, yAllNorm, s=None, k=2)
-#    splinE = itp.InterpolatedUnivariateSpline(photonE, yAllNorm)
-#    splinE = itp.LSQUnivariateSpline(photonE, yAllNorm)
-#    print( "photonE sorted? " + all( photonE[i] <= photonE[i+1] for i in range(len(photonE)-1) ) ) #check if list is really sorted
-#    splinE = itp.interp1d(photonE, yAllNorm, kind='slinear')                                   #This one does linear interpolation. kinda ugly
-#    figure = plt.figure(dpi=100)
-#    plt.plot( photonE, yAllNorm, marker= 'd', linestyle='none' )
-#    plt.plot( linE, splinE(linE), linewidth=1 )
-#    plt.show()
+
     
 if __name__ == "__main__":
     main()
