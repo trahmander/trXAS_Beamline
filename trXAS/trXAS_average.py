@@ -8,7 +8,7 @@ __date__    = "2018-02-21"
 __credits__ = ["Johannes Mahl"]
 __email__ = "trahman@lbl.gov"
 __status__ = "production"
-__revision__= "3"
+__revision__= "4"
 ###############################################################################
 #Import modules
 ###############################################################################
@@ -25,6 +25,9 @@ peaks = []
 peakAvgs = []
 splines = []
 lines= []
+peaksAll=[]
+splinesAll=[]
+linesAll=[]
 stepSize = 0.001
 
 def get_data_files(path):
@@ -100,33 +103,33 @@ def photonE_counts_plot(dataSet, file):
     lowE = photonE[0]
     highE = photonE[-1]
     step = (highE - lowE) / stepSize
-    linE, splinE = get_spline(lowE, highE, step, photonE, xPumpNorm)
+    linE, splinE = get_spline(lowE, highE, step, photonE, yAllNorm)
     firstPeak = find_peak(532, 537, step, splinE)             
 #    figure = plt.figure(dpi=100)
 #    plt.title("File: "+str(file))
-    plt.plot( photonE, yPumpNorm, marker= 'd', linestyle='none' )
-    plt.plot( linE, splinE(linE), linewidth=1 )
-    plt.axvline( firstPeak, linewidth = 1 )
+#    plt.plot( photonE, yAllNorm, marker= 'd', linestyle='none' )
+#    plt.plot( linE, splinE(linE), linewidth=1 )
+#    plt.axvline( firstPeak, linewidth = 1 )
 #    plt.show()
 # NEEDS WORK. Find a way to convert peak difference into iter difference
-def shift_spline(splineNum):
-    vals = splines[splineNum]( lines[splineNum] )
-    ref = np.amin( peakAvgs )
+def shift_spline(splineNum, pks, spln, lin):
+    vals = spln[splineNum]( lin[splineNum] )
+    ref = np.amin( pks )
     
-    if ref == peakAvgs[splineNum]:
-        return vals, lines[splineNum]
+    if ref == pks[splineNum]:
+        return vals, lin[splineNum]
     else:
-        delta = peakAvgs[splineNum] - ref
+        delta = pks[splineNum] - ref
         index = int ( delta / stepSize )
         for i in range (len(vals) - index ) :
             vals[i] = vals[i+index]
-        return vals[:-index], lines[splineNum][:-index]
-def calc_step_size(vals):
-    pairs =  list ( iter.combinations(vals, 2) )
-    diff = [p[1] - p[0] for p in pairs]
-    diff = np.abs(diff)
-    step = round (np.amin(diff)/2, -3)
-    return step
+        return vals[:-index], lin[splineNum][:-index]
+#def calc_step_size(vals):
+#    pairs =  list ( iter.combinations(vals, 2) )
+#    diff = [p[1] - p[0] for p in pairs]
+#    diff = np.abs(diff)
+#    step = round (np.amin(diff)/2, -3)
+#    return step
     
         
 
@@ -154,18 +157,29 @@ def main():
     for path in paths:
          if "avg" in path:
             paths.remove(path)
-    for path in paths :
+    for j in range( len(paths) ) :
+        path = paths[j]
         dataFiles = get_data_files(path)
         fig = plt.figure(dpi=100)
-#        for i in range(len(dataFiles)):
-        file = dataFiles[0]
-        dataSet = load_file(file)
-        photonE_counts_plot(dataSet, file)
+        plt.title(path)
+        for i in range(len(dataFiles)):
+            file = dataFiles[i]
+            dataSet = load_file(file)
+            photonE_counts_plot(dataSet, file)
+        
+            shiftedVals, shiftedLine = shift_spline(i, peaks, splines, lines)
+            plt.plot(shiftedLine, shiftedVals, linewidth=1)
         
         print( peaks )
         print( set(peaks) )
         peakAvgs.append( np.average(peaks) )
+        
+        peaksAll.extend(peaks)
+        splinesAll.extend(splines)
+        linesAll.extend(lines)
         peaks.clear()
+        splines.clear()
+        lines.clear()
     print( peakAvgs )
     
     
@@ -176,9 +190,10 @@ def main():
 #        fig = plt.figure(dpi=100)
 #        plt.plot(shiftedLine, shiftedVals, linewidth=1, color='b')
 #        plt.plot(lines[i], splines[i](lines[i]), linewidth=1,  color='g')
-    fig = plt.figure(dpi=100)
-    for i in range ( len(splines) ) :
-        shiftedVals, shiftedLine = shift_spline(i)
+    fig = plt.figure(dpi=200)
+    plt.title("All shifted splines")
+    for i in range ( len(splinesAll) ) :
+        shiftedVals, shiftedLine = shift_spline(i, peaksAll, splinesAll, linesAll)
         plt.plot(shiftedLine, shiftedVals, linewidth=1)
 
     
