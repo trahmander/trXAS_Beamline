@@ -103,7 +103,7 @@ def photonE_counts_plot(dataSet, file):
     lowE = photonE[0]
     highE = photonE[-1]
     step = (highE - lowE) / stepSize
-    linE, splinE = get_spline(lowE, highE, step, photonE, yAllNorm)
+    linE, splinE = get_spline(lowE, highE, step, photonE, stsNorm)
     firstPeak = find_peak(532, 537, step, splinE)             
 #    figure = plt.figure(dpi=100)
 #    plt.title("File: "+str(file))
