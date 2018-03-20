@@ -8,7 +8,7 @@ __date__    = "2018-02-21"
 __credits__ = ["Johannes Mahl"]
 __email__ = "trahman@lbl.gov"
 __status__ = "production"
-__revision__= "4"
+__revision__= "5"
 ###############################################################################
 #Import modules
 ###############################################################################
@@ -29,6 +29,56 @@ peaksAll=[]
 splinesAll=[]
 linesAll=[]
 stepSize = 0.001
+
+
+def user_inputs():
+    print("This software is used for averaging spectral distributions :)")
+    directory = input("Please enter the directory that you wish to send data.")
+    print("Which column do you want to look at?")
+    col = {"0a":photonE, "0b":SEphotonE,
+        "1a":xRefNorm, "1b":SExRefNorm,
+        "1c":xRef, "1d":SExRef,
+        "2a":xPumpNorm, "2b":SExPumpNorm, 
+        "2c":xPump, "2d":SExPump,
+        "3a":yRefNorm, "3b":SEyRefNorm,
+        "3c":yRef,"3d":SEyRef,
+        "4a":yPumpNorm, "4b":SEyPumpNorm,
+        "4c":yPump, "4d":SEyPump,
+        "5a":xAllNorm, "5b":SExAllNorm,
+        "5c":xAll, "5d":SExAll,
+        "6a":yAllNorm, "6b":SEyAllNorm,
+        "6c":yAll, "6d":SEyAll,
+        "7a":xAllyRefNorm, "7b":SExAllyRefNorm,
+        "7c":xAllyRef, "7d":SExAllyRef,
+        "8a":yAllxRefNorm, "8b":SEyAllxRefNorm, 
+        "8c":yAllxRef, "8d":SEyAllxRef,
+        "9a":BCxHistNorm, "9b":SEBCxHistNorm, 
+        "10a":BCyHistNorm, "10b":SEBCyHistNorm,
+        "11a":stsNorm, "11b":SEstsNorm,
+        "12a":BCSCNorm, "12b":SEBCSCNorm, 
+        "13a":BCLRNorm, "13b":SEBCLRNorm,
+        "9c":BCxHist, "9d":SEBCxHist,
+        "10c":BCyHist, "10d":SEBCyHist,
+        "11c":sts, "11d":SEsts,
+        "12c":BCSC, "12d":SEBCSC, 
+        "13c":BCLR, "13d":SEBCLR,}
+    print("Choose which column from this table")
+    column = input("1:\t X Reference\n"+
+              "2:\t X Pump\n"+
+              "3:\t Y Reference\n"+
+              "4:\t Y Pump\n"+
+              "5:\t X All\n"+
+              "6:\t Y All\n"+
+              "7:\t X All Y Reference\n"+
+              "8:\t Y All X Reference\n"+
+              "9:\t BC X Histogram\n"+
+              "10:\t BC Y Histogram\n"+
+              "11:\t STS\n"+
+              "12:\t X BCSC\n"+
+              "13:\t BCLR\n")
+    column += input("a: Normalized \t b: Standard Error of Normalized \t" +
+                    "c: Non-Normalized \t d: Standard Error of Unormalized ")
+    return
 
 def get_data_files(path):
     pathName = path
