@@ -7,14 +7,14 @@ Created on Tue Mar 20 13:48:38 2018
 import os
 import sys
 import numpy as np
-import itertools as iter
+#import itertools as iter
 from matplotlib import pyplot as plt
 #from scipy.interpolate import UnivariateSpline
 #from scipy.interpolate import InterpolatedUnivariateSpline
 import scipy.interpolate as itp
 
-from trXAS_average_load_files import get_data_files as get_data_files
-from trXAS_average_load_files import load_file as load_file
+#from trXAS_average_load_files import get_data_files as get_data_files
+#from trXAS_average_load_files import load_file as load_file
 
 peaks = []
 peakAvgs = []

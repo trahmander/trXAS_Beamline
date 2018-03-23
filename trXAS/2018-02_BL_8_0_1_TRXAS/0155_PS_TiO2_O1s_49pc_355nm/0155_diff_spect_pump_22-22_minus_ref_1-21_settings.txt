@@ -1,0 +1,7 @@
+Normalize [0,1]? (Diff)	0
+Normalize to BC? (Diff)	1
+Divide by I_Zero? (Diff)	1
+X(t) / Y(f) hist laser on (Diff)	1
+# zero substraction	5.00
+# normalization	5.00
+Dwell Time (step0)	40.00

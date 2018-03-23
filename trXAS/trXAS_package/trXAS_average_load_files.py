@@ -8,13 +8,15 @@ import os
 import sys
 import numpy as np
 
+
+
 def get_data_files(path):
     pathName = path
     dataFiles = os.listdir(pathName)
     dFiles = []    
     for file in dataFiles:
         if  file.endswith("data.txt") and not( "average" in file) :
-            print(file)
+#            print(file)
             dFiles.append(os.path.join(pathName,file))
     return dFiles
 #Returns a 2d array of sorted data from a file. 
@@ -26,35 +28,85 @@ def load_file(fileName):
     dataSet = np.array(dataSet)                                                 # Sort data based on photonE column.
     return dataSet
 def select_bunches(dataFiles, first, last):
-    start = dataFiles[0].split("_ref_1_")[1].split("_data.txt")[0]
-    start = int(start)
-    dFiles=[]
-    for file in dataFiles:
-        bunches = file.split("pump_")[1].split("_minus")[0].split("-")
-        low = int( bunches[0] )
-        high = int( bunches[1] )
-    if low - start == first and high - start == last :
-        dFiles.append(file)
-        print(file)
+    if first == "all":
+        dFiles= dataFiles
+    else:
+        ref = dataFiles[0].split("_ref_")[1].split("_data.txt")[0]
+        ref = ref.split("-")
+        
+        start_ref = int( ref[0] )
+        end_ref = int( ref[1] )
+        print( (start_ref, end_ref) )
+        dFiles=[]
+        for file in dataFiles:
+            bunches = file.split("_pump_")[1].split("_minus_")[0]
+    #        print (bunches)
+            bunches = bunches.split("-")
+            
+            low = int( bunches[0] )
+            high = int( bunches[1] )
+            if low - end_ref == int(first) and high - end_ref == int(last) :
+                dFiles.append(file)
+    #        print(file)
     return dFiles
+def select_pump(dataFiles, pump):
+    if pump == "all":
+        dFiles = dataFiles
+    else:
+        dFiles=[]
+        for file in dataFiles:
+            if pump in dataFiles:
+                dFiles.append(file)
+    return dFiles
+def select_probe(dataFiles, probe):
+    if probe == "all":
+        dFiles=dataFiles
+    else:
+        dFiles=[]
+        for file in dataFiles:
+            if probe in dataFiles:
+                dFiles.append(file)
+    return dFiles
+def select_sample(dataFiles, sample):
+    if sample == "all":
+        dFiles=dataFiles
+    else:
+        dFiles=[]
+        for file in dataFiles:
+            if sample in dataFiles:
+                dFiles.append(file)
+    return dFiles
+def select_files(dataFiles, first="all", last="all", sample="all", pump="all", probe="all", *args, **kwargs):
+    dataFiles = select_bunches(dataFiles, first, last)
+    dataFiles = select_sample(dataFiles, sample)
+    dataFiles = select_pump(dataFiles, pump)
+    dataFiles = select_probe(dataFiles, probe)
+    return dataFiles
+
 def test_load_files():
-    direct ="trXAS data sample - date eval software/hv scans processed/"
+    direct ="..\\test_Data\\"
     paths = os.listdir(direct)
-    print(paths)
-    for i in range( len(paths) ):
-        paths[i] = os.path.join(direct, paths[i])
+#    print(paths)
+   
     for path in paths:
          if "avg" in path:
             paths.remove(path)
-    for j in range( len(paths) ) :
-        path = paths[j]
+    print(paths)
+    for i in range( len(paths) ):
+        paths[i] = os.path.join(direct, paths[i])
+    for path in paths :
+#        path = paths[j]
         dataFiles = get_data_files(path)
+#        dataFiles = select_bunches(dataFiles, 1,1)
+#        dataFiles = select_pump(dataFiles, "532")
+#        dataFiles = select_probe(dataFiles, "all")
+        dataFiles = select_files(dataFiles, first="1", last= "1")
         print(dataFiles)
-        print()
+#        print()
         for i in range(len(dataFiles)):
             file = dataFiles[i]
 #            print(file)
-            dataSet = load_file(file)
+#            dataSet = load_file(file)
     return
 
 if __name__ == "__main__":   

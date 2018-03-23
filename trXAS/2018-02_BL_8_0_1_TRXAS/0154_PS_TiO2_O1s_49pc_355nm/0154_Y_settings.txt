@@ -1,0 +1,7 @@
+# zero substraction	5.00
+# normalization	5.00
+start (TDC bins)	51.00
+length (TDC bins)	3832.00
+Actual Nr of Peaks	170.00
+camshaft index [Y] (N_0)	-1.00
+Spacing first two bunches [Y] (unit: TDC Ch)	21.00
