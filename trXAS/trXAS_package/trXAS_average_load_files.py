@@ -7,6 +7,7 @@ Created on Tue Mar 20 13:35:37 2018
 import os
 import sys
 import numpy as np
+import csv
 
 
 
@@ -21,12 +22,18 @@ def get_data_files(path):
     return dFiles
 #Returns a 2d array of sorted data from a file. 
 def load_file(fileName):
-    dataSet = np.loadtxt(fileName, skiprows=1)
+#    dataSet = np.loadtxt(fileName, delimiter="\t", skiprows=1)
+    dataSet = np.genfromtxt(fileName, delimiter="\t", skip_header=1)
+    with open(fileName, "r") as f:
+        reader = csv.reader(f, delimiter = "\t", )
+        header = next(reader)
+#    header = dataSet =[0][:]
+#    dataSet = dataSet[1:][:]
 #    print(dataSet[:,0])
     dataSet = dataSet.tolist()
     dataSet.sort(key= lambda x:x[0])
     dataSet = np.array(dataSet)                                                 # Sort data based on photonE column.
-    return dataSet
+    return dataSet, header
 def select_bunches(dataFiles, first, last):
     if first == "all":
         dFiles= dataFiles
@@ -106,7 +113,9 @@ def test_load_files():
         for i in range(len(dataFiles)):
             file = dataFiles[i]
 #            print(file)
-#            dataSet = load_file(file)
+            dataSet, header = load_file(file)
+            print(header[0])
+            
     return
 
 if __name__ == "__main__":   

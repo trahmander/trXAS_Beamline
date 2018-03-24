@@ -23,6 +23,8 @@ lines= []
 peaksAll=[]
 splinesAll=[]
 linesAll=[]
+rawVals=[]
+rawPhotonE=[]
 stepSize = 0.001
 
 def find_peak(xlow, xhigh, step, func):
@@ -84,6 +86,8 @@ def photonE_counts_plot(dataSet, col, file):
     lowE = photonE[0]
     highE = photonE[-1]
     vals = columns[col]
+    rawVals.append(vals)
+    rawPhotonE.append(photonE)
     step = (highE - lowE) / stepSize
     linE, splinE = get_spline(lowE, highE, step, photonE, vals)
     firstPeak = find_peak(532, 537, step, splinE)             

@@ -48,6 +48,8 @@ from trXAS_average_shift import lines
 from trXAS_average_shift import peaksAll
 from trXAS_average_shift import splinesAll
 from trXAS_average_shift import linesAll
+from trXAS_average_shift import rawVals
+from trXAS_average_shift import rawPhotonE
 
 
 
@@ -59,12 +61,6 @@ from trXAS_average_shift import linesAll
 
 
 def main():
-#dir = os.path.dirname(__file__)
-#    paths = ["trXAS data sample - date eval software/hv scans processed/0198_CuO_O_K-edge_355nm_58pc/",
-#             "trXAS data sample - date eval software/hv scans processed/0199_CuO_O_K-edge_355nm_58pc/",
-#             "trXAS data sample - date eval software/hv scans processed/0201_CuO_O_K-edge_355nm_58pc/",
-#             "trXAS data sample - date eval software/hv scans processed/0202_CuO_O_K-edge_355nm_58pc/"]
-#    path = "trXAS data sample - date eval software/hv scans processed/0198_CuO_O_K-edge_355nm_58pc/"
     direct = get_directory()
     column = get_column()
     paths = os.listdir(direct)
@@ -80,18 +76,15 @@ def main():
     for j in range( len(paths) ) :
         path = paths[j]
         dataFiles = get_data_files(path)
-#        dataFiles = select_bunches(dataFiles, first, last)
-#        dataFiles = select_pump(dataFiles, pump)
-#        dataFiles = select_probe(dataFiles, probe)
         dataFiles = select_files(dataFiles, first = first, last = last)
-        
-        
+        dataSet, header = load_file(dataFiles[0])
+        columnName = header[column]
         
         fig = plt.figure(dpi=100)
-        plt.title(path)
+        plt.title(path+" "+columnName)
         for i in range(len(dataFiles)):
             file = dataFiles[i]
-            dataSet = load_file(file)
+            dataSet, header = load_file(file)
             photonE_counts_plot(dataSet, column, file)
         
             shiftedVals, shiftedLine = shift_spline(i, peaks, splines, lines)
@@ -118,7 +111,7 @@ def main():
 #        plt.plot(shiftedLine, shiftedVals, linewidth=1, color='b')
 #        plt.plot(lines[i], splines[i](lines[i]), linewidth=1,  color='g')
     fig = plt.figure(dpi=100)
-    plt.title("All shifted splines")
+    plt.title("All shifted splines "+columnName)
     shifted_splines=[]   
     for i in range ( len(splinesAll) ) :
         shiftedVals, shiftedLine = shift_spline(i, peaksAll, splinesAll, linesAll)
@@ -126,19 +119,25 @@ def main():
         plt.plot(shiftedLine, shiftedVals, linewidth=1)
    
     valAvg, lineAvg = average_vals(shifted_splines, linesAll[0])
+    for i in range(len(splinesAll)):
+        splinesAll[i] = splinesAll[i](linesAll[i])
+    noshiftAvg, noshiftlineAvg = average_vals(splinesAll, linesAll[0])
+    rawAvg, rawline = average_vals(rawVals, rawPhotonE[0])
 #    dataAvg = np.hstack( [lineAvg, valAvg] ).T
     head = "PhotonE\t"+"Average counts\n"
-    fileName = os.path.join(direct,"average.txt")
+#    fileName = os.path.join(direct,"average.txt")
 #    with open(fileName, 'w+') as f:
-#    np.savetxt(fileName, (lineAvg.T, valAvg.T), fmt="%.4e", 
+#        np.savetxt(fileName, (lineAvg.T, valAvg.T), fmt="%.4e", 
 #                   delimiter= "\t", newline="\n")
-    fileName =os.path.join(direct,"0195_0196_0197_0198_0199_0201_0202_avg\\0195_0196_0197_0198_0199_0201_0202_avg_pump_23-27_minus_ref_1-22.txt")
-    old_avg = load_file(fileName).T
-    fig = plt.figure(dpi=100)
-    plt.title("Average spline")
-    plt.plot(lineAvg, valAvg, linewidth=1)
-    plt.plot(old_avg[0], old_avg[38], linewidth=1, linestyle= "--")
-    plt.plot()
+    fileName =os.path.join(direct,"0195_0196_0197_0198_0199_0201_0202_avg\\0195_0196_0197_0198_0199_0201_0202_avg_pump_23-23_minus_ref_1-22.txt")
+    old_avg = load_file(fileName)[0].T
+    fig = plt.figure(dpi=200)
+    plt.title("Average spline "+columnName)
+    plt.plot(lineAvg, valAvg, linewidth=1, color= 'r')
+    plt.plot(old_avg[0], old_avg[38], linewidth=3, linestyle= ":", color= 'g') # the average johaness made from raw data
+    plt.plot(noshiftlineAvg, noshiftAvg, linewidth=2, linestyle="-.", color='b')# average from non shifted splines
+    plt.plot(rawline, rawAvg, linewidth=1, linestyle="-.", color = 'orange')   # my average from raw data
+    
     
     return
     

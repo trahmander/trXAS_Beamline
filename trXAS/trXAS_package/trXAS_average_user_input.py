@@ -15,7 +15,7 @@ def get_directory():
 def get_column():
     print("Which column do you want to look at?")
 
-    keys= ["0a", "0b", "1a", "1b", "2a", "2b", "3a", "3b", "4a", "4b", 
+    keys= ["0a", "1a", "1b", "2a", "2b", "3a", "3b", "4a", "4b", 
            "5a", "5b", "6a", "6b", "7a", "7b", "8a", "8b", "9a", "10a", 
            "11a", "12a", "13a", "9b", "10b", "11b", "12b", "13b"]
 
