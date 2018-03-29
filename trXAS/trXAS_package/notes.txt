@@ -1,0 +1,9 @@
+##########################################################################################
+# These are notes for the trXAS Averaging package.
+#1. In the middle of clean up. 
+#2. Need to comment.
+#2. Need a more sophisticated average that factors in dwell times.
+#4. Implement standard errors
+#5. Work on a fitting for the first peak.
+#6. Find a better way to save the average data.
+##########################################################################################

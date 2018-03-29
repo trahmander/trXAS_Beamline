@@ -17,49 +17,31 @@ import sys
 import numpy as np
 #import itertools as iter
 from matplotlib import pyplot as plt
-#from scipy.interpolate import UnivariateSpline
-#from scipy.interpolate import InterpolatedUnivariateSpline
-#import scipy.interpolate as itp
+#Imports from trXAS average package
+from user_input import get_directory  
+from user_input import get_column
+from user_input import get_bunches
 
-from trXAS_average_load_files import get_data_files
-from trXAS_average_load_files import load_file
-from trXAS_average_load_files import select_bunches
-from trXAS_average_load_files import select_probe
-from trXAS_average_load_files import select_pump
-from trXAS_average_load_files import select_files
+from load_files import get_data_files
+from load_files import load_file
+from load_files import select_files
 
-from trXAS_average_shift import photonE_counts_plot
-#from trXAS_average_shift import get_spline as get_spline
-#from trXAS_average_shift import find_peak as find_peak
-from trXAS_average_shift import shift_spline
+from shift import photonE_counts_plot
+from shift import shift_spline
 
-from trXAS_average_user_input import get_directory  
-from trXAS_average_user_input import get_column
-from trXAS_average_user_input import get_bunches
-from trXAS_average_user_input import get_probe
-from trXAS_average_user_input import get_pump
+from average import average_vals
 
-from trXAS_average_average import average_vals
+from config import peaks
+from config import peakAvgs
+from config import splines
+from config import lines 
+from config import peaksAll
+from config import splinesAll
+from config import linesAll
+from config import rawVals
+from config import rawPhotonE
 
-from trXAS_average_shift import peaks
-from trXAS_average_shift import peakAvgs
-from trXAS_average_shift import splines
-from trXAS_average_shift import lines 
-from trXAS_average_shift import peaksAll
-from trXAS_average_shift import splinesAll
-from trXAS_average_shift import linesAll
-from trXAS_average_shift import rawVals
-from trXAS_average_shift import rawPhotonE
-
-
-
-#from trXAS_average_user_input import 
-#from trXAS_average_shift import stepSize as stepSize
-
-
-
-
-
+#Compares the averaging, need to manually change Johannes column number to switch between columns of the files for now.
 def main():
     direct = get_directory()
     column = get_column()
@@ -81,7 +63,7 @@ def main():
         columnName = header[column]
         
         fig = plt.figure(dpi=100)
-        plt.title(path+" "+columnName)
+        plt.title(path+" "+columnName+" Bunches: "+first+" to "+last)
         for i in range(len(dataFiles)):
             file = dataFiles[i]
             dataSet, header = load_file(file)
@@ -111,7 +93,7 @@ def main():
 #        plt.plot(shiftedLine, shiftedVals, linewidth=1, color='b')
 #        plt.plot(lines[i], splines[i](lines[i]), linewidth=1,  color='g')
     fig = plt.figure(dpi=100)
-    plt.title("All shifted splines "+columnName)
+    plt.title("All shifted splines "+columnName+" Bunches: "+first+" to "+last)
     shifted_splines=[]   
     for i in range ( len(splinesAll) ) :
         shiftedVals, shiftedLine = shift_spline(i, peaksAll, splinesAll, linesAll)
@@ -129,12 +111,12 @@ def main():
 #    with open(fileName, 'w+') as f:
 #        np.savetxt(fileName, (lineAvg.T, valAvg.T), fmt="%.4e", 
 #                   delimiter= "\t", newline="\n")
-    fileName =os.path.join(direct,"0195_0196_0197_0198_0199_0201_0202_avg\\0195_0196_0197_0198_0199_0201_0202_avg_pump_23-23_minus_ref_1-22.txt")
+    fileName =os.path.join(direct,"0195_0196_0197_0198_0199_0201_0202_avg\\0195_0196_0197_0198_0199_0201_0202_avg_pump_23-27_minus_ref_1-22.txt")
     old_avg = load_file(fileName)[0].T
     fig = plt.figure(dpi=200)
-    plt.title("Average spline "+columnName)
+    plt.title("Average spline "+columnName+" Bunches: "+first+" to "+last)
     plt.plot(lineAvg, valAvg, linewidth=1, color= 'r')
-    plt.plot(old_avg[0], old_avg[38], linewidth=3, linestyle= ":", color= 'g') # the average johaness made from raw data
+    plt.plot(old_avg[0], old_avg[38], linewidth=3, linestyle= ":", color= 'g') # the average johannes made from raw data
     plt.plot(noshiftlineAvg, noshiftAvg, linewidth=2, linestyle="-.", color='b')# average from non shifted splines
     plt.plot(rawline, rawAvg, linewidth=1, linestyle="-.", color = 'orange')   # my average from raw data
     

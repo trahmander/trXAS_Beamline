@@ -5,11 +5,12 @@ Created on Tue Mar 20 12:40:16 2018
 @author: 2-310-GL group
 """
 def get_directory():
-    print("This software is used for averaging spectral distributions :)")
-#    direct = input("Please enter the directory that you wish to send data.")
+    print("This software is used for averaging spectral distributions")
+    print("Please enter the directory that you wish to send data.")
+    direct = input("Enter:\t")
 #   direct ="..\\trXAS data sample - date eval software\\hv scans processed\\"
 #   direct="..\\2018-02_BL_8_0_1_TRXAS\\"
-    direct = "..\\test_data\\"
+#    direct = "..\\test_data\\"
     return direct
 
 def get_column():

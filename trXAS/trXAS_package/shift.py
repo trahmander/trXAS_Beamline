@@ -4,28 +4,29 @@ Created on Tue Mar 20 13:48:38 2018
 
 @author: 2-310-GL group
 """
-import os
 import sys
 import numpy as np
-#import itertools as iter
 from matplotlib import pyplot as plt
 #from scipy.interpolate import UnivariateSpline
 #from scipy.interpolate import InterpolatedUnivariateSpline
 import scipy.interpolate as itp
 
-#from trXAS_average_load_files import get_data_files as get_data_files
-#from trXAS_average_load_files import load_file as load_file
-
-peaks = []
-peakAvgs = []
-splines = []
-lines= []
-peaksAll=[]
-splinesAll=[]
-linesAll=[]
-rawVals=[]
-rawPhotonE=[]
-stepSize = 0.001
+#peaks = []
+#peakAvgs = []
+#splines = []
+#lines= []
+#peaksAll=[]
+#splinesAll=[]
+#linesAll=[]
+#rawVals=[]
+#rawPhotonE=[]
+#stepSize = 0.001
+from config import peaks
+from config import splines
+from config import lines 
+from config import rawVals
+from config import rawPhotonE
+from config import stepSize
 
 def find_peak(xlow, xhigh, step, func):
     nearPeak = np.linspace(xhigh, xlow, step)

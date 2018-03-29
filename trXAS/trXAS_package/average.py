@@ -5,6 +5,7 @@ Created on Wed Mar 21 17:32:58 2018
 @author: 2-310-GL group
 """
 import numpy as np
+
 def average_vals(vals, line):
     valSum = np.zeros_like(line)
  
