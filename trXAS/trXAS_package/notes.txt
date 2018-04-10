@@ -6,4 +6,5 @@
 #4. Implement standard errors
 #5. Work on a fitting for the first peak.
 #6. Find a better way to save the average data.
+#7. Make the peak energy the nominal value.
 ##########################################################################################
