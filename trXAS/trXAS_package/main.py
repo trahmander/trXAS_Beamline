@@ -1,36 +1,32 @@
 # -*- coding: utf-8 -*-
 """
-trXAS_average.py: Used to average the integrated trxas data for time plots.
+use: Average and shift the  trXAS data.
+
 @newfield revision: revision
 """
 __author__  = "Tahiyat Rahman"
 __date__    = "2018-02-21"
 __credits__ = ["Johannes Mahl"]
 __email__ = "trahman@lbl.gov"
-__status__ = "production"
-__revision__= "6"
 ###############################################################################
 #Import modules
 ###############################################################################
+#From buit in modules
 import os
 import sys
 import numpy as np
-#import itertools as iter
 from matplotlib import pyplot as plt
-#Imports from trXAS average package
+#From trXAS average package
 from user_input import get_directory  
 from user_input import get_column
 from user_input import get_bunches
-
 from load_files import get_data_files
 from load_files import load_file
 from load_files import select_files
-
 from shift import photonE_counts_plot
 from shift import shift_spline
-
 from average import average_vals
-
+# Load global variables
 from config import peaks
 from config import peakAvgs
 from config import splines
@@ -40,7 +36,9 @@ from config import splinesAll
 from config import linesAll
 from config import rawVals
 from config import rawPhotonE
-
+###############################################################################
+#Main driver function for all other modules in the trXAS package.
+###############################################################################
 #Compares the averaging, need to manually change Johannes column number to switch between columns of the files for now.
 def main():
     direct = get_directory()
@@ -74,7 +72,7 @@ def main():
         
         print( peaks )
         print( set(peaks) )
-        peakAvgs.append( np.average(peaks) )
+#        peakAvgs.append( np.average(peaks) )
         
         peaksAll.extend(peaks)
         splinesAll.extend(splines)
@@ -82,11 +80,8 @@ def main():
         peaks.clear()
         splines.clear()
         lines.clear()
-    print( peakAvgs )
+#    print( peakAvgs )
     
-    
-#    print( splines[0](lines[0]) )
-#    print( shiftedVals )
 #    for i in range ( len(splines) ) :
 #        shiftedVals, shiftedLine = shift_spline(i)
 #        fig = plt.figure(dpi=100)
@@ -105,13 +100,12 @@ def main():
         splinesAll[i] = splinesAll[i](linesAll[i])
     noshiftAvg, noshiftlineAvg = average_vals(splinesAll, linesAll[0])
     rawAvg, rawline = average_vals(rawVals, rawPhotonE[0])
-#    dataAvg = np.hstack( [lineAvg, valAvg] ).T
+
     head = "PhotonE\t"+"Average counts\n"
-#    fileName = os.path.join(direct,"average.txt")
-#    with open(fileName, 'w+') as f:
-#        np.savetxt(fileName, (lineAvg.T, valAvg.T), fmt="%.4e", 
-#                   delimiter= "\t", newline="\n")
-    fileName =os.path.join(direct,"0195_0196_0197_0198_0199_0201_0202_avg\\0195_0196_0197_0198_0199_0201_0202_avg_pump_23-27_minus_ref_1-22.txt")
+
+    fileName =os.path.join(direct,
+                            "0195_0196_0197_0198_0199_0201_0202_avg",
+                            "0195_0196_0197_0198_0199_0201_0202_avg_pump_23-27_minus_ref_1-22.txt")
     old_avg = load_file(fileName)[0].T
     fig = plt.figure(dpi=200)
     plt.title("Average spline "+columnName+" Bunches: "+first+" to "+last)
@@ -119,7 +113,7 @@ def main():
     plt.plot(old_avg[0], old_avg[38], linewidth=3, linestyle= ":", color= 'g') # the average johannes made from raw data
     plt.plot(noshiftlineAvg, noshiftAvg, linewidth=2, linestyle="-.", color='b')# average from non shifted splines
     plt.plot(rawline, rawAvg, linewidth=1, linestyle="-.", color = 'orange')   # my average from raw data
-    
+    plt.show()
     
     return
     

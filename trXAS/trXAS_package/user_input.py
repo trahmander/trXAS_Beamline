@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 20 12:40:16 2018
-
+use: ask for directory and ask for column, ask for bunches to average over.
 @author: 2-310-GL group
 """
+#prompts user for the directory to look for files.
 def get_directory():
     print("This software is used for averaging spectral distributions")
     print("Please enter the directory that you wish to send data.")
     direct = input("Enter:\t")
-#   direct ="..\\trXAS data sample - date eval software\\hv scans processed\\"
-#   direct="..\\2018-02_BL_8_0_1_TRXAS\\"
-#    direct = "..\\test_data\\"
+    # direct =os.path.normpath( os.pardir + os.sep + 
+    #   "trXAS data sample - date eval software" +os.sep 
+    #   + "hv scans processed" )
+    # direct ="..\\trXAS data sample - date eval software\\hv scans processed\\"
+    # direct= os.path.normpath(os.pardir+ os.sep+ "2018-02_BL_8_0_1_TRXAS")
+    # direct = os.path.normpath(os.pardir+ os.sep+ "test_data")
     return direct
-
+# prompts user to choose a column to look at.
 def get_column():
     print("Which column do you want to look at?")
 
@@ -40,11 +44,16 @@ def get_column():
     print (column)
     index = keys.index(column)
     return index
-
+# prompts user to select first and last bunches after the reference. enter "all" for all bunches.
 def get_bunches():
-    first =  input("Please enter the first bunch to look at:\t") 
-    last = input("Please enter the last bunch to look at:\t") 
+    print('Choose the first bunch to look at or choose \"all\"')
+    first =  input("Enter:\t") 
+    last = 'all'
+    if first is not 'all':
+      print('Choose the last bunch to look at.')
+      last = input("Enter:\t") 
     return first, last
+#prompts user for pump wavelength (currently unused)
 def get_pump():
     keyToPump = {"a":"532", "b":"355", "c":"all"}
     print("Choose your pump wavelength.\n"+
@@ -52,6 +61,7 @@ def get_pump():
     key = input( "Enter:\t" )
     pump = keyToPump[key]
     return pump
+#prompts user for the edge 
 def get_probe():
     keyToProbe= {"a": "O_K-edge", "b": "O1s", "c": "C1s", "d":"all"}
     print("Choose which edge to look at.\n"+
@@ -59,6 +69,7 @@ def get_probe():
     key = input( "Enter:\t" )
     probe = keyToProbe[key]
     return probe
+#prompts user for the sample.
 def get_sample():
     keyToSample= {"a":"Cu", "b":"TiO2", "c":"all"}
     print("Choose which sample to look at.\n"+
@@ -66,6 +77,9 @@ def get_sample():
     key = input( "Enter:\t" )
     sample = keyToSample[key]
     return sample
+###############################################################################
+#Test function for user_input
+###############################################################################
 def test_user_input():
     print( get_directory() )
     print( get_column() )

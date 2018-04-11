@@ -1,26 +1,18 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 20 13:48:38 2018
-
+use: load the chosen files into arrays, create linear splines and shift peaks to match.
 @author: 2-310-GL group
 """
+###############################################################################
+#Import modules
+###############################################################################
+# built in modules
 import sys
 import numpy as np
 from matplotlib import pyplot as plt
-#from scipy.interpolate import UnivariateSpline
-#from scipy.interpolate import InterpolatedUnivariateSpline
 import scipy.interpolate as itp
-
-#peaks = []
-#peakAvgs = []
-#splines = []
-#lines= []
-#peaksAll=[]
-#splinesAll=[]
-#linesAll=[]
-#rawVals=[]
-#rawPhotonE=[]
-#stepSize = 0.001
+#import global variables.
 from config import peaks
 from config import splines
 from config import lines 
@@ -28,6 +20,7 @@ from config import rawVals
 from config import rawPhotonE
 from config import stepSize
 
+#finds the x-value of the peak specified around xlow and xhigh. Appends it to peaks.
 def find_peak(xlow, xhigh, step, func):
     nearPeak = np.linspace(xhigh, xlow, step)
     feature = func(nearPeak)
@@ -39,7 +32,7 @@ def find_peak(xlow, xhigh, step, func):
             peak = i
     peaks.append(nearPeak[peak])
     return nearPeak[peak]
-#Interpolation of data.
+#Interpolation of data. returns linear spline Appends it to splines
 def get_spline(low, high, step, x, y):
     line = np.linspace(low, high, step)
 #    splinE = itp.UnivariateSpline(photonE, yAllNorm, s=None, k=2)
@@ -51,6 +44,7 @@ def get_spline(low, high, step, x, y):
     lines.append(line)
     splines.append(spline)
     return line, spline
+#unpacks the 2d array into 1d arrays given by the columns. uses find_peak and get_spline.
 def photonE_counts_plot(dataSet, col, file):
     dataSet = dataSet.T
     columns = (photonE, #SEphotonE,
@@ -82,8 +76,6 @@ def photonE_counts_plot(dataSet, col, file):
         BCLR, #SEBCLR,
         #SE, #SE2
         ) = dataSet
-#    lowE = np.amin(photonE)
-#    highE = np.amax(photonE)
     lowE = photonE[0]
     highE = photonE[-1]
     vals = columns[col]
@@ -92,13 +84,8 @@ def photonE_counts_plot(dataSet, col, file):
     step = (highE - lowE) / stepSize
     linE, splinE = get_spline(lowE, highE, step, photonE, vals)
     firstPeak = find_peak(532, 537, step, splinE)             
-#    figure = plt.figure(dpi=100)
-#    plt.title("File: "+str(file))
-#    plt.plot( photonE, yAllNorm, marker= 'd', linestyle='none' )
-#    plt.plot( linE, splinE(linE), linewidth=1 )
-#    plt.axvline( firstPeak, linewidth = 1 )
-#    plt.show()
-# NEEDS WORK. Find a way to convert peak difference into iter difference
+    return
+#shifts all peaks to match the earleast peak. returns new splines
 def shift_spline(splineNum, pks, spln, lin):
     vals = spln[splineNum]( lin[splineNum] )
     ref = np.amin( pks )
@@ -112,7 +99,9 @@ def shift_spline(splineNum, pks, spln, lin):
             vals[i] = vals[i+index]
         return vals[:-index], lin[splineNum][:-index]
 
-
+###############################################################################
+#Test Functions for shift.py
+###############################################################################
 def test_shift():
     return
 

@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 20 13:35:37 2018
-
+load_files.py: load files and choose bunches from directory specified by user_inputs.py
 @author: 2-310-GL group
 """
+###############################################################################
+#Import modules
+###############################################################################
 import os
 import sys
 import numpy as np
 import csv
 
 
-
+#returns a list of all the files from the path chosen by user.
 def get_data_files(path):
     pathName = path
     dataFiles = os.listdir(pathName)
@@ -20,20 +23,17 @@ def get_data_files(path):
 #            print(file)
             dFiles.append(os.path.join(pathName,file))
     return dFiles
-#Returns a 2d array of sorted data from a file. 
+#Returns a 2d array of sorted data from a file and the header row. sorts array by the first column.
 def load_file(fileName):
-#    dataSet = np.loadtxt(fileName, delimiter="\t", skiprows=1)
     dataSet = np.genfromtxt(fileName, delimiter="\t", skip_header=1)
     with open(fileName, "r") as f:
         reader = csv.reader(f, delimiter = "\t", )
         header = next(reader)
-#    header = dataSet =[0][:]
-#    dataSet = dataSet[1:][:]
-#    print(dataSet[:,0])
     dataSet = dataSet.tolist()
     dataSet.sort(key= lambda x:x[0])
     dataSet = np.array(dataSet)                                                 # Sort data based on photonE column.
     return dataSet, header
+#returns a list of data files with only the chosen bunches.
 def select_bunches(dataFiles, first, last):
     if first == "all":
         dFiles= dataFiles
@@ -56,6 +56,7 @@ def select_bunches(dataFiles, first, last):
                 dFiles.append(file)
     #        print(file)
     return dFiles
+#returns data files with the chosen pump
 def select_pump(dataFiles, pump):
     if pump == "all":
         dFiles = dataFiles
@@ -65,6 +66,7 @@ def select_pump(dataFiles, pump):
             if pump in dataFiles:
                 dFiles.append(file)
     return dFiles
+#returns data files with the chosen edge.
 def select_probe(dataFiles, probe):
     if probe == "all":
         dFiles=dataFiles
@@ -74,6 +76,7 @@ def select_probe(dataFiles, probe):
             if probe in dataFiles:
                 dFiles.append(file)
     return dFiles
+#returns data files with the chosen sample
 def select_sample(dataFiles, sample):
     if sample == "all":
         dFiles=dataFiles
@@ -83,17 +86,19 @@ def select_sample(dataFiles, sample):
             if sample in dataFiles:
                 dFiles.append(file)
     return dFiles
+#functions which combines all the select functions.
 def select_files(dataFiles, first="all", last="all", sample="all", pump="all", probe="all", *args, **kwargs):
     dataFiles = select_bunches(dataFiles, first, last)
     dataFiles = select_sample(dataFiles, sample)
     dataFiles = select_pump(dataFiles, pump)
     dataFiles = select_probe(dataFiles, probe)
     return dataFiles
-
+###############################################################################
+#test function for load_files.
+###############################################################################
 def test_load_files():
-    direct ="..\\test_Data\\"
+    direct = os.path.normpath(os.pardir+ os.sep+ "test_data")
     paths = os.listdir(direct)
-#    print(paths)
    
     for path in paths:
          if "avg" in path:
@@ -102,20 +107,13 @@ def test_load_files():
     for i in range( len(paths) ):
         paths[i] = os.path.join(direct, paths[i])
     for path in paths :
-#        path = paths[j]
         dataFiles = get_data_files(path)
-#        dataFiles = select_bunches(dataFiles, 1,1)
-#        dataFiles = select_pump(dataFiles, "532")
-#        dataFiles = select_probe(dataFiles, "all")
         dataFiles = select_files(dataFiles, first="1", last= "1")
         print(dataFiles)
-#        print()
         for i in range(len(dataFiles)):
             file = dataFiles[i]
-#            print(file)
             dataSet, header = load_file(file)
-            print(header[0])
-            
+            print( header[0] )        
     return
 
 if __name__ == "__main__":   
