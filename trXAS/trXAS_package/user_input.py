@@ -5,16 +5,17 @@ use: ask for directory and ask for column, ask for bunches to average over.
 @author: 2-310-GL group
 """
 #prompts user for the directory to look for files.
+import os
 def get_directory():
     print("This software is used for averaging spectral distributions")
     print("Please enter the directory that you wish to send data.")
-    direct = input("Enter:\t")
+  #  direct = input("Enter:\t")
     # direct =os.path.normpath( os.pardir + os.sep + 
     #   "trXAS data sample - date eval software" +os.sep 
     #   + "hv scans processed" )
     # direct ="..\\trXAS data sample - date eval software\\hv scans processed\\"
     # direct= os.path.normpath(os.pardir+ os.sep+ "2018-02_BL_8_0_1_TRXAS")
-    # direct = os.path.normpath(os.pardir+ os.sep+ "test_data")
+    direct = os.path.normpath(os.pardir+ os.sep+ "test_data")
     return direct
 # prompts user to choose a column to look at.
 def get_column():
@@ -47,12 +48,21 @@ def get_column():
 # prompts user to select first and last bunches after the reference. enter "all" for all bunches.
 def get_bunches():
     print('Choose the first bunch to look at or choose \"all\"')
-    first =  input("Enter:\t") 
-    last = 'all'
-    if first is not 'all':
+    first =  input("Enter:\t")
+    # first = 'all' 
+    if first != 'all':
       print('Choose the last bunch to look at.')
-      last = input("Enter:\t") 
+      last = input("Enter:\t")
+    else:
+      last = '' 
     return first, last
+def get_integration_bounds():
+  print('Choose the bounds for the integration_region')
+  xLow = float( input("Lower:\t") )
+  xHigh = float ( input("Upper:\t") )
+  # xLow = 530.0
+  # xHigh= 535.0
+  return xLow, xHigh
 #prompts user for pump wavelength (currently unused)
 def get_pump():
     keyToPump = {"a":"532", "b":"355", "c":"all"}

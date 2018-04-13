@@ -14,4 +14,6 @@ splinesAll=[]
 linesAll=[]
 rawVals=[]
 rawPhotonE=[]
+integrals=[]
+integralsAll=[]
 stepSize = 0.001              

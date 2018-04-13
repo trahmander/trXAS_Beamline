@@ -31,15 +31,10 @@ def find_peak(xlow, xhigh, step, func):
             maxVal = feature[i]
             peak = i
     peaks.append(nearPeak[peak])
-    return nearPeak[peak]
+    return 
 #Interpolation of data. returns linear spline Appends it to splines
 def get_spline(low, high, step, x, y):
     line = np.linspace(low, high, step)
-#    splinE = itp.UnivariateSpline(photonE, yAllNorm, s=None, k=2)
-#    splinE = itp.InterpolatedUnivariateSpline(photonE, yAllNorm)
-#    splinE = itp.LSQUnivariateSpline(photonE, yAllNorm)
-#    print( "photonE sorted? " + all( photonE[i] <= photonE[i+1] for i in range(len(photonE)-1) ) ) #check if list is really sorted
-
     spline = itp.interp1d(x, y, kind='slinear')                                   #This one does linear interpolation. kinda ugly
     lines.append(line)
     splines.append(spline)
@@ -83,14 +78,14 @@ def photonE_counts_plot(dataSet, col, file):
     rawPhotonE.append(photonE)
     step = (highE - lowE) / stepSize
     linE, splinE = get_spline(lowE, highE, step, photonE, vals)
-    firstPeak = find_peak(532, 537, step, splinE)             
+    find_peak(532, 537, step, splinE)             
     return
-#shifts all peaks to match the earleast peak. returns new splines
+#shifts all peaks to match the earleast peak. returns new splines. cuts the spline at the right side.
 def shift_spline(splineNum, pks, spln, lin):
     vals = spln[splineNum]( lin[splineNum] )
     ref = np.amin( pks )
     
-    if ref == pks[splineNum]:
+    if np.abs(ref - pks[splineNum]) < stepSize:
         return vals, lin[splineNum]
     else:
         delta = pks[splineNum] - ref
