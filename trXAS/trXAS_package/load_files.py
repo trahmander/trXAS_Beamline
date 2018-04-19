@@ -13,6 +13,8 @@ import numpy as np
 import csv
 
 
+
+
 #returns a list of all the files from the path chosen by user.
 def get_data_files(path):
     pathName = path
@@ -52,6 +54,7 @@ def select_bunches(dataFiles, first, last):
             
             low = int( bunches[0] )
             high = int( bunches[1] )
+            
             if low - end_ref == int(first) and high - end_ref == int(last) :
                 dFiles.append(file)
     #        print(file)
@@ -86,13 +89,31 @@ def select_sample(dataFiles, sample):
             if sample in dataFiles:
                 dFiles.append(file)
     return dFiles
-#functions which combines all the select functions.
+#functions which combines all the "select" functions.
 def select_files(dataFiles, first="all", last="all", sample="all", pump="all", probe="all", *args, **kwargs):
     dataFiles = select_bunches(dataFiles, first, last)
     dataFiles = select_sample(dataFiles, sample)
     dataFiles = select_pump(dataFiles, pump)
     dataFiles = select_probe(dataFiles, probe)
     return dataFiles
+def get_selected_bunches(dataFiles ,first='all', last='all'):
+    bunchNum=[]
+    ref = dataFiles[0].split("_ref_")[1].split("_data.txt")[0]
+    ref = ref.split("-")
+    
+    start_ref = int( ref[0] )
+    end_ref = int( ref[1] )
+#    print( (start_ref, end_ref) )
+    for file in dataFiles:
+        bunches = file.split("_pump_")[1].split("_minus_")[0]
+#        print (bunches)
+        bunches = bunches.split("-")
+        
+        low = int( bunches[0] )
+        high = int( bunches[1] )
+        bunchNum.append(high-end_ref)
+
+    return bunchNum
 ###############################################################################
 #test function for load_files.
 ###############################################################################
@@ -108,12 +129,15 @@ def test_load_files():
         paths[i] = os.path.join(direct, paths[i])
     for path in paths :
         dataFiles = get_data_files(path)
-        dataFiles = select_files(dataFiles, first="1", last= "1")
+        dataFiles = select_files(dataFiles)
+        bunchNum = get_selected_bunches(dataFiles)
         print(dataFiles)
+        print(bunchNum)
+        print()
         for i in range(len(dataFiles)):
             file = dataFiles[i]
             dataSet, header = load_file(file)
-            print( header[0] )        
+         #   print( header[0] )        
     return
 
 if __name__ == "__main__":   

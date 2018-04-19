@@ -16,4 +16,5 @@ rawVals=[]
 rawPhotonE=[]
 integrals=[]
 integralsAll=[]
+bunchNum=[]
 stepSize = 0.001              

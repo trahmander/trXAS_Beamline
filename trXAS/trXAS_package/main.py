@@ -23,11 +23,14 @@ from user_input import get_integration_bounds
 from load_files import get_data_files
 from load_files import load_file
 from load_files import select_files
+from load_files import get_selected_bunches
 from shift import photonE_counts_plot
 from shift import shift_spline
 from integrate import def_integral
+from integrate import average_integrals
 from average import average_vals
 # Load global variables
+import config
 from config import peaks
 from config import peakAvgs
 from config import splines
@@ -39,6 +42,7 @@ from config import rawVals
 from config import rawPhotonE
 from config import integrals
 from config import integralsAll
+
 ###############################################################################
 #Main driver function for all other modules in the trXAS package.
 ###############################################################################
@@ -62,6 +66,7 @@ def main():
         path = paths[j]
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first = first, last = last)
+        bunchNum= get_selected_bunches(dataFiles, first = first, last = last)
         dataSet, header = load_file(dataFiles[0])
         columnName = header[column]
         
@@ -80,13 +85,17 @@ def main():
             integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
             integrals.append(integral)   
         # print(shiftedSplines)
+
+        config.integrals = [Int for bunch, Int in sorted( zip(bunchNum, integrals), key = lambda pair: pair[0] )]
+        bunchNum.sort()
+        bunchNum, config.integrals = average_integrals(bunchNum, config.integrals)
+        timeDelay = np.multiply(2.0,bunchNum)
         fig_int = plt.figure(dpi=100)
-        plt.title(path+" "+columnName+" Bunches: "+first+"-"+last+ " Integrate: "+str(xLow)+"-"+str(xHigh))
-        plt.plot(range(len(integrals)) , integrals)
-        
+        plt.title(path+" "+columnName+" Bunches: "+first+"-"+last+ " Counts: "+str(xLow)+"-"+str(xHigh))
+        plt.ylabel("Total Counts")
+        plt.xlabel("Time Delay [ns]")
+        plt.plot(timeDelay , config.integrals, marker = 'd')
 
-
-        
         # print( peaks )
         # print( set(peaks) )
 #        peakAvgs.append( np.average(peaks) )
@@ -115,23 +124,11 @@ def main():
         plt.plot(shiftedLine, shiftedVals, linewidth=1)
    
     valAvg, lineAvg = average_vals(shiftedSplines, linesAll[0])
-    # for i in range(len(splinesAll)):
-    #     splinesAll[i] = splinesAll[i](linesAll[i])
-    # noshiftAvg, noshiftlineAvg = average_vals(splinesAll, linesAll[0])
-    # rawAvg, rawline = average_vals(rawVals, rawPhotonE[0])
 
     head = "PhotonE\t"+"Average counts\n"
-
-    # fileName =os.path.join(direct,
-    #                         "0195_0196_0197_0198_0199_0201_0202_avg",
-    #                         "0195_0196_0197_0198_0199_0201_0202_avg_pump_23-27_minus_ref_1-22.txt")
-    # old_avg = load_file(fileName)[0].T
     fig = plt.figure(dpi=100)
     plt.title("Average spline "+columnName+" Bunches: "+first+"-"+last)
     plt.plot(lineAvg, valAvg, linewidth=1, color= 'r')
-    # plt.plot(old_avg[0], old_avg[38], linewidth=3, linestyle= ":", color= 'g') # the average johannes made from raw data
-    # plt.plot(noshiftlineAvg, noshiftAvg, linewidth=2, linestyle="-.", color='b')# average from non shifted splines
-    # plt.plot(rawline, rawAvg, linewidth=1, linestyle="-.", color = 'orange')   # my average from raw data
     plt.show()
     
     return

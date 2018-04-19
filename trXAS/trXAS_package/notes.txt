@@ -1,4 +1,6 @@
 ##########################################################################################
+TO DO:
+##########################################################################################
 # 	Need a more sophisticated average that factors in dwell times.
 # 	Implement standard errors
 # 	Work on a fitting for the first peak.
@@ -7,4 +9,24 @@
 # 	Need a smarter shifting function that actually minimizes the r squared error between 
 	the peaks and chooses the shifting energy based on the minimum. More spectrum 
 	independent than picking a peak function.
+##########################################################################################
+
+
+##########################################################################################
+HOW TO USE:
+##########################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ##########################################################################################

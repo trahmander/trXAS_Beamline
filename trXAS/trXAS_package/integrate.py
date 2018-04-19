@@ -31,18 +31,46 @@ def def_integral(xVals, yVals, xLow, xHigh):
 	xInterval = xVals[low:high]
 	integral = simps(yInterval, xInterval )
 	return integral
+def remove_dup(seq):
+	seen = set()
+	seen_add = seen.add
+	return [x for x in seq if not( x in seen or seen_add(x) )]
+def average_integrals(bunchNum, integrals):
+	i=0
+	stop= len(bunchNum)
+	# print ( len( set(bunchNum) ) )
+	integralsAverage = []
+	while (i < stop):
+		bunch = bunchNum[i]
+		Int = integrals[i]
+		indices = [j for j, x in enumerate(bunchNum) if x == bunch ]
+		Int = np.average( [integrals[j] for j in indices] )
+		integralsAverage.append(Int)
+		# for j in indices[1:]:
+		# 	del integrals[j]
+		# 	del bunchNum[j]
+		# 	stop-=1
+		i+=1
+
+	integrals = remove_dup(integralsAverage)
+	bunchNum = remove_dup(bunchNum)
+	# print( len(bunchNum) )
+	# print( len(integrals) )
+	# print()
+	return bunchNum, integrals
 
 
 def test_integrate():
 	xVals = np.linspace(0, 4*np.pi,1001)
 	yVals = np.cos(xVals)
-	yInt = [ simps( yVals[:i+1], xVals[:i+1] ) for i in range(len(xVals)) ]
+	yVals = np.exp(2.0*xVals)
+	yInt = [ 2.0 + simps( yVals[:i+1], xVals[:i+1] ) for i in range(len(xVals)) ]
 	yPred = np.sin(xVals)
+	yPred = 0.5*yVals
 
 	plt.plot(xVals,yVals)
 	plt.plot(xVals, yInt, linestyle= '-.')
 	plt.plot(xVals, yPred, linestyle= '--')
-	plt.plot([],[])
 	plt.show()
 	return
 
