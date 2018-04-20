@@ -12,7 +12,6 @@ __email__ = "trahman@lbl.gov"
 ###############################################################################
 #From buit in modules
 import os
-import sys
 import numpy as np
 from matplotlib import pyplot as plt
 #From trXAS average package
@@ -36,36 +35,52 @@ from config import peaks
 from config import splines
 from config import lines 
 ###############################################################################
-###############################################################################
-#Main driver function for all other modules in the trXAS package.
-###############################################################################
-#Compares the averaging, need to manually change Johannes column number to switch between columns of the files for now.
-def main():
+def initialize():
     peaks.clear()
     splines.clear()
     lines.clear()
+    return
+def ask_user():
     direct = user_directory()
     column = user_column()
+    first, last = user_bunches()
+    xLow, xHigh = user_integration_bounds()
+#    pump = user_pump()
+#    probe = user_probe()
+#    sample = user_sample()
+    return direct, column, first, last, xLow, xHigh
+def plot_integral(bunch, Int, title, columnName, first, last, xLow, xHigh):
+    Int = [I for b, I in sorted( zip(bunch, Int), key = lambda pair: pair[0] )]
+    bunch.sort()
+    bunch, Int = average_integrals(bunch, Int)
+    timeDelay = np.multiply(2.0,bunch)
+    fig_int = plt.figure(dpi=100)
+    plt.title(title+" Bunches: "+first+"-"+last+ " Integration: "+xLow+"-"+xHigh)
+    plt.ylabel(columnName+" total ")
+    plt.xlabel("Time Delay [ns]")
+    plt.plot(timeDelay , Int, marker = 'd')
+    return
+###############################################################################
+#Main driver function for trXAS package
+###############################################################################
+def main():
+    initialize()
+    direct, column, first, last, xLow, xHigh = ask_user()
+    
     paths = os.listdir(direct)
     for i in range( len(paths) ):
         paths[i] = os.path.join(direct, paths[i])
     for path in paths:
          if "avg" in path:
             paths.remove(path)
-    first, last = user_bunches()
-    xLow, xHigh = user_integration_bounds()
-#    pump = user_pump()
-#    probe = user_probe()
-#    sample = user_sample()
-    
-    integrals=[]
-    shiftedSplines=[]
     peaksAll=[]
     splinesAll=[]
     linesAll=[]
     integralsAll=[]
     bunchNumAll=[] 
     for j in range( len(paths) ) :
+        integrals=[]
+        shiftedSplines=[]
         path = paths[j]
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first = first, last = last)
@@ -93,21 +108,14 @@ def main():
             integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
             integrals.append(integral)   
 
-        integrals = [Int for bunch, Int in sorted( zip(bunchNum, integrals), key = lambda pair: pair[0] )]
-        bunchNum.sort()
-        bunchNum, integrals = average_integrals(bunchNum, integrals)
-        timeDelay = np.multiply(2.0,bunchNum)
-        fig_int = plt.figure(dpi=100)
-        plt.title(path+" Bunches: "+first+"-"+last+ " Integration: "+xLow+"-"+xHigh)
-        plt.ylabel(columnName+" total ")
-        plt.xlabel("Time Delay [ns]")
-        plt.plot(timeDelay , integrals, marker = 'd')
-        
         peaksAll.extend(peaks)
         splinesAll.extend(splines)
         linesAll.extend(lines)
         integralsAll.extend(integrals)
         bunchNumAll.extend(bunchNum)
+        
+        plot_integral(bunchNum, integrals, path, columnName, first, last, xLow, xHigh)
+       
         peaks.clear()
         splines.clear()
         lines.clear()
@@ -137,25 +145,14 @@ def main():
     lineAvg = lineAvg[lo:hi]
     valAvg = valAvg[lo:hi]
 
-    # head = "PhotonE\t"+"Average counts\n"
     fig = plt.figure(dpi=100)
     plt.title("Average spline "+"Bunches: "+first+"-"+last)
     plt.ylabel(columnName)
     plt.xlabel("Probe [eV]")
     plt.plot(lineAvg, valAvg, linewidth=1, color= 'r')
     
-    integralsAll = [Int for bunch, Int in sorted( zip(bunchNumAll, integralsAll), key = lambda pair: pair[0] )]
-    bunchNumAll.sort()
-    bunchNumAll, integralsAll = average_integrals(bunchNumAll, integralsAll)
-    timeDelayAll = np.multiply(2.0,bunchNumAll)
-    fig_int = plt.figure(dpi=100)
-    plt.title("All Integrals"+" Bunches: "+first+"-"+last+ " Integration: "+xLow+"-"+xHigh)
-    plt.ylabel(columnName+" total ")
-    plt.xlabel("Time Delay [ns]")
-    plt.plot(timeDelayAll , integralsAll, marker = 'd')
-    
-    plt.show()
-    plt.close()   
+    plot_integral(bunchNumAll, integralsAll, "All Integrals", columnName, first, last, xLow, xHigh)
+
     return
 ###############################################################################        
 if __name__ == "__main__":
