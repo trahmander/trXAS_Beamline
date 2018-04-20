@@ -19,29 +19,6 @@ from config import lines
 from config import stepSize
 ###############################################################################
 #finds the x-value of the peak specified around xlow and xhigh. Appends it to peaks.
-
-class shift_lists:
-    def __init__(self):
-        self.__peaks = []
-        self.__splines = []
-        self.__lines = []
-    def get_peaks(self):
-        return self.__peaks
-    def get_splines(self):
-        return self.__splines
-    def get_lines(self):
-        return self.__lines
-
-    def set_peaks(self, peaks):
-        self.__peaks = peaks
-        return
-    def set_splines(self, splines):
-        self.__splines = splines
-        return
-    def set_lines(self, lines):
-        self.__lines = lines
-        return    
-
 def find_peak(xlow, xhigh, step, func):
     nearPeak = np.linspace(xhigh, xlow, step)
     feature = func(nearPeak)

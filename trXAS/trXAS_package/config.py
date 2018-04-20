@@ -8,7 +8,4 @@ use: initializing global variables used in shift.py and main.py
 peaks = []
 splines = []
 lines= []
-<<<<<<< HEAD
-=======
->>>>>>> master
 stepSize = 0.001              
