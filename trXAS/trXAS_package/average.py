@@ -11,7 +11,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy import optimize as opt
 import random
-
+###############################################################################
 #some constants
 e = np.e
 pi = np.pi

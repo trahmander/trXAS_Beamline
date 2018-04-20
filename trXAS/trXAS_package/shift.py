@@ -16,11 +16,32 @@ import scipy.interpolate as itp
 from config import peaks
 from config import splines
 from config import lines 
-from config import rawVals
-from config import rawPhotonE
 from config import stepSize
-
+###############################################################################
 #finds the x-value of the peak specified around xlow and xhigh. Appends it to peaks.
+
+class shift_lists:
+    def __init__(self):
+        self.__peaks = []
+        self.__splines = []
+        self.__lines = []
+    def get_peaks(self):
+        return self.__peaks
+    def get_splines(self):
+        return self.__splines
+    def get_lines(self):
+        return self.__lines
+
+    def set_peaks(self, peaks):
+        self.__peaks = peaks
+        return
+    def set_splines(self, splines):
+        self.__splines = splines
+        return
+    def set_lines(self, lines):
+        self.__lines = lines
+        return    
+
 def find_peak(xlow, xhigh, step, func):
     nearPeak = np.linspace(xhigh, xlow, step)
     feature = func(nearPeak)
@@ -74,8 +95,6 @@ def photonE_counts_plot(dataSet, col, file):
     lowE = photonE[0]
     highE = photonE[-1]
     vals = columns[col]
-    rawVals.append(vals)
-    rawPhotonE.append(photonE)
     step = (highE - lowE) / stepSize
     linE, splinE = get_spline(lowE, highE, step, photonE, vals)
     find_peak(532, 537, step, splinE)             
@@ -99,6 +118,6 @@ def shift_spline(splineNum, pks, spln, lin):
 ###############################################################################
 def test_shift():
     return
-
+###############################################################################
 if __name__ == "__main__":
     test_shift()

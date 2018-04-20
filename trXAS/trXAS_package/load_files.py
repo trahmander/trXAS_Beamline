@@ -11,10 +11,7 @@ import os
 import sys
 import numpy as np
 import csv
-
-
-
-
+###############################################################################
 #returns a list of all the files from the path chosen by user.
 def get_data_files(path):
     pathName = path
@@ -139,6 +136,6 @@ def test_load_files():
             dataSet, header = load_file(file)
          #   print( header[0] )        
     return
-
+###############################################################################
 if __name__ == "__main__":   
     test_load_files()
