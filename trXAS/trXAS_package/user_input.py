@@ -9,8 +9,7 @@ import os
 def user_directory():
     print("This software is used for averaging spectral distributions")
     print("Please enter the directory that you wish to send data.")
-  #  direct = input("Enter:\t")
-    direct = os.path.normpath(os.pardir+ os.sep+ "test_data")
+    direct = input("Enter:\t")
     return direct
 # prompts user to choose a column to look at.
 def user_column():
@@ -31,22 +30,23 @@ def user_column():
           "8:\t Y All X Reference\n"+
           "9:\t BC X Histogram\n"+
           "10:\t BC Y Histogram\n"+
-          "11:\t STS\n"+
+          "11:\t StS\n"+
           "12:\t BCSC\n"+
           "13:\t BCLR\n")
-    # column = input("Enter:\t")
+    column = input("Enter:\t")
     print("a: Normalized \t b: Non-normalized \n")
-    # column += ("Enter:\t")
-    column = "11a"
+    column += input("Enter:\t")
     print (column)
     index = keys.index(column)
     return index
+def user_column_name():
+    print("Which column do you want to look at?")
+    columnName= input("Enter:\t")
+    return columnName
 # prompts user to select first and last bunches after the reference. enter "all" for all bunches.
 def user_bunches():
     print('Choose the first bunch to look at or choose \"all\"')
-    first = 'all'
-    last = ' ' 
-    # first =  input("Enter:\t")
+    first =  input("Enter:\t")
     if first != 'all':
       print('Choose the last bunch to look at.')
       # last = input("Enter:\t")
@@ -55,15 +55,13 @@ def user_bunches():
     print(first+" - "+last+" bunches")
     return first, last
 def user_integration_bounds():
-  xLow = "532.5"
-  xHigh= "535.0"
   print("Choose the lower bound or select all.")
-  # xLow =  input("Enter:\t")
+  xLow =  input("Enter:\t")
   if xLow != "all" :
     print("Choose the upper bound.")
-    # xHigh = input("Enter:\t")
+    xHigh = input("Enter:\t")
   else:
-    xHigh = ' ' 
+    xHigh = '' 
   print(str(xLow)+" - "+str(xHigh)+"eV")
   return xLow, xHigh
 #prompts user for pump wavelength (currently unused)

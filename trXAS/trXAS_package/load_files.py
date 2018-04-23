@@ -8,9 +8,9 @@ load_files.py: load files and choose bunches from directory specified by user_in
 #Import modules
 ###############################################################################
 import os
-import sys
 import numpy as np
 import csv
+from integrate import find_nearest_index
 ###############################################################################
 #returns a list of all the files from the path chosen by user.
 def get_data_files(path):
@@ -51,9 +51,12 @@ def select_bunches(dataFiles, first, last):
             
             low = int( bunches[0] )
             high = int( bunches[1] )
-            
-            if low - end_ref == int(first) and high - end_ref == int(last) :
-                dFiles.append(file)
+            if low == high :
+                if (low - end_ref >= int(first)) and (low - end_ref <= int(last)):
+                    dFiles.append(file)
+            else:
+                if low - end_ref == int(first) and high - end_ref == int(last) :
+                    dFiles.append(file)
     #        print(file)
     return dFiles
 #returns data files with the chosen pump
@@ -109,8 +112,36 @@ def get_selected_bunches(dataFiles ,first='all', last='all'):
         low = int( bunches[0] )
         high = int( bunches[1] )
         bunchNum.append(high-end_ref)
-
     return bunchNum
+def rebin_data(xVals, yVals, xOriginal):
+    binning = [find_nearest_index(xVals, x) for x in xOriginal]
+    xBin = np.zeros_like(binning)
+    yBin = np.zeros_like(binning)    
+    for i in range( len(binning) ) :
+      cur = binning[i]
+      if i==0:
+          nxt = binning[i+1]
+          midNxt  = int( (cur+nxt )/2 )
+          xBin[i] = np.average(xVals[:midNxt])
+          yBin[i] = np.average(yVals[:midNxt])
+      elif i==len(binning)-1:
+          pre = binning[i-1]
+          midPre = int( (cur+pre )/2 )
+          xBin[i] = np.average(xVals[midPre:])
+          yBin[i] = np.average(yVals[midPre:])
+      else:
+          pre = binning[i-1]
+          nxt = binning[i+1]
+          midPre = int( (cur+pre )/2 )
+          midNxt  = int( (cur+nxt )/2 )
+          xBin[i] = np.average(xVals[midPre:midNxt])
+          yBin[i] = np.average(yVals[midPre:midNxt])     
+    return xVals, yVals
+def save_files(xVals, yVals, columnName):
+    head = "Photon E\t"+columnName
+    data = np.column_stack( (xVals, yVals) )
+    np.savetxt( data , fmt= "%5e",header = head)
+    return
 ###############################################################################
 #test function for load_files.
 ###############################################################################
