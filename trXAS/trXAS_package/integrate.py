@@ -8,33 +8,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from config import stepSize
 ###############################################################################
-# resturns the first index which is closest to xLow and the first index closest to xHigh
-#def find_nearest_index(xVals, xLow, xHigh):
-#	# print(xVals)
-#	if xLow  == "all" :
-#		xHigh = " "
-#		low = 0
-#		high = len(xVals)
-#	else:
-#		xLow = float( xLow )
-#		xHigh = float( xHigh )
-#		low=0; high=0
-#		lowVals = np.abs( xVals - xLow ) 
-#		highVals = np.abs( xVals - xHigh ) 
-#		# print(lowVals)
-#		# print(highVals)
-#		lowMin = lowVals[0]
-#		highMin = highVals[0]
-#		for i in range( len(xVals) ):
-#			if lowVals[i] < lowMin:
-#				lowMin = lowVals[i]
-#				low=i
-#			if highVals[i] < highMin:
-#				highMin = highVals[i]
-#				high = i
-#	# print( (xVals[low], low) )
-#	# print( (xVals[high], high) )
-#	return low, high
 def find_nearest_index(xVals, x):
     x = float( x )
     index=0
@@ -45,6 +18,7 @@ def find_nearest_index(xVals, x):
             diffMin = diff[i]
             index=i
     return index
+# resturns the first index which is closest to xLow and the first index closest to xHigh
 def find_nearest_bounds(xVals, xLow, xHigh):
     if xLow  == "all" :
         xHigh = " "

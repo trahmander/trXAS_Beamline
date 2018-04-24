@@ -6,7 +6,8 @@ use: initializing global variables used in shift.py and main.py
 """
 import os
 #Enter manual  user inputsa. Should be in quotation marks.
-directory = os.path.normpath(os.pardir+ os.sep+ "test_data")
+openDirectory = os.path.normpath(os.pardir+ os.sep+ "test_data")
+saveDirectory= os.path.normpath(os.pardir+os.sep+"test_data_processed")
 column = "StS norm"
 firstBunch = "all"
 lastBunch = "all"

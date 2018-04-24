@@ -113,7 +113,7 @@ def get_selected_bunches(dataFiles ,first='all', last='all'):
         high = int( bunches[1] )
         bunchNum.append(high-end_ref)
     return bunchNum
-def rebin_data(xVals, yVals, xOriginal):
+def bin_data(xVals, yVals, xOriginal):
     binning = [find_nearest_index(xVals, x) for x in xOriginal]
     xBin = np.zeros_like(binning)
     yBin = np.zeros_like(binning)    
@@ -135,12 +135,14 @@ def rebin_data(xVals, yVals, xOriginal):
           midPre = int( (cur+pre )/2 )
           midNxt  = int( (cur+nxt )/2 )
           xBin[i] = np.average(xVals[midPre:midNxt])
-          yBin[i] = np.average(yVals[midPre:midNxt])     
-    return xVals, yVals
-def save_files(xVals, yVals, columnName):
+          yBin[i] = np.average(yVals[midPre:midNxt])
+    return xBin, yBin
+def save_file(xVals, yVals, columnName, fileName):
     head = "Photon E\t"+columnName
+    xVals = np.array(xVals)
+    yVals = np.array(yVals)
     data = np.column_stack( (xVals, yVals) )
-    np.savetxt( data , fmt= "%5e",header = head)
+    np.savetxt( fileName, data , fmt= "%5e",header = head)
     return
 ###############################################################################
 #test function for load_files.
@@ -165,7 +167,9 @@ def test_load_files():
         for i in range(len(dataFiles)):
             file = dataFiles[i]
             dataSet, header = load_file(file)
-         #   print( header[0] )        
+         #   print( header[0] )    
+        title = path.strip(direct)
+        print(title)
     return
 ###############################################################################
 if __name__ == "__main__":   

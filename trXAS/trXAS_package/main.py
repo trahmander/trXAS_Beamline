@@ -23,7 +23,9 @@ from user_input import (user_directory,
 from load_files import (get_data_files,
                         load_file,
                         select_files,
-                        get_selected_bunches)
+                        get_selected_bunches,
+                        save_file,
+                        bin_data)
 from shift import (photonE_counts_plot, 
                    shift_spline)
 # from shift import shift_lists
@@ -32,7 +34,8 @@ from integrate import (def_integral,
                        find_nearest_bounds)
 from average import average_vals
 # Load global variables. These are also used in shift.py
-from config import (directory as direct,
+from config import (openDirectory as direct,
+                    saveDirectory,
                     column as columnName,
                     firstBunch as first, 
                     lastBunch as last,
@@ -58,7 +61,7 @@ def ask_user():
 #    probe = user_probe()
 #    sample = user_sample()
     return direct, column, first, last, xLow, xHigh
-def plot_spline():
+def save_spline(path):
     fig = plt.figure(dpi=100)
     plt.title(path+" Bunches: "+first+"-"+last)
     plt.ylabel(columnName)
@@ -71,15 +74,20 @@ def plot_spline():
         shiftedVals = shiftedVals[lo:hi]
         plt.plot(shiftedLine, shiftedVals, linewidth=1)
     return shiftedLine, shiftedVals
-def plot_integral(bunch, Int, title, columnName, first, last, xLow, xHigh):
+def save_integral(bunch, Int, title):
     Int = [I for b, I in sorted( zip(bunch, Int), key = lambda pair: pair[0] )]
     bunch.sort()
     bunch, Int = average_integrals(bunch, Int)
     timeDelay = np.multiply(2.0,bunch)
+    if not os.path.exists(saveDirectory):
+        os.makedirs(saveDirectory)
+    saveFile = os.path.normpath(saveDirectory +os.sep+ title+"_int_"+xLow+"-"+xHigh+".txt" )
+    with open(saveFile, 'w+'):
+        save_file(timeDelay, Int, "Time [ns]\t"+columnName+" sum", saveFile)
     if showPlots:
         fig_int = plt.figure(dpi=100)
         plt.title(title+" Bunches: "+first+"-"+last+ " Integration: "+xLow+"-"+xHigh)
-        plt.ylabel(columnName+" total ")
+        plt.ylabel(columnName)
         plt.xlabel("Time Delay [ns]")
         plt.plot(timeDelay , Int, marker = 'd')
     return
@@ -110,14 +118,15 @@ def main():
         dataSet, header = load_file(dataFiles[0])
 #        columnName = header[column]
         columnNum = header.index(columnName)
-        
+       
 
         for i in range(len(dataFiles)):
             file = dataFiles[i]
             dataSet, header = load_file(file)            
             photonE_counts_plot(dataSet, columnNum, file)
+        title = path.strip(direct) 
         fig = plt.figure(dpi=100)
-        plt.title(path+" Bunches: "+first+"-"+last)
+        plt.title(title+" Bunches: "+first+"-"+last)
         plt.ylabel(columnName)
         plt.xlabel("Probe [eV]")        
         for k in range ( len(splines) ):
@@ -137,7 +146,7 @@ def main():
         integralsAll.extend(integrals)
         bunchNumAll.extend(bunchNum)
         
-        plot_integral(bunchNum, integrals, path, columnName, first, last, xLow, xHigh)
+        save_integral(bunchNum, integrals, title)
        
         peaks.clear()
         splines.clear()
@@ -174,7 +183,7 @@ def main():
     plt.xlabel("Probe [eV]")
     plt.plot(lineAvg, valAvg, linewidth=1, color= 'r')
     
-    plot_integral(bunchNumAll, integralsAll, "All Integrals", columnName, first, last, xLow, xHigh)
+    save_integral(bunchNumAll, integralsAll, "All Integrals")
 
     return
 ###############################################################################        
