@@ -9,6 +9,7 @@ load_files.py: load files and choose bunches from directory specified by user_in
 ###############################################################################
 import os
 import numpy as np
+import pandas as pd
 import csv
 from integrate import find_nearest_index
 ###############################################################################
@@ -137,12 +138,18 @@ def bin_data(xVals, yVals, xOriginal):
           xBin[i] = np.average(xVals[midPre:midNxt])
           yBin[i] = np.average(yVals[midPre:midNxt])
     return xBin, yBin
-def save_file(xVals, yVals, columnName, fileName):
-    head = "Photon E\t"+columnName
+def save_file(xVals, xName, yVals, columnName, fileName):
+    head = [xName,columnName]
     xVals = np.array(xVals)
     yVals = np.array(yVals)
-    data = np.column_stack( (xVals, yVals) )
-    np.savetxt( fileName, data , fmt= "%5e",header = head)
+    data = np.array([xVals, yVals])
+    data = data.T
+#    print(data)
+    with open (fileName, 'w+') as csvfile :
+        writer = csv.writer(csvfile, delimiter = "\t", )
+        writer.writerow(head)
+        writer.writerows( data )
+#    np.savetxt( fileName, (xVals, yVals) , fmt= "%5e", delimiter="\t", newline = "\n")
     return
 ###############################################################################
 #test function for load_files.
@@ -164,12 +171,19 @@ def test_load_files():
         print(dataFiles)
         print(bunchNum)
         print()
-        for i in range(len(dataFiles)):
-            file = dataFiles[i]
-            dataSet, header = load_file(file)
-         #   print( header[0] )    
+#        for i in range(len(dataFiles)):
+        file = dataFiles[0]
+        dataSet, header = load_file(file)
+     #   print( header[0] )    
         title = path.strip(direct)
+        print(dataSet[0])
+        print(dataSet[1] )        
         print(title)
+        save_file(dataSet[0], header[0], dataSet[1], header[1], "test_save.txt")
+        with open("test_save.txt", 'r') as file:
+            reader = csv.reader(file, delimiter = "\t")
+            for row in reader:
+                print(row)
     return
 ###############################################################################
 if __name__ == "__main__":   

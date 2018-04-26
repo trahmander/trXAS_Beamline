@@ -9,6 +9,7 @@ TO DO:
 # 	Need a smarter shifting function that actually minimizes the r squared error between 
 	the peaks and chooses the shifting energy based on the minimum. More spectrum 
 	independent than picking a peak function.
+# just realized that I should show the average of the splines from folder instead of plotting them all
 ##########################################################################################
 ##########################################################################################
 HOW TO USE:
