@@ -60,21 +60,30 @@ def ask_user():
 #    probe = user_probe()
 #    sample = user_sample()
     return direct, column, first, last, xLow, xHigh
-def plot_spline(splineList, title):
+def plot_spline(splines, peak, lines, title, shiftedSplines, integrals=False):
     if showPlots:
         fig = plt.figure(dpi=100)
         plt.title(title+" Bunches: "+first+"-"+last)
         plt.ylabel(columnName)
         plt.xlabel("Probe [eV]")        
-    for k in range ( len(splineList) ):
-        shiftedVals, shiftedLine = shift_spline(k, peaks, splines, lines)
+    for k in range ( len(splines) ):
+        shiftedVals, shiftedLine = shift_spline(k, peak, splines, lines)
         shiftedSplines.append(shiftedVals)
-        save_spline(xVals, yVals, xOrig)
-        if showPlots:
-            lo,hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
-            shiftedLine = shiftedLine[lo:hi]
-            shiftedVals = shiftedVals[lo:hi]
-            plt.plot(shiftedLine, shiftedVals, linewidth=1)
+        lo, hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
+        shiftedLine = shiftedLine[lo:hi]
+        shiftedVals = shiftedVals[lo:hi]
+        plt.plot(shiftedLine, shiftedVals, linewidth=0.5)
+        
+        if integrals != False:
+            integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
+            integrals.append(integral)   
+    valAvg, lineAvg = average_vals(shiftedSplines, lines[0])
+#    save_spline(lineAvg, valAvg, xOrig)
+    if showPlots:    
+        lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
+        lineAvg = lineAvg[lo:hi]
+        valAvg = valAvg[lo:hi]
+        plt.plot(lineAvg, valAvg, linewidth=2, linestyle="--", color = 'r')
     return
 def save_spline(xVals, yVals, xOrig):
     saveFileName = os.path.normpath(saveDirectory +os.sep+ title+"_int_"+xLow+"-"+xHigh )
@@ -132,7 +141,7 @@ def main():
             dataSet, header = load_file(file)            
             photonE_counts_plot(dataSet, columnNum, file)
         title = path.strip(direct)
-        plot_spline(splines, title)
+        plot_spline(splines, peaks, lines, title, shiftedSplines, integrals)
 #        fig = plt.figure(dpi=100)
 #        plt.title(title+" Bunches: "+first+"-"+last)
 #        plt.ylabel(columnName)
@@ -143,11 +152,16 @@ def main():
 #            lo, hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
 #            shiftedLine = shiftedLine[lo:hi]
 #            shiftedVals = shiftedVals[lo:hi]
-#            plt.plot(shiftedLine, shiftedVals, linewidth=1)
+#            plt.plot(shiftedLine, shiftedVals, linewidth=0.5)
 #           
 #            integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
 #            integrals.append(integral)   
-
+#        valAvg, lineAvg = average_vals(shiftedSplines, lines[0])
+#        lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
+#        lineAvg = lineAvg[lo:hi]
+#        valAvg = valAvg[lo:hi]
+#        plt.plot(lineAvg, valAvg, linewidth=2, linestyle="--", color = 'r')
+        
         peaksAll.extend(peaks)
         splinesAll.extend(splines)
         linesAll.extend(lines)
@@ -162,15 +176,9 @@ def main():
         shiftedSplines.clear()
         integrals.clear()
         bunchNum.clear()
-    
-#    for i in range ( len(splines) ) :
-#        shiftedVals, shiftedLine = shift_spline(i)
-#        fig = plt.figure(dpi=100)
-#        plt.plot(shiftedLine, shiftedVals, linewidth=1, color='b')
-#        plt.plot(lines[i], splines[i](lines[i]), linewidth=1,  color='g')
-    plot_spline(splinesAll, "All splines" )
+    plot_spline(splinesAll, peaksAll, linesAll, "All Splines", shiftedSplines)
 #    fig = plt.figure(dpi=100)
-#    plt.title("All splines"+" Bunches: "+first+" to "+last)
+#    plt.title("All splines"+" Bunches: "+first+"-"+last)
 #    plt.ylabel(columnName)
 #    plt.xlabel("Probe [eV]")  
 #    for i in range ( len(splinesAll) ) :
@@ -179,18 +187,19 @@ def main():
 #        lo,hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
 #        shiftedLine = shiftedLine[lo:hi]
 #        shiftedVals = shiftedVals[lo:hi]
-#        plt.plot(shiftedLine, shiftedVals, linewidth=1)
-   
-    valAvg, lineAvg = average_vals(shiftedSplines, linesAll[0])
-    lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
-    lineAvg = lineAvg[lo:hi]
-    valAvg = valAvg[lo:hi]
+#        plt.plot(shiftedLine, shiftedVals, linewidth=0.5)
+#   
+#    valAvg, lineAvg = average_vals(shiftedSplines, linesAll[0])
+#    lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
+#    lineAvg = lineAvg[lo:hi]
+#    valAvg = valAvg[lo:hi]
+#    plt.plot(lineAvg, valAvg, linewidth=2, linestyle = "--", color= 'r')
 
-    fig = plt.figure(dpi=100)
-    plt.title("Average spline "+"Bunches: "+first+"-"+last)
-    plt.ylabel(columnName)
-    plt.xlabel("Probe [eV]")
-    plt.plot(lineAvg, valAvg, linewidth=1, color= 'r')
+#    fig = plt.figure(dpi=100)
+#    plt.title("Average spline "+"Bunches: "+first+"-"+last)
+#    plt.ylabel(columnName)
+#    plt.xlabel("Probe [eV]")
+#    plt.plot(lineAvg, valAvg, linewidth=1, color= 'r')
     
     save_integral(bunchNumAll, integralsAll, "All Integrals")
 
