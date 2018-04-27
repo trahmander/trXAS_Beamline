@@ -4,12 +4,11 @@ TO DO:
 # 	Need a more sophisticated average that factors in dwell times.
 # 	Implement standard errors
 # 	Work on a fitting for the first peak.
-# 	Find a way to save the average data with binning around the measured points.
 # 	Make the peak energy the nominal value.
 # 	Need a smarter shifting function that actually minimizes the r squared error between 
 	the peaks and chooses the shifting energy based on the minimum. More spectrum 
 	independent than picking a peak function.
-# just realized that I should show the average of the splines from folder instead of plotting them all
+# fix the nan issue with binning. also figure out why it gives an empty slice at the end.
 ##########################################################################################
 ##########################################################################################
 HOW TO USE:

@@ -40,10 +40,14 @@ from config import (openDirectory as direct,
                     lastBunch as last,
                     photonEnergyStart as xLow,
                     photonEnergyEnd as xHigh,
-                    showPlots,
+                    showIntegrals,
+                    showSplines,
                     peaks,
                     splines,
                     lines)
+###############################################################################
+###############################################################################
+#Helper functions for main()
 ###############################################################################
 def initialize():
     peaks.clear()
@@ -60,8 +64,8 @@ def ask_user():
 #    probe = user_probe()
 #    sample = user_sample()
     return direct, column, first, last, xLow, xHigh
-def plot_spline(splines, peak, lines, title, shiftedSplines, integrals=False):
-    if showPlots:
+def plot_spline(splines, peak, lines, title, shiftedSplines, rawEnergy= [], integrals=False):
+    if showSplines:
         fig = plt.figure(dpi=100)
         plt.title(title+" Bunches: "+first+"-"+last)
         plt.ylabel(columnName)
@@ -78,18 +82,22 @@ def plot_spline(splines, peak, lines, title, shiftedSplines, integrals=False):
             integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
             integrals.append(integral)   
     valAvg, lineAvg = average_vals(shiftedSplines, lines[0])
-#    save_spline(lineAvg, valAvg, xOrig)
-    if showPlots:    
+    if len(rawEnergy) != 0  :
+        save_spline(lineAvg, valAvg, title, rawEnergy)
+    print("saved spline:\t"+title)
+    if showSplines:    
         lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
         lineAvg = lineAvg[lo:hi]
         valAvg = valAvg[lo:hi]
         plt.plot(lineAvg, valAvg, linewidth=2, linestyle="--", color = 'r')
     return
-def save_spline(xVals, yVals, xOrig):
-    saveFileName = os.path.normpath(saveDirectory +os.sep+ title+"_int_"+xLow+"-"+xHigh )
-    save_file(xVals, "Photon E [eV]", Int, columnName+" sum", saveFileName+".txt")
+def save_spline(xVals, yVals, title, xOrig):
+    if not os.path.exists(saveDirectory):
+        os.makedirs(saveDirectory)
+    saveFileName = os.path.normpath(saveDirectory +os.sep+ title+"_bunch_"+first+"-"+last )
+    save_file(xVals, "Photon E [eV]", yVals, columnName+" sum", saveFileName+".txt")
     xVals, yVals = bin_data(xVals, yVals, xOrig)
-    save_file(xVals, "Photon E [eV]", Int, columnName+" sum", saveFileName+"_binned.txt")    
+    save_file(xVals, "Photon E [eV]", yVals, columnName+" sum", saveFileName+"_binned.txt")    
     return
 def save_integral(bunch, Int, title):
     Int = [I for b, I in sorted( zip(bunch, Int), key = lambda pair: pair[0] )]
@@ -100,13 +108,15 @@ def save_integral(bunch, Int, title):
         os.makedirs(saveDirectory)
     saveFileName = os.path.normpath(saveDirectory +os.sep+ title+"_int_"+xLow+"-"+xHigh+".txt" )
     save_file(timeDelay, "Time Delay [ns]", Int, columnName+" sum", saveFileName)
-    if showPlots:
+    print("saved integral:\t"+title)
+    if showIntegrals:
         fig_int = plt.figure(dpi=100)
         plt.title(title+" Bunches: "+first+"-"+last+ " Integration: "+xLow+"-"+xHigh)
         plt.ylabel(columnName)
         plt.xlabel("Time Delay [ns]")
         plt.plot(timeDelay , Int, marker = 'd')
     return
+###############################################################################
 ###############################################################################
 #Main driver function for trXAS package
 ###############################################################################
@@ -125,8 +135,10 @@ def main():
     integralsAll=[]
     bunchNumAll=[] 
     for j in range( len(paths) ) :
+        rawEnergy = []
         integrals=[]
         shiftedSplines=[]
+        
         path = paths[j]
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first = first, last = last)
@@ -135,32 +147,14 @@ def main():
 #        columnName = header[column]
         columnNum = header.index(columnName)
        
-
         for i in range(len(dataFiles)):
             file = dataFiles[i]
             dataSet, header = load_file(file)            
-            photonE_counts_plot(dataSet, columnNum, file)
+            photonE = photonE_counts_plot(dataSet, columnNum, file)
+            rawEnergy.append(photonE)
         title = path.strip(direct)
-        plot_spline(splines, peaks, lines, title, shiftedSplines, integrals)
-#        fig = plt.figure(dpi=100)
-#        plt.title(title+" Bunches: "+first+"-"+last)
-#        plt.ylabel(columnName)
-#        plt.xlabel("Probe [eV]")        
-#        for k in range ( len(splines) ):
-#            shiftedVals, shiftedLine = shift_spline(k, peaks, splines, lines)
-#            shiftedSplines.append(shiftedVals)
-#            lo, hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
-#            shiftedLine = shiftedLine[lo:hi]
-#            shiftedVals = shiftedVals[lo:hi]
-#            plt.plot(shiftedLine, shiftedVals, linewidth=0.5)
-#           
-#            integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
-#            integrals.append(integral)   
-#        valAvg, lineAvg = average_vals(shiftedSplines, lines[0])
-#        lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
-#        lineAvg = lineAvg[lo:hi]
-#        valAvg = valAvg[lo:hi]
-#        plt.plot(lineAvg, valAvg, linewidth=2, linestyle="--", color = 'r')
+        plot_spline(splines, peaks, lines, title, shiftedSplines, rawEnergy[0], integrals)
+        
         
         peaksAll.extend(peaks)
         splinesAll.extend(splines)
@@ -169,38 +163,16 @@ def main():
         bunchNumAll.extend(bunchNum)
         
         save_integral(bunchNum, integrals, title)
-       
+        
         peaks.clear()
         splines.clear()
         lines.clear()
+        rawEnergy.clear()
         shiftedSplines.clear()
         integrals.clear()
         bunchNum.clear()
-    plot_spline(splinesAll, peaksAll, linesAll, "All Splines", shiftedSplines)
-#    fig = plt.figure(dpi=100)
-#    plt.title("All splines"+" Bunches: "+first+"-"+last)
-#    plt.ylabel(columnName)
-#    plt.xlabel("Probe [eV]")  
-#    for i in range ( len(splinesAll) ) :
-#        shiftedVals, shiftedLine = shift_spline(i, peaksAll, splinesAll, linesAll)
-#        shiftedSplines.append(shiftedVals)
-#        lo,hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
-#        shiftedLine = shiftedLine[lo:hi]
-#        shiftedVals = shiftedVals[lo:hi]
-#        plt.plot(shiftedLine, shiftedVals, linewidth=0.5)
-#   
-#    valAvg, lineAvg = average_vals(shiftedSplines, linesAll[0])
-#    lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
-#    lineAvg = lineAvg[lo:hi]
-#    valAvg = valAvg[lo:hi]
-#    plt.plot(lineAvg, valAvg, linewidth=2, linestyle = "--", color= 'r')
-
-#    fig = plt.figure(dpi=100)
-#    plt.title("Average spline "+"Bunches: "+first+"-"+last)
-#    plt.ylabel(columnName)
-#    plt.xlabel("Probe [eV]")
-#    plt.plot(lineAvg, valAvg, linewidth=1, color= 'r')
-    
+        
+    plot_spline(splinesAll, peaksAll, linesAll, "All Splines", shiftedSplines)   
     save_integral(bunchNumAll, integralsAll, "All Integrals")
 
     return

@@ -116,40 +116,42 @@ def get_selected_bunches(dataFiles ,first='all', last='all'):
     return bunchNum
 def bin_data(xVals, yVals, xOriginal):
     binning = [find_nearest_index(xVals, x) for x in xOriginal]
-    xBin = np.zeros_like(binning)
-    yBin = np.zeros_like(binning)    
-    for i in range( len(binning) ) :
+    xBin = np.zeros(len(binning)-1)
+    yBin = np.zeros(len(binning)-1)    
+    for i in range( len(binning) -1) :
       cur = binning[i]
       if i==0:
           nxt = binning[i+1]
-          midNxt  = int( (cur+nxt )/2 )
+          midNxt  = int( np.ceil( (cur+nxt )/2 ) )
           xBin[i] = np.average(xVals[:midNxt])
           yBin[i] = np.average(yVals[:midNxt])
-      elif i==len(binning)-1:
+      elif i==len(binning)-2:
           pre = binning[i-1]
-          midPre = int( (cur+pre )/2 )
+          midPre = int( np.floor( (cur+pre )/2 ) )
           xBin[i] = np.average(xVals[midPre:])
           yBin[i] = np.average(yVals[midPre:])
       else:
           pre = binning[i-1]
           nxt = binning[i+1]
-          midPre = int( (cur+pre )/2 )
-          midNxt  = int( (cur+nxt )/2 )
+          midPre = int( np.floor( (cur+pre )/2 ) )
+          midNxt  = int( np.ceil( (cur+nxt )/2 ) )
+#          print(midPre)
+#          print(midNxt)
           xBin[i] = np.average(xVals[midPre:midNxt])
           yBin[i] = np.average(yVals[midPre:midNxt])
     return xBin, yBin
 def save_file(xVals, xName, yVals, columnName, fileName):
-    head = [xName,columnName]
+    head = xName+"\t"+columnName
     xVals = np.array(xVals)
     yVals = np.array(yVals)
     data = np.array([xVals, yVals])
     data = data.T
 #    print(data)
-    with open (fileName, 'w+') as csvfile :
-        writer = csv.writer(csvfile, delimiter = "\t", )
-        writer.writerow(head)
-        writer.writerows( data )
-#    np.savetxt( fileName, (xVals, yVals) , fmt= "%5e", delimiter="\t", newline = "\n")
+#    with open (fileName, 'w+') as csvfile :
+#        writer = csv.writer(csvfile, delimiter = "\t", )
+#        writer.writerow(head)
+#        writer.writerows( data )
+    np.savetxt( fileName, data , fmt= ["%5e", "%5e"], header = head, delimiter="\t", newline = "\n")
     return
 ###############################################################################
 #test function for load_files.

@@ -75,7 +75,7 @@ def photonE_counts_plot(dataSet, col, file):
     step = (highE - lowE) / stepSize
     linE, splinE = get_spline(lowE, highE, step, photonE, vals)
     find_peak(532, 537, step, splinE)             
-    return
+    return photonE
 #shifts all peaks to match the earleast peak. returns new splines. cuts the spline at the right side.
 def shift_spline(splineNum, pks, spln, lin):
     vals = spln[splineNum]( lin[splineNum] )

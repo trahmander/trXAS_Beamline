@@ -13,10 +13,10 @@ firstBunch = "all"
 lastBunch = "all"
 photonEnergyStart = "532.5"
 photonEnergyEnd= "535.0"
-showPlots = True
+showSplines = True
+showIntegrals = True
 stepSize = 0.001 
 #Initialize some values that are shared between the package files.
 peaks = []
 splines = []
 lines= []
-             
