@@ -116,16 +116,16 @@ def get_selected_bunches(dataFiles ,first='all', last='all'):
     return bunchNum
 def bin_data(xVals, yVals, xOriginal):
     binning = [find_nearest_index(xVals, x) for x in xOriginal]
-    xBin = np.zeros(len(binning)-1)
-    yBin = np.zeros(len(binning)-1)    
-    for i in range( len(binning) -1) :
+    xBin = np.zeros(len(binning))
+    yBin = np.zeros(len(binning))    
+    for i in range( len(binning)) :
       cur = binning[i]
       if i==0:
           nxt = binning[i+1]
           midNxt  = int( np.ceil( (cur+nxt )/2 ) )
           xBin[i] = np.average(xVals[:midNxt])
           yBin[i] = np.average(yVals[:midNxt])
-      elif i==len(binning)-2:
+      elif i==len(binning)-1:
           pre = binning[i-1]
           midPre = int( np.floor( (cur+pre )/2 ) )
           xBin[i] = np.average(xVals[midPre:])
@@ -137,8 +137,12 @@ def bin_data(xVals, yVals, xOriginal):
           midNxt  = int( np.ceil( (cur+nxt )/2 ) )
 #          print(midPre)
 #          print(midNxt)
-          xBin[i] = np.average(xVals[midPre:midNxt])
-          yBin[i] = np.average(yVals[midPre:midNxt])
+          if midPre >= midNxt :
+              xBin[i] = xVals[midNxt]
+              yBin[i] = yVals[midNxt]
+          else:
+              xBin[i] = np.average(xVals[midPre:midNxt])
+              yBin[i] = np.average(yVals[midPre:midNxt])
     return xBin, yBin
 def save_file(xVals, xName, yVals, columnName, fileName):
     head = xName+"\t"+columnName
