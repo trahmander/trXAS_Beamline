@@ -39,42 +39,46 @@ def get_spline(low, high, step, x, y):
     return line, spline
 #unpacks the 2d array into 1d arrays given by the columns. uses find_peak and get_spline.
 def photonE_counts_plot(dataSet, col, file):
+    photonE = []
     dataSet = dataSet.T
-    columns = (photonE, #SEphotonE,
-        xRefNorm, #SExRefNorm,
-        xRef, #SExRef,
-        xPumpNorm, #SExPumpNorm, 
-        xPump, #SExPump,
-        yRefNorm, #SEyRefNorm,
-        yRef, #SEyRef,
-        yPumpNorm, #SEyPumpNorm,
-        yPump, #SEyPump,
-        xAllNorm, #SExAllNorm,
-        xAll, #SExAll,
-        yAllNorm, #SEyAllNorm,
-        yAll, #SEyAll,
-        xAllyRefNorm, #SExAllyRefNorm,
-        xAllyRef, #SExAllyRef,
-        yAllxRefNorm, #SEyAllxRefNorm, 
-        yAllxRef, #SEyAllxRef,
-        BCxHistNorm, #SEBCxHistNorm, 
-        BCyHistNorm, #SEBCyHistNorm,
-        stsNorm, #SEstsNorm,
-        BCSCNorm, #SEBCSCNorm, 
-        BCLRNorm, #SEBCLRNorm,
-        BCxHist, #SEBCxHist,
-        BCyHist, #SEBCyHist,
-        sts, #SEsts,
-        BCSC, #SEBCSC, 
-        BCLR, #SEBCLR,
-        #SE, #SE2
-        ) = dataSet
-    lowE = photonE[0]
-    highE = photonE[-1]
-    vals = columns[col]
-    step = (highE - lowE) / stepSize
-    linE, splinE = get_spline(lowE, highE, step, photonE, vals)
-    find_peak(532, 537, step, splinE)             
+    try:
+        columns = (photonE, #SEphotonE,
+            xRefNorm, #SExRefNorm,
+            xRef, #SExRef,
+            xPumpNorm, #SExPumpNorm, 
+            xPump, #SExPump,
+            yRefNorm, #SEyRefNorm,
+            yRef, #SEyRef,
+            yPumpNorm, #SEyPumpNorm,
+            yPump, #SEyPump,
+            xAllNorm, #SExAllNorm,
+            xAll, #SExAll,
+            yAllNorm, #SEyAllNorm,
+            yAll, #SEyAll,
+            xAllyRefNorm, #SExAllyRefNorm,
+            xAllyRef, #SExAllyRef,
+            yAllxRefNorm, #SEyAllxRefNorm, 
+            yAllxRef, #SEyAllxRef,
+            BCxHistNorm, #SEBCxHistNorm, 
+            BCyHistNorm, #SEBCyHistNorm,
+            stsNorm, #SEstsNorm,
+            BCSCNorm, #SEBCSCNorm, 
+            BCLRNorm, #SEBCLRNorm,
+            BCxHist, #SEBCxHist,
+            BCyHist, #SEBCyHist,
+            sts, #SEsts,
+            BCSC, #SEBCSC, 
+            BCLR, #SEBCLR,
+            #SE, #SE2
+            ) = dataSet
+        lowE = photonE[0]
+        highE = photonE[-1]
+        vals = columns[col]
+        step = (highE - lowE) / stepSize
+        linE, splinE = get_spline(lowE, highE, step, photonE, vals)
+        find_peak(532, 537, step, splinE)
+    except:
+        print("Didn't load to array:\t"+file)             
     return photonE
 #shifts all peaks to match the earleast peak. returns new splines. cuts the spline at the right side.
 def shift_spline(splineNum, pks, spln, lin):

@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import csv
 from integrate import find_nearest_index
+from config import saveDirectory
 ###############################################################################
 #returns a list of all the files from the path chosen by user.
 def get_data_files(path):
@@ -151,13 +152,13 @@ def save_file(xVals, xName, yVals, columnName, fileName):
 #        writer = csv.writer(csvfile, delimiter = "\t", )
 #        writer.writerow(head)
 #        writer.writerows( data )
-    np.savetxt( fileName, data , fmt= ["%5e", "%5e"], header = head, delimiter="\t", newline = "\n")
+    np.savetxt( fileName, data , header = head, delimiter="\t", newline = "\n")
     return
 ###############################################################################
 #test function for load_files.
 ###############################################################################
 def test_load_files():
-    direct = os.path.normpath(os.pardir+ os.sep+ "test_data")
+    direct = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
     paths = os.listdir(direct)
    
     for path in paths:
@@ -170,7 +171,7 @@ def test_load_files():
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles)
         bunchNum = get_selected_bunches(dataFiles)
-        print(dataFiles)
+#        print(dataFiles)
         print(bunchNum)
         print()
 #        for i in range(len(dataFiles)):
@@ -178,14 +179,15 @@ def test_load_files():
         dataSet, header = load_file(file)
      #   print( header[0] )    
         title = path.strip(direct)
-        print(dataSet[0])
-        print(dataSet[1] )        
-        print(title)
-        save_file(dataSet[0], header[0], dataSet[1], header[1], "test_save.txt")
-        with open("test_save.txt", 'r') as file:
-            reader = csv.reader(file, delimiter = "\t")
-            for row in reader:
-                print(row)
+#        print(dataSet[0])
+#        print(dataSet[1] )
+#        for i in range( len(header) -1 ):        
+#            print(title + " " + str(i+1))
+#            save_file(dataSet[0], header[0], dataSet[i+1], header[i+1], saveDirectory+os.sep+title+"_test_save_"+header[i+1]+".txt")
+#            with open(saveDirectory+os.sep+title+"_test_save_"+header[i+1]+".txt", 'r') as file:
+#                reader = csv.reader(file, delimiter = "\t")
+#                for row in reader:
+#                    print(row)
     return
 ###############################################################################
 if __name__ == "__main__":   

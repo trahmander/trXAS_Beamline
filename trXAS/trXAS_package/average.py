@@ -19,11 +19,11 @@ def gaussian(fwhm, A=1, x0=0, B=0):
     def gaussian_func(x):
         return A*np.exp(-4*np.log(2)*(x-x0)**2/fwhm**2) + B
     return gaussian_func
-def lorentzian(A, fwhm, x_0):
+def lorentzian(A, B, fwhm, x0):
     def lorentzian_func(x):
         return A*0.5*fwhm/( (x-x0)**2 + (0.5*fwhm)**2 ) + B
     return lorentzian_func
-#average the values from two splines and return the new line and spline values.
+#average the values from "numVals" number of splines and return the new line and spline values.
 def average_vals(vals, line):
     valSum = np.zeros_like(line)
  
@@ -37,6 +37,10 @@ def average_vals(vals, line):
         line = line[:smaller]
     valAvg = valSum/numVals
     return valAvg, line
+def average_by_bunch(bunchNum, vals, line):
+    for bunch in bunchNum:
+        x=1
+    return
 ###############################################################################
 #Test function for average.py
 ###############################################################################

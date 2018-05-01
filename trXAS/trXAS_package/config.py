@@ -6,11 +6,11 @@ use: initializing global variables used in shift.py and main.py
 """
 import os
 #Enter manual  user inputsa. Should be in quotation marks.
-openDirectory = os.path.normpath(os.pardir+ os.sep+ "test_data")
-saveDirectory= os.path.normpath(os.pardir+os.sep+"test_data_processed")
+openDirectory = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
+saveDirectory= os.path.normpath(os.pardir+os.sep+"test_saves")
 column = "StS norm"
 firstBunch = "all"
-lastBunch = "all"
+lastBunch = "1"
 photonEnergyStart = "532.5"
 photonEnergyEnd= "535.0"
 showSplines = True

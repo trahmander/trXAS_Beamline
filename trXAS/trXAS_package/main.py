@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-use: Average and shift the  trXAS data. Also integrate the data in a region of interest.
-@newfield revision: revision
+use: Average and shift the  trXAS data by bunch number. Also integrate the data in a region of interest.
 """
 __author__  = "Tahiyat Rahman"
 __date__    = "2018-02-21"
@@ -73,14 +72,14 @@ def plot_spline(splines, peak, lines, title, shiftedSplines, rawEnergy= [], inte
     for k in range ( len(splines) ):
         shiftedVals, shiftedLine = shift_spline(k, peak, splines, lines)
         shiftedSplines.append(shiftedVals)
-        lo, hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
-        shiftedLine = shiftedLine[lo:hi]
-        shiftedVals = shiftedVals[lo:hi]
-        plt.plot(shiftedLine, shiftedVals, linewidth=0.5)
-        
         if integrals != False:
             integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
-            integrals.append(integral)   
+            integrals.append(integral)
+        if showSplines :
+            lo, hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
+            shiftedLine = shiftedLine[lo:hi]
+            shiftedVals = shiftedVals[lo:hi]
+            plt.plot(shiftedLine, shiftedVals, linewidth=0.5)   
     valAvg, lineAvg = average_vals(shiftedSplines, lines[0])
     if len(rawEnergy) != 0  :
         save_spline(lineAvg, valAvg, title, rawEnergy)
@@ -134,6 +133,7 @@ def main():
     linesAll=[]
     integralsAll=[]
     bunchNumAll=[] 
+    shiftedSplinesAll = []
     for j in range( len(paths) ) :
         rawEnergy = []
         integrals=[]
@@ -155,15 +155,16 @@ def main():
         title = path.strip(direct)
         plot_spline(splines, peaks, lines, title, shiftedSplines, rawEnergy[0], integrals)
         
-        
+        # Puts data for each scan in a bigger list for all the scans in the chosen directory.
         peaksAll.extend(peaks)
         splinesAll.extend(splines)
         linesAll.extend(lines)
         integralsAll.extend(integrals)
         bunchNumAll.extend(bunchNum)
+        shiftedSplinesAll.extend(shiftedSplines)
         
         save_integral(bunchNum, integrals, title)
-        
+        #Clears data for this scan after it has been used.
         peaks.clear()
         splines.clear()
         lines.clear()
