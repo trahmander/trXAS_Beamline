@@ -9,8 +9,9 @@ import os
 openDirectory = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
 saveDirectory= os.path.normpath(os.pardir+os.sep+"test_saves")
 column = "StS norm"
+refColumn = "Y all norm"
 firstBunch = "all"
-lastBunch = "1"
+lastBunch = "all"
 photonEnergyStart = "532.5"
 photonEnergyEnd= "535.0"
 showSplines = True
@@ -19,4 +20,5 @@ stepSize = 0.001
 #Initialize some values that are shared between the package files.
 peaks = []
 splines = []
+refSplines = []
 lines= []

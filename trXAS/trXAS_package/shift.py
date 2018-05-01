@@ -15,11 +15,13 @@ import scipy.interpolate as itp
 #import global variables.
 from config import peaks
 from config import splines
+#from config import refSplines
 from config import lines 
 from config import stepSize
 ###############################################################################
 #finds the x-value of the peak specified around xlow and xhigh. Appends it to peaks.
-def find_peak(xlow, xhigh, step, func):
+def find_peak(xlow, xhigh, func):
+    step = (xhigh - xlow) / stepSize
     nearPeak = np.linspace(xhigh, xlow, step)
     feature = func(nearPeak)
     maxVal = feature[0]  
@@ -31,14 +33,17 @@ def find_peak(xlow, xhigh, step, func):
     peaks.append(nearPeak[peak])
     return 
 #Interpolation of data. returns linear spline Appends it to splines
-def get_spline(low, high, step, x, y):
+def get_spline(low, high, x, refY, y):
+    step = (high - low) / stepSize
     line = np.linspace(low, high, step)
-    spline = itp.interp1d(x, y, kind='slinear')                                   #This one does linear interpolation. kinda ugly
+    refSpline = itp.interp1d(x, refY, kind='slinear')                                   #This one does linear interpolation. kinda ugly
+    spline = itp.interp1d(x, y, kind = 'slinear')
     lines.append(line)
+#    refSplines.append(refSpline)
     splines.append(spline)
-    return line, spline
+    return refSpline
 #unpacks the 2d array into 1d arrays given by the columns. uses find_peak and get_spline.
-def photonE_counts_plot(dataSet, col, file):
+def photonE_counts_plot(dataSet, refCol, col, file):
     photonE = []
     dataSet = dataSet.T
     try:
@@ -73,26 +78,28 @@ def photonE_counts_plot(dataSet, col, file):
             ) = dataSet
         lowE = photonE[0]
         highE = photonE[-1]
+        refVals = columns[refCol]
         vals = columns[col]
-        step = (highE - lowE) / stepSize
-        linE, splinE = get_spline(lowE, highE, step, photonE, vals)
-        find_peak(532, 537, step, splinE)
+#        step = (highE - lowE) / stepSize
+        splinE = get_spline(lowE, highE, photonE, refVals, vals)
+        find_peak(532, 537, splinE)                                       #should not be hardcoded.
     except:
         print("Didn't load to array:\t"+file)             
     return photonE
 #shifts all peaks to match the earleast peak. returns new splines. cuts the spline at the right side.
-def shift_spline(splineNum, pks, spln, lin):
-    vals = spln[splineNum]( lin[splineNum] )
-    ref = np.amin( pks )
+def shift_spline(splineNum, refPeaks, spline, line):
+#    yVals = ySpline[splineNum]( line[splineNum] )
+    vals = spline[splineNum]( line[splineNum] )
+    ref = np.amin( refPeaks )
     
-    if np.abs(ref - pks[splineNum]) < stepSize:
-        return vals, lin[splineNum]
+    if np.abs(ref - refPeaks[splineNum]) < stepSize:
+        return vals, line[splineNum]
     else:
-        delta = pks[splineNum] - ref
+        delta = peaks[splineNum] - ref
         index = int ( delta / stepSize )
         for i in range (len(vals) - index ) :
             vals[i] = vals[i+index]
-        return vals[:-index], lin[splineNum][:-index]
+        return vals[:-index], line[splineNum][:-index]
 
 ###############################################################################
 #Test Functions for shift.py
