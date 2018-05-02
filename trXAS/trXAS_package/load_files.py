@@ -8,6 +8,7 @@ load_files.py: load files and choose bunches from directory specified by user_in
 #Import modules
 ###############################################################################
 import os
+import random
 import numpy as np
 import pandas as pd
 import csv
@@ -44,7 +45,7 @@ def select_bunches(dataFiles, first, last):
         
         start_ref = int( ref[0] )
         end_ref = int( ref[1] )
-        print( (start_ref, end_ref) )
+#        print( (start_ref, end_ref) )
         dFiles=[]
         for file in dataFiles:
             bunches = file.split("_pump_")[1].split("_minus_")[0]
@@ -156,7 +157,11 @@ def save_file(xVals, xName, yVals, columnName, fileName):
 #        writer = csv.writer(csvfile, delimiter = "\t", )
 #        writer.writerow(head)
 #        writer.writerows( data )
-    np.savetxt( fileName, data , header = head, delimiter="\t", newline = "\n")
+    np.savetxt( fileName, data , header = head, delimiter="\t", newline = os.linesep)
+    return
+def save_multicolumn(data, header, filename):
+    data = np.array(data).T
+    np.savetxt(filename, data, header = header, delimiter = "\t", newline = os.linesep)
     return
 ###############################################################################
 #test function for load_files.
@@ -176,8 +181,8 @@ def test_load_files():
         dataFiles = select_files(dataFiles)
         bunchNum = get_selected_bunches(dataFiles)
 #        print(dataFiles)
-        print(bunchNum)
-        print()
+#        print(bunchNum)
+#        print()
 #        for i in range(len(dataFiles)):
         file = dataFiles[0]
         dataSet, header = load_file(file)
@@ -192,6 +197,27 @@ def test_load_files():
 #                reader = csv.reader(file, delimiter = "\t")
 #                for row in reader:
 #                    print(row)
+#    randomLists=[]
+#    header = ""
+#    for i in range(5):
+#        header +=str(i+1)+"\t"
+#        rand= [random.randint(0,100) for r in range(10) ]
+#        randomLists.append(rand)
+#        print(rand)
+#    print(randomLists)
+#    save_multicolumn(randomLists, header , "test_save.txt" )
+    fileName = "all_columns"+"_bunch_"+first+"-"+"last"+".txt"
+    with open(saveDirectory+os.sep+fileName) as file:
+        read = csv.reader(file, delimiter = "\t")
+        head = next(read)
+        print( head )
+        print(len(head))
+        for i, row in enumerate( read):
+            print( len(row) ) 
+            
+            if i >19:
+                break
+    
     return
 ###############################################################################
 if __name__ == "__main__":   
