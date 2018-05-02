@@ -24,19 +24,42 @@ def lorentzian(A, B, fwhm, x0):
         return A*0.5*fwhm/( (x-x0)**2 + (0.5*fwhm)**2 ) + B
     return lorentzian_func
 #average the values from "numVals" number of splines and return the new line and spline values.
-def average_vals(vals, line):
-    valSum = np.zeros_like(line)
- 
+def average_vals(vals, lines):
+    valAvg = np.zeros_like(lines[0])
+    lineAvg = np.zeros_like(lines[0])    
     numVals=len(vals)
     for i in range( numVals ):
         val = vals[i]
-        smaller = min(len(val), len(valSum) )
+        line = lines[i]
+        smaller = min(len(val), len(valAvg) )
         for j in range( smaller ):
-            valSum[j] = valSum[j] + val[j]
-        valSum = valSum[:smaller]
-        line = line[:smaller]
-    valAvg = valSum/numVals
-    return valAvg, line
+            valAvg[j] += val[j]
+            lineAvg[j] += line[j]
+        valAvg = valAvg[:smaller]
+        lineAvg = lineAvg[:smaller]
+    valAvg /= numVals
+    lineAvg /= numVals
+    return lineAvg, valAvg
+def standard_error(vals, lines, valAvg, lineAvg):
+    yErr = np.zeros_like(valAvg)
+    xErr = np.zeros_like(lineAvg)
+    numVals = len(vals)
+    for i in range(numVals):
+        val = vals[i]
+        line = lines[i]
+        smaller = min(len(val), len(valAvg))
+        for j in range(smaller):
+            dy = (valAvg[j] - val[j])
+            yErr[j] += dy*dy
+            dx = lineAvg[j] - line[j]
+            xErr[j] += dx*dx
+        yErr = yErr[:smaller]
+        xErr = xErr[:smaller]
+    yErr /= numVals
+    yErr = np.sqrt(yErr)
+    xErr /= numVals
+    xErr = np.sqrt(xErr)
+    return xErr, yErr
 def average_by_bunch(bunchNum, vals, line):
     for bunch in bunchNum:
         x=1
@@ -45,10 +68,22 @@ def average_by_bunch(bunchNum, vals, line):
 #Test function for average.py
 ###############################################################################
 def test_average():
-    x_vals = np.linspace(-pi, pi, 1001)
-    y_vals = np.array( [ ( gaussian(fwhm=0.4)(x) + random.randrange(0, 0.3, 0.05) ) for x in x_vals ] )
-    plt.plot(x_vals, y_vals) 
-    plt.show()
+    randomLists=[]
+    for i in range(5):
+        rand= [random.randint(0,100) for r in range(10) ]
+        randomLists.append( np.array(rand) )
+    print(randomLists)
+    randomLists = np.array(randomLists)
+    avg = np.mean(randomLists, axis = 0)
+    err = np.std(randomLists, axis = 0)/ len(randomLists[0])
+    print(avg)
+    print(err)
+    
+    avg = average_vals(randomLists, randomLists)
+    err = standard_error(randomLists, randomLists)
+    print(avg[0])
+    print(err[0])
+    
     return
 if __name__ == "__main__":
     test_average()

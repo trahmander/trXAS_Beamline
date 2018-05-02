@@ -31,7 +31,8 @@ from shift import (photonE_counts_plot,
 from integrate import (def_integral, 
                        average_integrals, 
                        find_nearest_bounds)
-from average import average_vals
+from average import (average_vals,
+                     standard_error)
 # Load global variables. These are also used in shift.py
 from config import (openDirectory as direct,
                     saveDirectory,
@@ -84,7 +85,7 @@ def plot_spline(splines, peaks, lines, title, columnName, shiftedSplines, rawEne
             shiftedLine = shiftedLine[lo:hi]
             shiftedVals = shiftedVals[lo:hi]
             plt.plot(shiftedLine, shiftedVals, linewidth=0.5)   
-    valAvg, lineAvg = average_vals(shiftedSplines, lines[0])
+    lineAvg, valAvg = average_vals(shiftedSplines)
     if len(rawEnergy) != 0  :
         save_spline(lineAvg, valAvg, title, columnName, rawEnergy)
     print("saved spline:\t"+title)
@@ -147,7 +148,8 @@ def main():
 #    photonE = dataSet[0].tolist()
 #    print(photonE)
 #    avgColumns.append(photonE)
-    lineAvg=0
+    lineAvg=0      
+    lineErr=0
     for col in header[1:-1] :
 #        peaksAll=[]
 #        splinesAll=[]
@@ -158,6 +160,7 @@ def main():
         rawEnergy = []
         integrals=[]
         shiftedSplines=[]
+        shiftedLines=[]
         title = col
         if showSplines:
             fig = plt.figure(dpi=100)
@@ -193,6 +196,7 @@ def main():
             for k in range ( len(splines) ):
                 shiftedVals, shiftedLine = shift_spline(k, peaks, splines, lines)
                 shiftedSplines.append(shiftedVals)
+                shiftedLines.append(shiftedLine)
                 if integrals != False:
                     integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
                     integrals.append(integral)
@@ -241,10 +245,12 @@ def main():
         bunchNumAll.extend(bunchNum)
         shiftedSplinesAll.append(shiftedSplines)
         
-        valAvg, lineAvg = average_vals(shiftedSplines, lines[0])
+        lineAvg, valAvg = average_vals(shiftedSplines, shiftedLines)
+        lineErr, valErr = standard_error(shiftedSplines, shiftedLines, valAvg, lineAvg)
         valAvg = valAvg.tolist()
 #        print(valAvg)
         avgColumns.append(valAvg)
+        avgColumns.append(valErr)
 #        print(valAvg)
 #        if len(rawEnergy) != 0  :
 #            save_spline(lineAvg, valAvg, title, col, rawEnergy)
@@ -263,16 +269,19 @@ def main():
         shiftedSplines.clear()
         integrals.clear()
         bunchNum.clear()
+        shiftedLines.clear()
         
        
-#    avgColumns = np.array(avgColumns)
+
 #    print( avgColumns )
-    avgColumns.insert(0, lineAvg)
-    fileName = "all_columns"+"_bunch_"+first+"-"+"last"+".txt"
+    avgColumns.insert(0, lineAvg.tolist())
+    avgColumns.insert(1, lineErr.tolist())
+    avgColumns = np.array(avgColumns)
+    fileName = "avg"+"_bunch_"+first+"-"+"last"+".txt"
     head=""
-    for col in header:
-        head += col+"\t"
-    head = head[:-2]
+    for col in header[:-1]:
+        head += col+"\t"+"SE "+col+"\t"
+    head = head[:-1]
     save_multicolumn(avgColumns, header = head, filename = saveDirectory+os.sep+fileName)
         
 #    plot_spline(splinesAll, peaksAll, linesAll, "All Splines", shiftedSplines)   

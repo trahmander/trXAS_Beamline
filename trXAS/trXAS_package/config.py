@@ -16,7 +16,7 @@ photonEnergyStart = "all"
 photonEnergyEnd= "all"
 showSplines = False
 showIntegrals = True
-stepSize = 0.001 
+stepSize = 0.005 
 #Initialize some values that are shared between the package files.
 peaks = []
 splines = []

@@ -161,7 +161,7 @@ def save_file(xVals, xName, yVals, columnName, fileName):
     return
 def save_multicolumn(data, header, filename):
     data = np.array(data).T
-    np.savetxt(filename, data, header = header, delimiter = "\t", newline = os.linesep)
+    np.savetxt(filename, data, fmt= "%6e", header = header, delimiter = "\t", newline = os.linesep)
     return
 ###############################################################################
 #test function for load_files.
