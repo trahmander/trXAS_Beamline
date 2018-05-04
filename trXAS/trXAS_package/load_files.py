@@ -14,6 +14,7 @@ import pandas as pd
 import csv
 from integrate import find_nearest_index
 from config import saveDirectory
+from integrate import remove_dup
 ###############################################################################
 #returns a list of all the files from the path chosen by user.
 def get_data_files(path):
@@ -26,8 +27,8 @@ def get_data_files(path):
             dFiles.append(os.path.join(pathName,file))
     return dFiles
 #Returns a 2d array of sorted data from a file and the header row. sorts array by the first column.
-def load_file(fileName):
-    dataSet = np.genfromtxt(fileName, delimiter="\t", skip_header=1)
+def load_file(fileName, skip=1):
+    dataSet = np.genfromtxt(fileName, delimiter="\t", skip_header=skip)
     with open(fileName, "r") as f:
         reader = csv.reader(f, delimiter = "\t", )
         header = next(reader)
@@ -54,6 +55,10 @@ def select_bunches(dataFiles, first, last):
             
             low = int( bunches[0] )
             high = int( bunches[1] )
+            if low - end_ref >= 0:
+                low+=1
+            if high - end_ref >=0:
+                high+=1
             if low == high :
                 if (low - end_ref >= int(first)) and (low - end_ref <= int(last)):
                     dFiles.append(file)
@@ -99,7 +104,7 @@ def select_files(dataFiles, first="all", last="all", sample="all", pump="all", p
     dataFiles = select_pump(dataFiles, pump)
     dataFiles = select_probe(dataFiles, probe)
     return dataFiles
-def get_selected_bunches(dataFiles ,first='all', last='all'):
+def get_selected_bunches(dataFiles):
     bunchNum=[]
     ref = dataFiles[0].split("_ref_")[1].split("_data.txt")[0]
     ref = ref.split("-")
@@ -114,7 +119,10 @@ def get_selected_bunches(dataFiles ,first='all', last='all'):
         
         low = int( bunches[0] )
         high = int( bunches[1] )
-        bunchNum.append(high-end_ref)
+        if high >= end_ref:
+            bunchNum.append(high-end_ref+1)
+        else:
+            bunchNum.append(high-end_ref)
     return bunchNum
 def bin_data(xVals, yVals, xOriginal):
     binning = [find_nearest_index(xVals, x) for x in xOriginal]
@@ -169,54 +177,22 @@ def save_multicolumn(data, header, filename):
 def test_load_files():
     direct = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
     paths = os.listdir(direct)
-   
+    bunchNumAll=[]
     for path in paths:
          if "avg" in path:
             paths.remove(path)
-    print(paths)
     for i in range( len(paths) ):
         paths[i] = os.path.join(direct, paths[i])
-    for path in paths :
+    print(paths)
+    for i  in range( len(paths) ):
+        path = paths[i]
         dataFiles = get_data_files(path)
-        dataFiles = select_files(dataFiles)
-        bunchNum = get_selected_bunches(dataFiles)
-#        print(dataFiles)
-#        print(bunchNum)
-#        print()
-#        for i in range(len(dataFiles)):
-        file = dataFiles[0]
-        dataSet, header = load_file(file)
-     #   print( header[0] )    
-        title = path.strip(direct)
-#        print(dataSet[0])
-#        print(dataSet[1] )
-#        for i in range( len(header) -1 ):        
-#            print(title + " " + str(i+1))
-#            save_file(dataSet[0], header[0], dataSet[i+1], header[i+1], saveDirectory+os.sep+title+"_test_save_"+header[i+1]+".txt")
-#            with open(saveDirectory+os.sep+title+"_test_save_"+header[i+1]+".txt", 'r') as file:
-#                reader = csv.reader(file, delimiter = "\t")
-#                for row in reader:
-#                    print(row)
-#    randomLists=[]
-#    header = ""
-#    for i in range(5):
-#        header +=str(i+1)+"\t"
-#        rand= [random.randint(0,100) for r in range(10) ]
-#        randomLists.append(rand)
-#        print(rand)
-#    print(randomLists)
-#    save_multicolumn(randomLists, header , "test_save.txt" )
-    fileName = "all_columns"+"_bunch_"+first+"-"+"last"+".txt"
-    with open(saveDirectory+os.sep+fileName) as file:
-        read = csv.reader(file, delimiter = "\t")
-        head = next(read)
-        print( head )
-        print(len(head))
-        for i, row in enumerate( read):
-            print( len(row) ) 
-            
-            if i >19:
-                break
+        dataFiles = select_files(dataFiles, first = "7", last = "8")
+        print([file.strip(direct) for file in dataFiles])
+        bunchNumAll.extend( get_selected_bunches(dataFiles) )
+        bunchNumAll = remove_dup(bunchNumAll)
+    print(sorted(bunchNumAll))
+    print("Number of bunches:\t"+str(len(bunchNumAll) ) )
     
     return
 ###############################################################################

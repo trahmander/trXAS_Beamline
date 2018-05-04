@@ -71,18 +71,20 @@ def test_average():
     randomLists=[]
     for i in range(5):
         rand= [random.randint(0,100) for r in range(10) ]
-        randomLists.append( np.array(rand) )
+        randomLists.append( rand )
     print(randomLists)
+
+    
+#    avg = average_vals(randomLists, randomLists)
+#    err = standard_error(randomLists, randomLists)
+#    print(avg[0])
+#    print(err[0])
+    
     randomLists = np.array(randomLists)
-    avg = np.mean(randomLists, axis = 0)
-    err = np.std(randomLists, axis = 0)/ len(randomLists[0])
+    avg = np.mean(randomLists, axis = 1)
+    err = np.std(randomLists, axis = 1)/ np.sqrt(len(randomLists[0]))
     print(avg)
     print(err)
-    
-    avg = average_vals(randomLists, randomLists)
-    err = standard_error(randomLists, randomLists)
-    print(avg[0])
-    print(err[0])
     
     return
 if __name__ == "__main__":

@@ -9,6 +9,8 @@ TO DO:
 	the peaks and chooses the shifting energy based on the minimum. More spectrum 
 	independent than picking a peak function.
 # fix the nan issue with binning. also figure out why it gives an empty slice at the end.
+# scan 202 pump 103 to 103 doesnt have header.
+#something wrong with bunch 7-7
 ##########################################################################################
 ##########################################################################################
 HOW TO USE:
