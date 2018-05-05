@@ -11,6 +11,8 @@ __email__ = "trahman@lbl.gov"
 ###############################################################################
 #From buit in modules
 import os
+import sys
+from datetime import datetime
 import numpy as np
 from matplotlib import pyplot as plt
 from user_input import (user_directory,  
@@ -100,7 +102,7 @@ def plot_spline(splines, peaks, lines, title, columnName, shiftedSplines, rawEne
 def save_spline(xVals, yVals, title, columnName, xOrig):
     if not os.path.exists(saveDirectory):
         os.makedirs(saveDirectory)
-    saveFileName = os.path.normpath(saveDirectory +os.sep+ title+"_"+columnName+"_bunch_"+first+"-"+last )
+    saveFileName = os.path.normpath(saveDirectory +os.sep+ title+"_"+columnName+"_bunch_"+first+"_"+last )
     save_file(xVals, "Photon E [eV]", yVals, columnName, saveFileName+".txt")
 #    xVals, yVals = bin_data(xVals, yVals, xOrig)
 #    save_file(xVals, "Photon E [eV]", yVals, columnName+" sum", saveFileName+"_binned.txt")    
@@ -127,9 +129,15 @@ def save_integral(bunch, Int, title):
 #Main driver function for trXAS package
 ###############################################################################
 def main():
-    initialize()
+#    sys.stdout= open(saveDirectory+os.sep+"save_log.txt", "w+")
     first = config.firstBunch
     last = config.lastBunch
+    log = saveDirectory+os.sep+"save_log_"+first+"_"+last+".txt"
+    print("",file= open(log, "w"))
+    log = open(log, "w+")
+    print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
+    initialize()
+
     bunchNumAll = []
 #    direct, column, first, last, xLow, xHigh = ask_user()
     paths = os.listdir(direct)
@@ -142,17 +150,23 @@ def main():
         path = paths[i]
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first = first, last = last)
-        bunchNumAll.extend( get_selected_bunches(dataFiles) )
+        try:
+            bunchNumAll.extend( get_selected_bunches(dataFiles) )
+        except:
+            continue
         bunchNumAll = remove_dup(bunchNumAll)
     
     dataFiles = get_data_files(paths[1])
 #    dataFiles = select_files(dataFiles, first = "1", last = "1")
 #    bunchNumAll = get_selected_bunches(dataFiles,first = first, last = last)
-    dataSet, header = load_file(dataFiles[0])
-    refColumnNum = header.index(refColumn)
+    dataSet, head = load_file(dataFiles[0])
+    refColumnNum = head.index(refColumn)
     bunchNumAll = sorted(bunchNumAll)
-    print(bunchNumAll)
-    print("Number of bunches:\t"+str( len(bunchNumAll) ) )
+    
+    print("Bunches:\n" + str(bunchNumAll), file = log)
+    print("Bunches:\n" + str(bunchNumAll),)
+    print("Number of bunches:\t"+str( len(bunchNumAll) ), file = log )
+    
     
     peaksAll=[]
     splinesAll=[]
@@ -160,7 +174,9 @@ def main():
     integralsAll=[]
 #    bunchNumAll=[137]
 #    bunchNum = []
-    
+    missingBunch = set([])
+    missingHeader = set([])
+    missingColumn = ([])
     while ( len(bunchNumAll) != 0 ) :
        
         bunch = bunchNumAll[0]
@@ -170,7 +186,7 @@ def main():
         lineAvg=0      
         lineErr=0
         
-        for col in header[1:-1] :
+        for col in head[1:-1] :
             shiftedSplinesAll = []
             rawEnergy = []
             integrals=[]
@@ -182,14 +198,16 @@ def main():
                 plt.title(title+" Bunches: "+first+"-"+last)
                 plt.ylabel(col)
                 plt.xlabel("Probe [eV]")        
-            for j in range( len(paths) ) :            
+            for j in range( len(paths) ) :  
+                skip=1
                 path = paths[j]
                 dataFiles = get_data_files(path)
                 try:
                     dataFiles = select_files(dataFiles, first = first, last = last)
                     dataSet, header = load_file(dataFiles[0])
                 except:
-                    print("Missing Bunch:\t"+first+"-"+last+"\n\t at:\t"+path.strip(direct))
+#                    print("Missing Bunch:\t"+first+"-"+last+"\n\t at:\t"+path.strip(direct))
+                    missingBunch.add(path.strip(direct)+"_"+first+"_"+last)
                     continue
 #                bunchNum =  get_selected_bunches(dataFiles)
     
@@ -198,15 +216,21 @@ def main():
                 try:
                     columnNum = header.index(col)
                 except:
-                    print("Missing header:\t"+col+"\n\t at:\t"+path.strip(direct)+" Bunch:\t"+first+"-"+last)
+#                    print("Missing header:\t"+col+"\n\t at:\t"+path.strip(direct)+" Bunch:\t"+first+"-"+last)
+                    missingHeader.add(path.strip(direct)+"_"+first+"_"+last)
+                    skip=0
+#                    continue
 #                refColumnNum = header.index(refColumn)            
                 for i in range(len(dataFiles)):
                     file = dataFiles[i]
-                    dataSet, header = load_file(file)
+#                    print(file+"\t"+str(skip))
+                    dataSet, header = load_file(file, skip)
+
                     try:
                         photonE = photonE_counts_plot(dataSet, refColumnNum, columnNum, file)
                     except:
-                        print("Missing Column:\t"+col+"\n\t at:\t"+file.strip(direct))
+#                        print("Missing Column:\t"+col+"\n\t at:\t"+file.strip(direct))
+                        missingColumn.add(file.strip(direct))
                         continue
                     rawEnergy.append(photonE)
            
@@ -256,24 +280,43 @@ def main():
             integrals.clear()
 #            bunchNum.clear()
             shiftedLines.clear()
-    
+        
+            
+#        print("Missing Column:")
+#        print(missingColumn)
         avgColumns.insert(0, lineAvg)
         avgColumns.insert(1, lineErr)
         avgColumns = np.array(avgColumns)
-        fileName = "avg"+"_bunch_"+first+"-"+last+".txt"
-        head=""
-        for col in header[:-1]:
-            head += col+"\t"+"SE "+col+"\t"
-        head = head[:-1]
-        save_multicolumn(avgColumns, header = head, filename = saveDirectory+os.sep+fileName)
-        print("Saved Bunch:\t"+first+"-"+last)
+        fileName = "avg"+"_bunch_"+first+"_"+last+".txt"
+        hdr=""
+        for col in head[:-1]:
+            hdr += col+"\t"+"SE "+col+"\t"
+        hdr = hdr[:-1]
+        if not os.path.exists(saveDirectory):
+            os.makedirs(saveDirectory)
+        save_multicolumn(avgColumns, header = hdr, filename = saveDirectory+os.sep+fileName)
+        print("Saved Bunch:\t"+first+"_"+last, file = log)
+        print("Saved Bunch:\t"+first+"_"+last)
+        if ( len(missingBunch)!=0 ):
+            print("\tMissing bunch:\t"+str(missingBunch), file = log)
+#            print(missingBunch, file = log)
+            missingBunch.clear()
+        if ( len(missingHeader)!=0 ):
+            print("\tMissing header:" + str(missingHeader), file = log)
+#            print(missingHeader, file = log)
+            missingHeader.clear()
+        if ( len(missingColumn)!=0 ):
+            print("\tMissing column:" + str(missingColumn), file = log)
+#            print(missingColumn, file = log)
+            missingColumn.clear()
         bunchNumAll.remove(bunch)
 
 #        if len(bunchNumAll)==0:
 #            break        
 #    plot_spline(splinesAll, peaksAll, linesAll, "All Splines", shiftedSplines)   
 #    save_integral(bunchNumAll, integralsAll, "All Integrals")
-
+    print( "\nLog End: "+ str( datetime.now() ), file = log )
+    log.close()
     return
 ###############################################################################        
 if __name__ == "__main__":

@@ -10,7 +10,8 @@ TO DO:
 	independent than picking a peak function.
 # fix the nan issue with binning. also figure out why it gives an empty slice at the end.
 # scan 202 pump 103 to 103 doesnt have header.
-#something wrong with bunch 7-7
+#something wrong with bunch 7-7, same error as -21- -21. Works if its not the only bunches though.
+    something to do with not all the paths having those bunches i guess.
 ##########################################################################################
 ##########################################################################################
 HOW TO USE:

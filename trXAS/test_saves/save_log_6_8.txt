@@ -1,0 +1,11 @@
+Log Start: 2018-05-04 16:01:59.672633
+
+Bunches:
+[6, 7, 8]
+Number of bunches:	3
+Saved Bunch:	6_6
+Saved Bunch:	7_7
+	Missing bunch:	{'0195_CuO_O_K-edge_355nm_58p_7_7'}
+Saved Bunch:	8_8
+
+Log End: 2018-05-04 16:02:53.434409

@@ -8,6 +8,7 @@ load_files.py: load files and choose bunches from directory specified by user_in
 #Import modules
 ###############################################################################
 import os
+#import sys
 import random
 import numpy as np
 import pandas as pd
@@ -174,7 +175,9 @@ def save_multicolumn(data, header, filename):
 ###############################################################################
 #test function for load_files.
 ###############################################################################
+
 def test_load_files():
+#    sys.stdout= open(saveDirectory+os.sep+"save_log.txt", "w+")
     direct = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
     paths = os.listdir(direct)
     bunchNumAll=[]

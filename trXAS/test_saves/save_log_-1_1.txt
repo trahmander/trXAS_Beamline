@@ -1,0 +1,10 @@
+Log Start: 2018-05-04 15:59:46.545791
+
+Bunches:
+[-1, 1]
+Number of bunches:	2
+Saved Bunch:	-1_-1
+	Missing header:{'0202_CuO_O_K-edge_355nm_58p_-1_-1'}
+Saved Bunch:	1_1
+
+Log End: 2018-05-04 16:00:25.100279
