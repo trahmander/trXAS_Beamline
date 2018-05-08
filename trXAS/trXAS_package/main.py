@@ -27,7 +27,7 @@ from load_files import (get_data_files,
                         save_file,
                         save_multicolumn,
                         bin_data)
-from shift import (photonE_counts_plot, 
+from shift import (data_to_column, 
                    shift_spline)
 # from shift import shift_lists
 from integrate import (def_integral, 
@@ -50,7 +50,7 @@ from config import (openDirectory as direct,
                     showSplines,
                     peaks,
                     splines,
-                    refSplines,
+#                    refSplines,
                     lines)
 ###############################################################################
 ###############################################################################
@@ -59,7 +59,7 @@ from config import (openDirectory as direct,
 def initialize():
     peaks.clear()
     splines.clear()
-    refSplines.clear()
+#    refSplines.clear()
     lines.clear()
     return
 def ask_user():
@@ -103,12 +103,17 @@ def save_integral(bunch, Int, title):
 ###############################################################################
 def main():
 #    sys.stdout= open(saveDirectory+os.sep+"save_log.txt", "w+")
-    first = config.firstBunch
-    last = config.lastBunch
-    log = saveDirectory+os.sep+"save_log_"+first+"_"+last+".txt"
-    print("",file= open(log, "w"))
+#    first = config.firstBunch
+#    last = config.lastBunch
+    missingBunch = set([])
+    missingHeader = set([])
+    missingColumn = ([])
+    log = saveDirectory+os.sep+"save_log_"+firstBunch+"_"+lastBunch+".txt"
+    with open(log, "w") as file:
+        print("",file= open(log, "w"))
     log = open(log, "w+")
     print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
+    log = open(log, "w+")
     initialize()
 
     bunchNumAll = []
@@ -119,23 +124,56 @@ def main():
     for path in paths:
          if "avg" in path:
             paths.remove(path)
-            
+    dataFiles = get_data_files(paths[1])
+    dataSet, head = load_file(dataFiles[0])
+    refColumnNum = head.index(refColumn)
+    bunchNumAll = sorted(bunchNumAll)    
+        
     for i  in range( len(paths) ):
+        skip = 1
         path = paths[i]
         dataFiles = get_data_files(path)
-        dataFiles = select_files(dataFiles, first= first, last = last)
+        dataFiles = select_files(dataFiles, first= firstBunch, last = lastBunch)
         try:
             bunchNumAll.extend( get_selected_bunches(dataFiles) )
         except:
             continue
         bunchNumAll = remove_dup(bunchNumAll)
+#        try:
+#            dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
+#            dataSet, header = load_file(dataFiles[0])
+#        except:
+##                    print("Missing Bunch:\t"+first+"-"+last+"\n\t at:\t"+path.strip(direct))
+#            missingBunch.add(path.strip(direct)+"_"+first+"_"+last)
+#            continue
+#                bunchNum =  get_selected_bunches(dataFiles)
+
+#        columnName = header[column]
+#        try:
+#            columnNum = header.index(col)
+#        except:
+##                    print("Missing header:\t"+col+"\n\t at:\t"+path.strip(direct)+" Bunch:\t"+first+"-"+last)
+#            missingHeader.add(path.strip(direct)+"_"+first+"_"+last)
+#            skip=0
+#                    continue
+#                refColumnNum = header.index(refColumn)            
+        for i in range(len(dataFiles)):
+            file = dataFiles[i]
+#                    print(file+"\t"+str(skip))
+            dataSet, header = load_file(file, skip)
+
+            try:
+                photonE = data_to_column(dataSet, refColumnNum, file)
+            except:
+#                        print("Missing Column:\t"+col+"\n\t at:\t"+file.strip(direct))
+                missingColumn.add(file.strip(direct))
+                continue
+#            rawEnergy.append(photonE)
     
-    dataFiles = get_data_files(paths[1])
-#    dataFiles = select_files(dataFiles, first = "1", last = "1")
-#    bunchNumAll = get_selected_bunches(dataFiles,first = first, last = last)
-    dataSet, head = load_file(dataFiles[0])
-    refColumnNum = head.index(refColumn)
-    bunchNumAll = sorted(bunchNumAll)
+#    dataFiles = get_data_files(paths[1])
+#    dataSet, head = load_file(dataFiles[0])
+#    refColumnNum = head.index(refColumn)
+#    bunchNumAll = sorted(bunchNumAll)
     
     print("Bunches:\n" + str(bunchNumAll), file = log)
     print("Bunches:\n" + str(bunchNumAll),)
@@ -148,9 +186,9 @@ def main():
     integralsAll=[]
 #    bunchNumAll=[137]
 #    bunchNum = []
-    missingBunch = set([])
-    missingHeader = set([])
-    missingColumn = ([])
+#    missingBunch = set([])
+#    missingHeader = set([])
+#    missingColumn = ([])
     while ( len(bunchNumAll) != 0 ) :
        
         bunch = bunchNumAll[0]
@@ -201,7 +239,7 @@ def main():
                     dataSet, header = load_file(file, skip)
 
                     try:
-                        photonE = photonE_counts_plot(dataSet, refColumnNum, columnNum, file)
+                        photonE = data_to_column(dataSet, refColumnNum, columnNum, file)
                     except:
 #                        print("Missing Column:\t"+col+"\n\t at:\t"+file.strip(direct))
                         missingColumn.add(file.strip(direct))
@@ -209,7 +247,7 @@ def main():
                     rawEnergy.append(photonE)
            
                 for k in range ( len(splines) ):
-                    shiftedVals, shiftedLine = shift_spline(k, peaks, splines, lines)
+                    shiftedVals, shiftedLine = shift_spline(k, peaks, splines[col], lines)
                     shiftedSplines.append(shiftedVals)
                     shiftedLines.append(shiftedLine)
 #                    plt.plot(shiftedLine, shiftedVals, linewidth=0.5)
@@ -300,68 +338,68 @@ def main():
     plt.show()
     plt.close()
     return
-def test():
-    log = saveDirectory+os.sep+"save_log_"+firstBunch+"_"+lastBunch+".txt"
-    print("",file= open(log, "w"))
-    log = open(log, "w+")
-    print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
-    initialize()
-
-    bunchNumAll = []
-#    direct, column, first, last, xLow, xHigh = ask_user()
-    paths = os.listdir(direct)
-    for i in range( len(paths) ):
-        paths[i] = os.path.join(direct, paths[i])
-    for path in paths:
-         if "avg" in path:
-            paths.remove(path)
-    splinesAll=[] 
-    dataFiles = get_data_files(paths[1])
-#    dataFiles = select_files(dataFiles, first = "1", last = "1")
-#    bunchNumAll = get_selected_bunches(dataFiles,first = first, last = last)
-    dataSet, head = load_file(dataFiles[0])
-    refColumnNum = head.index(refColumn)
-    bunchNumAll = sorted(bunchNumAll)
-    missingColumn= set([])
-       
-    for i  in range( len(paths) ):
-        path = paths[i]
-        dataFiles = get_data_files(path)
-        dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
-        bunchNumAll.extend( get_selected_bunches(dataFiles) )
-#        splinesAll.append(dataFiles)
-        bunchNumAll = remove_dup(bunchNumAll)
-        for i in range(len(dataFiles)):
-            skip=1
-            file = dataFiles[i]
-#                    print(file+"\t"+str(skip))
-            dataSet, header = load_file(file, skip)
-            for col in head[1:-1]:
-                columnNum = head.index(col)
-                photonE = photonE_counts_plot(dataSet, refColumnNum, columnNum, file)
-                
-   
-#                for k in range ( len(splines) ):
-#                    shiftedVals, shiftedLine = shift_spline(k, peaks, splines, lines)
-#                    shiftedSplines.append(shiftedVals)
-#                    shiftedLines.append(shiftedLine)
-            
-    
-    dataFiles = get_data_files(paths[1])
-    dataSet, head = load_file(dataFiles[0])
-    refColumnNum = head.index(refColumn)
-    bunchNumAll = sorted(bunchNumAll)
-    
-#    print("Bunches:\n" + str(bunchNumAll), file = log)
-    print("Bunches:\n" + str(bunchNumAll))
-#    print("Number of bunches:\t"+str( len(bunchNumAll) ), file = log ) 
-
-        
-    
-    
-#    print( "\nLog End: "+ str( datetime.now() ), file = log )
-#    log.close()
-    return
+#def test():
+#    log = saveDirectory+os.sep+"save_log_"+firstBunch+"_"+lastBunch+".txt"
+#    print("",file= open(log, "w"))
+#    log = open(log, "w+")
+#    print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
+#    initialize()
+#
+#    bunchNumAll = []
+##    direct, column, first, last, xLow, xHigh = ask_user()
+#    paths = os.listdir(direct)
+#    for i in range( len(paths) ):
+#        paths[i] = os.path.join(direct, paths[i])
+#    for path in paths:
+#         if "avg" in path:
+#            paths.remove(path)
+#    splinesAll=[] 
+#    dataFiles = get_data_files(paths[1])
+##    dataFiles = select_files(dataFiles, first = "1", last = "1")
+##    bunchNumAll = get_selected_bunches(dataFiles,first = first, last = last)
+#    dataSet, head = load_file(dataFiles[0])
+#    refColumnNum = head.index(refColumn)
+#    bunchNumAll = sorted(bunchNumAll)
+#    missingColumn= set([])
+#       
+#    for i  in range( len(paths) ):
+#        path = paths[i]
+#        dataFiles = get_data_files(path)
+#        dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
+#        bunchNumAll.extend( get_selected_bunches(dataFiles) )
+##        splinesAll.append(dataFiles)
+#        bunchNumAll = remove_dup(bunchNumAll)
+#        for i in range(len(dataFiles)):
+#            skip=1
+#            file = dataFiles[i]
+##                    print(file+"\t"+str(skip))
+#            dataSet, header = load_file(file, skip)
+#            for col in head[1:-1]:
+#                columnNum = head.index(col)
+#                photonE = data_to_column(dataSet, refColumnNum, columnNum, file)
+#                
+#   
+##                for k in range ( len(splines) ):
+##                    shiftedVals, shiftedLine = shift_spline(k, peaks, splines, lines)
+##                    shiftedSplines.append(shiftedVals)
+##                    shiftedLines.append(shiftedLine)
+#            
+#    
+#    dataFiles = get_data_files(paths[1])
+#    dataSet, head = load_file(dataFiles[0])
+#    refColumnNum = head.index(refColumn)
+#    bunchNumAll = sorted(bunchNumAll)
+#    
+##    print("Bunches:\n" + str(bunchNumAll), file = log)
+#    print("Bunches:\n" + str(bunchNumAll))
+##    print("Number of bunches:\t"+str( len(bunchNumAll) ), file = log ) 
+#
+#        
+#    
+#    
+##    print( "\nLog End: "+ str( datetime.now() ), file = log )
+##    log.close()
+#    return
 ###############################################################################        
 if __name__ == "__main__":
     main()

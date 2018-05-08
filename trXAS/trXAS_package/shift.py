@@ -35,17 +35,22 @@ def find_peak(xlow, xhigh, func):
     peaks.append(nearPeak[peak])
     return 
 #Interpolation of data. returns linear spline Appends it to splines
-def get_spline(low, high, x, refY, y):
+def get_spline(x, col, refCol):
+    low = x[0]
+    high = x[-1]
     step = (high - low) / stepSize
     line = np.linspace(low, high, step)
-    refSpline = itp.interp1d(x, refY, kind='slinear')                                   #This one does linear interpolation. kinda ugly
-    spline = itp.interp1d(x, y, kind = 'slinear')
+#    refSpline = itp.interp1d(x, refY, kind='slinear')                                   #This one does linear interpolation. kinda ugly
+    colSpline=[]
+    for y in col:
+        spline = itp.interp1d(x, y, kind = 'slinear')
+        colSpline.append(spline)
+    splines.append(colSpline)
     lines.append(line)
-#    refSplines.append(refSpline)
-    splines.append(spline)
+    refSpline = colSpline[refCol]
     return refSpline
 #unpacks the 2d array into 1d arrays given by the columns. uses find_peak and get_spline.
-def photonE_counts_plot(dataSet, refCol, col, file):
+def data_to_column(dataSet, refCol, file):
     photonE = []
     dataSet = dataSet.T
     try:
@@ -78,12 +83,12 @@ def photonE_counts_plot(dataSet, refCol, col, file):
             BCLR, #SEBCLR,
             #SE, #SE2
             ) = dataSet
-        lowE = photonE[0]
-        highE = photonE[-1]
-        refVals = columns[refCol]
-        vals = columns[col]
+#        lowE = photonE[0]
+#        highE = photonE[-1]
+#        refVals = columns[refCol]
+#        vals = columns[col]
 #        step = (highE - lowE) / stepSize
-        splinE = get_spline(lowE, highE, photonE, refVals, vals)
+        splinE = get_spline(photonE, columns[1:], refCol-1)
         find_peak(float(peakFindStart), float(peakFindEnd), splinE)                                       #should not be hardcoded.
     except:
         print("Didn't load to array:\t"+file)             
