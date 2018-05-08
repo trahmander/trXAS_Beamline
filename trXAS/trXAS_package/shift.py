@@ -16,8 +16,10 @@ import scipy.interpolate as itp
 from config import peaks
 from config import splines
 #from config import refSplines
-from config import lines 
-from config import stepSize
+from config import (lines, 
+                    stepSize,
+                    peakFindStart,
+                    peakFindEnd)
 ###############################################################################
 #finds the x-value of the peak specified around xlow and xhigh. Appends it to peaks.
 def find_peak(xlow, xhigh, func):
@@ -82,11 +84,11 @@ def photonE_counts_plot(dataSet, refCol, col, file):
         vals = columns[col]
 #        step = (highE - lowE) / stepSize
         splinE = get_spline(lowE, highE, photonE, refVals, vals)
-        find_peak(532, 537, splinE)                                       #should not be hardcoded.
+        find_peak(peakFindStart, peakFindEnd, splinE)                                       #should not be hardcoded.
     except:
         print("Didn't load to array:\t"+file)             
     return photonE
-#shifts all peaks to match the earleast peak. returns new splines. cuts the spline at the right side.
+#shifts all peaks to match the earleast peak. returns new splines. cuts the spline at the  high energy side.
 def shift_spline(splineNum, refPeaks, spline, line):
 #    yVals = ySpline[splineNum]( line[splineNum] )
     vals = spline[splineNum]( line[splineNum] )

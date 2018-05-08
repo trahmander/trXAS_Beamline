@@ -42,8 +42,8 @@ from config import (openDirectory as direct,
                     saveDirectory,
                     column as columnName,
                     refColumn,
-                    firstBunch as first, 
-                    lastBunch as last,
+                    firstBunch, 
+                    lastBunch,
                     photonEnergyStart as xLow,
                     photonEnergyEnd as xHigh,
                     showIntegrals,
@@ -72,33 +72,6 @@ def ask_user():
 #    probe = user_probe()
 #    sample = user_sample()
     return direct, column, first, last, xLow, xHigh
-def plot_spline(splines, peaks, lines, title, columnName, shiftedSplines, rawEnergy= [], integrals=False):
-    if showSplines:
-        fig = plt.figure(dpi=100)
-        plt.title(title+" Bunches: "+first+"-"+last)
-        plt.ylabel(columnName)
-        plt.xlabel("Probe [eV]")        
-    for k in range ( len(splines) ):
-        shiftedVals, shiftedLine = shift_spline(k, peaks, splines, lines)
-        shiftedSplines.append(shiftedVals)
-        if integrals != False:
-            integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
-            integrals.append(integral)
-        if showSplines :
-            lo, hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
-            shiftedLine = shiftedLine[lo:hi]
-            shiftedVals = shiftedVals[lo:hi]
-            plt.plot(shiftedLine, shiftedVals, linewidth=0.5)   
-    lineAvg, valAvg = average_vals(shiftedSplines)
-    if len(rawEnergy) != 0  :
-        save_spline(lineAvg, valAvg, title, columnName, rawEnergy)
-    print("saved spline:\t"+title)
-    if showSplines:    
-        lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
-        lineAvg = lineAvg[lo:hi]
-        valAvg = valAvg[lo:hi]
-        plt.plot(lineAvg, valAvg, linewidth=2, linestyle="--", color = 'r')
-    return
 def save_spline(xVals, yVals, title, columnName, xOrig):
     if not os.path.exists(saveDirectory):
         os.makedirs(saveDirectory)
@@ -146,10 +119,11 @@ def main():
     for path in paths:
          if "avg" in path:
             paths.remove(path)
+            
     for i  in range( len(paths) ):
         path = paths[i]
         dataFiles = get_data_files(path)
-        dataFiles = select_files(dataFiles, first = first, last = last)
+        dataFiles = select_files(dataFiles, first= first, last = last)
         try:
             bunchNumAll.extend( get_selected_bunches(dataFiles) )
         except:
@@ -193,7 +167,7 @@ def main():
             shiftedSplines=[]
             shiftedLines=[]
             title = col
-            if showSplines:
+            if showSplines and col == columnName:
                 fig = plt.figure(dpi=100)
                 plt.title(title+" Bunches: "+first+"-"+last)
                 plt.ylabel(col)
@@ -238,16 +212,19 @@ def main():
                     shiftedVals, shiftedLine = shift_spline(k, peaks, splines, lines)
                     shiftedSplines.append(shiftedVals)
                     shiftedLines.append(shiftedLine)
+#                    plt.plot(shiftedLine, shiftedVals, linewidth=0.5)
                     
     #                    integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
     #                    integrals.append(integral)
     
         #        save_integral(bunchNum, integrals, title)
     
-                if showSplines :
-                    lo, hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
-                    shiftedLine = shiftedLine[lo:hi]
-                    shiftedVals = shiftedVals[lo:hi]
+                if showSplines and col == columnName:
+#                    lo, hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
+#                    shiftedLine = shiftedLine[lo:hi]
+#                    shiftedVals = shiftedVals[lo:hi]
+                    plt.axvline(float(xLow), linestyle = "-.", linewidth = 0.5)
+                    plt.axvline(float(xHigh), linestyle = "--", linewidth = 0.5)
                     plt.plot(shiftedLine, shiftedVals, linewidth=0.5)
             
             peaksAll.extend(peaks)
@@ -260,16 +237,18 @@ def main():
             lineAvg, valAvg = average_vals(shiftedSplines, shiftedLines)
             lineErr, valErr = standard_error(shiftedSplines, shiftedLines, valAvg, lineAvg)
     #            valAvg = valAvg.tolist()
+            if showSplines and col == columnName:
+                plt.plot(lineAvg, valAvg, linestyle = "--", color = 'r', linewidth =1 )
     
             avgColumns.append(valAvg)
             avgColumns.append(valErr)
     
 #            print("Saved:\t"+col)
-            if showSplines:    
-                lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
-                lineAvg = lineAvg[lo:hi]
-                valAvg = valAvg[lo:hi]
-                plt.plot(lineAvg, valAvg, linewidth=2, linestyle="--", color = 'r')
+#            if showSplines and col == columnName:    
+#                lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
+#                lineAvg = lineAvg[lo:hi]
+#                valAvg = valAvg[lo:hi]
+#                plt.plot(lineAvg, valAvg, linewidth=2, linestyle="--", color = 'r')
                 
             
             peaks.clear()
@@ -318,6 +297,68 @@ def main():
     print( "\nLog End: "+ str( datetime.now() ), file = log )
     log.close()
     return
+def test():
+    log = saveDirectory+os.sep+"save_log_"+firstBunch+"_"+lastBunch+".txt"
+    print("",file= open(log, "w"))
+    log = open(log, "w+")
+    print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
+    initialize()
+
+    bunchNumAll = []
+#    direct, column, first, last, xLow, xHigh = ask_user()
+    paths = os.listdir(direct)
+    for i in range( len(paths) ):
+        paths[i] = os.path.join(direct, paths[i])
+    for path in paths:
+         if "avg" in path:
+            paths.remove(path)
+    splinesAll=[] 
+    dataFiles = get_data_files(paths[1])
+#    dataFiles = select_files(dataFiles, first = "1", last = "1")
+#    bunchNumAll = get_selected_bunches(dataFiles,first = first, last = last)
+    dataSet, head = load_file(dataFiles[0])
+    refColumnNum = head.index(refColumn)
+    bunchNumAll = sorted(bunchNumAll)
+    missingColumn= set([])
+       
+    for i  in range( len(paths) ):
+        path = paths[i]
+        dataFiles = get_data_files(path)
+        dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
+        bunchNumAll.extend( get_selected_bunches(dataFiles) )
+#        splinesAll.append(dataFiles)
+        bunchNumAll = remove_dup(bunchNumAll)
+        for i in range(len(dataFiles)):
+            skip=1
+            file = dataFiles[i]
+#                    print(file+"\t"+str(skip))
+            dataSet, header = load_file(file, skip)
+            for col in head[1:-1]:
+                columnNum = head.index(col)
+                photonE = photonE_counts_plot(dataSet, refColumnNum, columnNum, file)
+                
+   
+#                for k in range ( len(splines) ):
+#                    shiftedVals, shiftedLine = shift_spline(k, peaks, splines, lines)
+#                    shiftedSplines.append(shiftedVals)
+#                    shiftedLines.append(shiftedLine)
+            
+    
+    dataFiles = get_data_files(paths[1])
+    dataSet, head = load_file(dataFiles[0])
+    refColumnNum = head.index(refColumn)
+    bunchNumAll = sorted(bunchNumAll)
+    
+#    print("Bunches:\n" + str(bunchNumAll), file = log)
+    print("Bunches:\n" + str(bunchNumAll))
+#    print("Number of bunches:\t"+str( len(bunchNumAll) ), file = log ) 
+
+        
+    
+    
+#    print( "\nLog End: "+ str( datetime.now() ), file = log )
+#    log.close()
+    return
 ###############################################################################        
 if __name__ == "__main__":
-    main()
+    test()
