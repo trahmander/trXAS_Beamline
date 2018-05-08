@@ -239,7 +239,7 @@ def main():
     #            valAvg = valAvg.tolist()
             if showSplines and col == columnName:
                 plt.plot(lineAvg, valAvg, linestyle = "--", color = 'r', linewidth =1 )
-    
+            
             avgColumns.append(valAvg)
             avgColumns.append(valErr)
     
@@ -294,8 +294,11 @@ def main():
 #            break        
 #    plot_spline(splinesAll, peaksAll, linesAll, "All Splines", shiftedSplines)   
 #    save_integral(bunchNumAll, integralsAll, "All Integrals")
+    
     print( "\nLog End: "+ str( datetime.now() ), file = log )
     log.close()
+    plt.show()
+    plt.close()
     return
 def test():
     log = saveDirectory+os.sep+"save_log_"+firstBunch+"_"+lastBunch+".txt"
@@ -361,4 +364,4 @@ def test():
     return
 ###############################################################################        
 if __name__ == "__main__":
-    test()
+    main()

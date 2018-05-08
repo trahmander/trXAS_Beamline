@@ -84,7 +84,7 @@ def photonE_counts_plot(dataSet, refCol, col, file):
         vals = columns[col]
 #        step = (highE - lowE) / stepSize
         splinE = get_spline(lowE, highE, photonE, refVals, vals)
-        find_peak(peakFindStart, peakFindEnd, splinE)                                       #should not be hardcoded.
+        find_peak(float(peakFindStart), float(peakFindEnd), splinE)                                       #should not be hardcoded.
     except:
         print("Didn't load to array:\t"+file)             
     return photonE

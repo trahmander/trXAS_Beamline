@@ -23,8 +23,8 @@ refColumn = "Y all norm"
 # bunches in your directory. If you only want to look at 1 bunch. Choose that for 
 # for both values. ie: firstBunch = "7", lastBunch = "7" would look at just the 
 # 7th bunch after time 0.
-firstBunch = "-15"
-lastBunch = "-11"
+firstBunch = "-1"
+lastBunch = "1"
 #photonEnergyStart is the smaller energy in the window to do an integration.
 #photonEnergyEnd os the larger energy in the window to do an integration.
 #Choose "all" to integrate on the entire photon energy axis. 
@@ -37,7 +37,7 @@ peakFindStart = "532"
 peakFindEnd= "537"
 #showSplines is set to True if you want the plots for the column you set in column
 #showIntegrals is set to True if you want the plots for the integrals for StS norm.
-showSplines = False
+showSplines = True
 showIntegrals = True
 #stepSize determines how coarse the splining of your data is. Smaller stepSize is more expensive.
 stepSize = 0.005
