@@ -28,15 +28,29 @@ def get_data_files(path):
             dFiles.append(os.path.join(pathName,file))
     return dFiles
 #Returns a 2d array of sorted data from a file and the header row. sorts array by the first column.
-def load_file(fileName, skip=1):
-    dataSet = np.genfromtxt(fileName, delimiter="\t", skip_header=skip)
+def is_float(x):
+    try:
+        float(x)
+        return True
+    except ValueError:
+        return False
+def load_file(fileName, skip=1, wantHeader=True):
+#    dataSet = np.genfromtxt(fileName, delimiter="\t", skip_header=skip)
+    skip=1
     with open(fileName, "r") as f:
         reader = csv.reader(f, delimiter = "\t", )
         header = next(reader)
+#   check whether the file has a header and wether 1st line should be skipped.
+    if not all( [ not (is_float(h) ) for h in header ] ) :
+        skip=0
+    dataSet = np.genfromtxt(fileName, delimiter="\t", skip_header=skip)
     dataSet = dataSet.tolist()
     dataSet.sort(key= lambda x:x[0])
     dataSet = np.array(dataSet)                                                 # Sort data based on photonE column.
-    return dataSet, header
+    if wantHeader:
+        return dataSet, header
+    else:
+        return dataSet
 #returns a list of data files with only the chosen bunches.
 def select_bunches(dataFiles, first, last):
     if first == "all":
@@ -179,23 +193,35 @@ def save_multicolumn(data, header, filename):
 def test_load_files():
 #    sys.stdout= open(saveDirectory+os.sep+"save_log.txt", "w+")
     direct = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
+#    paths = os.listdir(direct)
+#    bunchNumAll=[]
+#    for path in paths:
+#         if "avg" in path:
+#            paths.remove(path)
+#    for i in range( len(paths) ):
+#        paths[i] = os.path.join(direct, paths[i])
+#    print(paths)
+#    for i  in range( len(paths) ):
+#        path = paths[i]
+#        print(path.strip(direct).split("_")[0])
+#        dataFiles = get_data_files(path)
+#        dataFiles = select_files(dataFiles, first = "-1", last = "1")
+#        print([file.strip(direct) for file in dataFiles])
+#        bunchNumAll.extend( get_selected_bunches(dataFiles) )
+#        bunchNumAll = remove_dup(bunchNumAll)
+#    print(sorted(bunchNumAll))
+#    print("Number of bunches:\t"+str(len(bunchNumAll) ) )
+    
     paths = os.listdir(direct)
-    bunchNumAll=[]
+    for i in range( len(paths) ):
+        paths[i] = os.path.join(direct, paths[i])
     for path in paths:
          if "avg" in path:
             paths.remove(path)
-    for i in range( len(paths) ):
-        paths[i] = os.path.join(direct, paths[i])
-    print(paths)
-    for i  in range( len(paths) ):
-        path = paths[i]
-        dataFiles = get_data_files(path)
-        dataFiles = select_files(dataFiles, first = "7", last = "8")
-        print([file.strip(direct) for file in dataFiles])
-        bunchNumAll.extend( get_selected_bunches(dataFiles) )
-        bunchNumAll = remove_dup(bunchNumAll)
-    print(sorted(bunchNumAll))
-    print("Number of bunches:\t"+str(len(bunchNumAll) ) )
+    
+    dataFiles = get_data_files(paths[0])
+    dataSet, head = load_file(dataFiles[1])
+    refColumnNum = head.index(refColumn)
     
     return
 ###############################################################################

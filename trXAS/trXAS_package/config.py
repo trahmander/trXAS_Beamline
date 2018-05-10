@@ -14,7 +14,7 @@ openDirectory = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
 saveDirectory= os.path.normpath(os.pardir+os.sep+"test_saves")
 #column specifies the name of the column that you want to plot as a function of photon energy.
 #refColumn specifies the name of the column that you want to compare in order to determine the shifts
-column = "StS norm"
+column = ["Y all norm", "StS norm"]
 refColumn = "Y all norm"
 #firstBunch determines the the earliest bunch before the pump to average. (Inclusive) 
 #lastBunch determines the latest bunch after the pump to average. (Inclusive)
@@ -23,7 +23,7 @@ refColumn = "Y all norm"
 # bunches in your directory. If you only want to look at 1 bunch. Choose that for 
 # for both values. ie: firstBunch = "7", lastBunch = "7" would look at just the 
 # 7th bunch after time 0.
-firstBunch = "-1"
+firstBunch = "1"
 lastBunch = "1"
 #photonEnergyStart is the smaller energy in the window to do an integration.
 #photonEnergyEnd os the larger energy in the window to do an integration.
@@ -37,7 +37,7 @@ peakFindStart = "532"
 peakFindEnd= "537"
 #showSplines is set to True if you want the plots for the column you set in column
 #showIntegrals is set to True if you want the plots for the integrals for StS norm.
-showSplines = True
+showSplines = False
 showIntegrals = True
 #stepSize determines how coarse the splining of your data is. Smaller stepSize is more expensive.
 stepSize = 0.005

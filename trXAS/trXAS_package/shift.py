@@ -93,7 +93,7 @@ def data_to_column(dataSet, refCol, file):
     except:
         print("Didn't load to array:\t"+file)             
     return photonE
-#shifts all peaks to match the earleast peak. returns new splines. cuts the spline at the  high energy side.
+#shifts all peaks to match the earleast peak. returns new splines. cuts the spline at the  low energy side.
 def shift_spline(splineNum, refPeaks, spline, line):
 #    yVals = ySpline[splineNum]( line[splineNum] )
     vals = spline[splineNum]( line[splineNum] )
@@ -102,11 +102,43 @@ def shift_spline(splineNum, refPeaks, spline, line):
     if np.abs(ref - refPeaks[splineNum]) < stepSize:
         return vals, line[splineNum]
     else:
-        delta = peaks[splineNum] - ref
+        delta = refPeaks[splineNum] - ref
         index = int ( delta / stepSize )
         for i in range (len(vals) - index ) :
             vals[i] = vals[i+index]
         return vals[:-index], line[splineNum][:-index]
+def get_deltas(refPeaks):
+    ref = np.amin(refPeaks)
+#    row = splines[0]
+#    vals = row[splineNum]( lines[splineNum] )
+    deltas=[]
+    for peak in refPeaks:       
+        if  peak - ref < stepSize/2.0:
+            deltas.append(0.0)
+        else:
+            deltas.append(peak - ref)
+    return deltas
+def apply_shift(delta, splines, lines):
+    index = [int ( de / stepSize ) for de in delta]
+    valuesAllCol=[]
+    linesAll=[]
+    for i, spline in enumerate( splines ):
+        values=[]
+        ind = index[i]
+        if ind == 0:
+            for j,col in enumerate( spline ):
+                values.append( col( lines[i] ) )
+        else:
+#            values=[]
+            for j, col in enumerate(spline):
+                val = col( lines[i] )
+                for k in range( len(val) - ind ):
+                    val[k] = val[k+ind]
+                values.append(val[:-ind])
+            lines[i] = lines[i][:-ind]
+        
+        valuesAllCol.append(values)
+    return lines, valuesAllCol
 
 ###############################################################################
 #Test Functions for shift.py
