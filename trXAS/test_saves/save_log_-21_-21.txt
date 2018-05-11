@@ -1,8 +1,9 @@
-Log Start: 2018-05-09 17:56:27.304933
+Log Start: 2018-05-10 15:53:48.194110
 
 Bunches:
 [-21]
 Number of bunches:	1
 Saved Bunch:	-21_-21
+	Missing bunch:	['0198_CuO_O_K-edge_355nm_58p', '0199_CuO_O_K-edge_355nm_58p', '0201_CuO_O_K-edge_355nm_58p', '0202_CuO_O_K-edge_355nm_58p']
 
-Log End: 2018-05-09 17:56:29.496014
+Log End: 2018-05-10 15:53:50.442169

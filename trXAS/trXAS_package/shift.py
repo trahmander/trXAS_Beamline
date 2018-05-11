@@ -50,7 +50,7 @@ def get_spline(x, col, refCol):
     refSpline = colSpline[refCol]
     return refSpline
 #unpacks the 2d array into 1d arrays given by the columns. uses find_peak and get_spline.
-def data_to_column(dataSet, refCol, file):
+def data_to_column(dataSet, refCol, file, findPeak):
     photonE = []
     dataSet = dataSet.T
     try:
@@ -88,8 +88,9 @@ def data_to_column(dataSet, refCol, file):
 #        refVals = columns[refCol]
 #        vals = columns[col]
 #        step = (highE - lowE) / stepSize
-        splinE = get_spline(photonE, columns[1:], refCol-1)
-        find_peak(float(peakFindStart), float(peakFindEnd), splinE)                                       #should not be hardcoded.
+        refSpline = get_spline(photonE, columns[1:], refCol-1)
+        if findPeak:
+            find_peak(float(peakFindStart), float(peakFindEnd), refSpline)                                       #should not be hardcoded.
     except:
         print("Didn't load to array:\t"+file)             
     return photonE
@@ -118,25 +119,25 @@ def get_deltas(refPeaks):
         else:
             deltas.append(peak - ref)
     return deltas
-def apply_shift(delta, splines, lines):
+def apply_shift(delta, splineCols, lines):
     index = [int ( de / stepSize ) for de in delta]
     valuesAllCol=[]
-    linesAll=[]
-    for i, spline in enumerate( splines ):
+#    linesAll=[]
+    for i, spline in enumerate( splineCols ):
         values=[]
         ind = index[i]
         if ind == 0:
-            for j,col in enumerate( spline ):
+            for col in spline :
                 values.append( col( lines[i] ) )
         else:
 #            values=[]
-            for j, col in enumerate(spline):
+            for col in spline:
                 val = col( lines[i] )
                 for k in range( len(val) - ind ):
                     val[k] = val[k+ind]
                 values.append(val[:-ind])
             lines[i] = lines[i][:-ind]
-        
+    
         valuesAllCol.append(values)
     return lines, valuesAllCol
 

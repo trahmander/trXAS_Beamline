@@ -15,6 +15,7 @@ saveDirectory= os.path.normpath(os.pardir+os.sep+"test_saves")
 #column specifies the name of the column that you want to plot as a function of photon energy.
 #refColumn specifies the name of the column that you want to compare in order to determine the shifts
 column = ["Y all norm", "StS norm"]
+integrationColumn = "StS norm"
 refColumn = "Y all norm"
 #firstBunch determines the the earliest bunch before the pump to average. (Inclusive) 
 #lastBunch determines the latest bunch after the pump to average. (Inclusive)
@@ -23,8 +24,8 @@ refColumn = "Y all norm"
 # bunches in your directory. If you only want to look at 1 bunch. Choose that for 
 # for both values. ie: firstBunch = "7", lastBunch = "7" would look at just the 
 # 7th bunch after time 0.
-firstBunch = "1"
-lastBunch = "1"
+firstBunch = "all"
+lastBunch = "all"
 #photonEnergyStart is the smaller energy in the window to do an integration.
 #photonEnergyEnd os the larger energy in the window to do an integration.
 #Choose "all" to integrate on the entire photon energy axis. 

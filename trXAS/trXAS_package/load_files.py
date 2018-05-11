@@ -34,7 +34,7 @@ def is_float(x):
         return True
     except ValueError:
         return False
-def load_file(fileName, skip=1, wantHeader=True):
+def load_file(fileName, skip=1, wantHeader=True, wantMissing=False):
 #    dataSet = np.genfromtxt(fileName, delimiter="\t", skip_header=skip)
     skip=1
     with open(fileName, "r") as f:
@@ -43,6 +43,8 @@ def load_file(fileName, skip=1, wantHeader=True):
 #   check whether the file has a header and wether 1st line should be skipped.
     if not all( [ not (is_float(h) ) for h in header ] ) :
         skip=0
+    if wantMissing:
+        return not bool(skip) 
     dataSet = np.genfromtxt(fileName, delimiter="\t", skip_header=skip)
     dataSet = dataSet.tolist()
     dataSet.sort(key= lambda x:x[0])
@@ -80,6 +82,8 @@ def select_bunches(dataFiles, first, last):
             else:
                 if low - end_ref == int(first) and high - end_ref == int(last) :
                     dFiles.append(file)
+#    if (len(dFiles) ) == 0:
+#        raise Exception
     #        print(file)
     return dFiles
 #returns data files with the chosen pump
