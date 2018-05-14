@@ -15,7 +15,7 @@ saveDirectory= os.path.normpath(os.pardir+os.sep+"test_saves")
 #column specifies the name of the column that you want to plot as a function of photon energy.
 #refColumn specifies the name of the column that you want to compare in order to determine the shifts
 column = ["Y all norm", "StS norm"]
-integrationColumn = "StS norm"
+transColumn = "StS norm"
 refColumn = "Y all norm"
 #firstBunch determines the the earliest bunch before the pump to average. (Inclusive) 
 #lastBunch determines the latest bunch after the pump to average. (Inclusive)
@@ -42,6 +42,7 @@ showSplines = False
 showIntegrals = True
 #stepSize determines how coarse the splining of your data is. Smaller stepSize is more expensive.
 stepSize = 0.005
+offSet= 0.15
 ############################################################################### 
 ###############################################################################
 #Initialize some values that are shared between the package files. It's best to

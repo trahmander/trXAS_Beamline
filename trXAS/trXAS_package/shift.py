@@ -110,8 +110,6 @@ def shift_spline(splineNum, refPeaks, spline, line):
         return vals[:-index], line[splineNum][:-index]
 def get_deltas(refPeaks):
     ref = np.amin(refPeaks)
-#    row = splines[0]
-#    vals = row[splineNum]( lines[splineNum] )
     deltas=[]
     for peak in refPeaks:       
         if  peak - ref < stepSize/2.0:
@@ -122,7 +120,6 @@ def get_deltas(refPeaks):
 def apply_shift(delta, splineCols, lines):
     index = [int ( de / stepSize ) for de in delta]
     valuesAllCol=[]
-#    linesAll=[]
     for i, spline in enumerate( splineCols ):
         values=[]
         ind = index[i]
@@ -130,7 +127,6 @@ def apply_shift(delta, splineCols, lines):
             for col in spline :
                 values.append( col( lines[i] ) )
         else:
-#            values=[]
             for col in spline:
                 val = col( lines[i] )
                 for k in range( len(val) - ind ):

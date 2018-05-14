@@ -44,12 +44,14 @@ from config import (openDirectory as direct,
                     saveDirectory,
                     column as columnName,
                     refColumn,
+                    transColumn,
                     firstBunch, 
                     lastBunch,
                     photonEnergyStart as xLow,
                     photonEnergyEnd as xHigh,
                     peakFindStart,
                     peakFindEnd,
+                    offSet,
                     showIntegrals,
                     showSplines,
                     peaks,
@@ -76,167 +78,12 @@ def ask_user():
 #    probe = user_probe()
 #    sample = user_sample()
     return direct, column, first, last, xLow, xHigh
-def save_spline(xVals, yVals, title, columnName, xOrig):
-    if not os.path.exists(saveDirectory):
-        os.makedirs(saveDirectory)
-    saveFileName = os.path.normpath(saveDirectory +os.sep+ title+"_"+columnName+"_bunch_"+first+"_"+last )
-    save_file(xVals, "Photon E [eV]", yVals, columnName, saveFileName+".txt")
-#    xVals, yVals = bin_data(xVals, yVals, xOrig)
-#    save_file(xVals, "Photon E [eV]", yVals, columnName+" sum", saveFileName+"_binned.txt")    
-    return
-def save_integral(bunch, Int, title):
-    Int = [I for b, I in sorted( zip(bunch, Int), key = lambda pair: pair[0] )]
-    bunch.sort()
-    bunch, Int = average_integrals(bunch, Int)
-    timeDelay = np.multiply(2.0,bunch)
-    if not os.path.exists(saveDirectory):
-        os.makedirs(saveDirectory)
-    saveFileName = os.path.normpath(saveDirectory +os.sep+ title+"_int_"+xLow+"-"+xHigh+".txt" )
-    save_file(timeDelay, "Time Delay [ns]", Int, columnName+" sum", saveFileName)
-    print("saved integral:\t"+title)
-    if showIntegrals:
-        fig_int = plt.figure(dpi=100)
-        plt.title(title+" Bunches: "+first+"-"+last+ " Integration: "+xLow+"-"+xHigh)
-        plt.ylabel(columnName)
-        plt.xlabel("Time Delay [ns]")
-        plt.plot(timeDelay , Int, marker = 'd')
-    return
-###############################################################################
-###############################################################################
-#Main driver function for trXAS package
-###############################################################################
-def main():
-#    sys.stdout= open(saveDirectory+os.sep+"save_log.txt", "w+")
-#    first = config.firstBunch
-#    last = config.lastBunch
-    initialize()
-    missingBunch = []
-    missingHeader = []
-#    missingColumn = set([])
-    log = saveDirectory+os.sep+"save_log_"+firstBunch+"_"+lastBunch+".txt"
-    
-    print("",file= open(log, "w"))
-    log = open(log, "w+")
-    print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
-
-
-    bunchNumAll = []
-#    direct, column, first, last, xLow, xHigh = ask_user()
-    paths = os.listdir(direct)
-    for i in range( len(paths) ):
-        paths[i] = os.path.join(direct, paths[i])
-    for path in paths:
-         if "avg" in path:
-            paths.remove(path)
-    dataFiles = get_data_files(paths[1])
-    dataSet, head = load_file(dataFiles[0])
-    refColumnNum = head.index(refColumn)
-#    bunchNumAll = sorted(bunchNumAll)    
-    
-    pathToFiles = {}    
-    for i  in range( len(paths) ):
-#        skip = 1
-        path = paths[i]
-        dataFiles = get_data_files(path)
-        dataFiles = select_files(dataFiles, first= firstBunch, last = lastBunch)
-#        filesAll.append(dataFiles)
-        pathToFiles[path] = dataFiles
-        try:
-            bunchNumAll.extend( get_selected_bunches(dataFiles) )
-        except:
-#            print("Couldn't find the bunches in:\t"+path.strip(direct))
-            continue
-        
-        file = dataFiles[0]
-        if load_file(file, wantMissing=True) :
-            missingHeader.append( file.split(os.sep)[-1] )
-        dataSet, header = load_file(file)
-        photonE = data_to_column(dataSet, refColumnNum, file, False)
-    initialize()
-    bunchNum = sorted(remove_dup(bunchNumAll))
-#    print(filesAll)
-#    deltas= [get_delta(peaks, i) for i,s in enumerate(splines)]
-
-#        try:
-#            dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
-#            dataSet, header = load_file(dataFiles[0])
-#        except:
-##                    print("Missing Bunch:\t"+first+"-"+last+"\n\t at:\t"+path.strip(direct))
-#            missingBunch.add(path.strip(direct)+"_"+first+"_"+last)
-#            continue
-#                bunchNum =  get_selected_bunches(dataFiles)
-
-#        columnName = header[column]
-#        try:
-#            columnNum = header.index(col)
-#        except:
-##                    print("Missing header:\t"+col+"\n\t at:\t"+path.strip(direct)+" Bunch:\t"+first+"-"+last)
-#            missingHeader.add(path.strip(direct)+"_"+first+"_"+last)
-#            skip=0
-#                    continue
-#                refColumnNum = header.index(refColumn)            
-#    splinesAllScans=[]
-#s    deltasAllScans=[]
-    for path in paths:
-#        skip=1
-        dataFiles = get_data_files(path)
-        dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
-        for i in range(len(dataFiles)):
-            skip=1
-            findPeak=True
-            file = dataFiles[i]
-#                    print(file+"\t"+str(skip))
-            dataSet, header = load_file(file, skip=skip)
-            if i!=0:
-                findPeak = False
-                peaks.append(peaks[-1])
-            photonE = data_to_column(dataSet, refColumnNum, file, findPeak)
-#        deltas = [ get_delta(peaks, i) for i,s in enumerate(splines) ]
-#        deltasAllScans.append(deltas)    
-#        splinesAllScans.append(splines)
-#        splines.clear()
-#    deltas = [ get_delta(peaks, i) for i,s in enumerate(splines) ]
-    deltas = get_deltas(peaks)
-#    print(len(peaks))
-#    print( [len(s) for s in splines if len(s)!=0] )
-#    print( np.array(splines).shape )
-#    print(peaks)
-#    print(len(deltas))
-#    print(deltas)
-    shiftedEnergy, shiftedColumns = apply_shift(deltas, splines, lines )
-#            rawEnergy.append(photonE)
-    
-#    dataFiles = get_data_files(paths[1])
-#    dataSet, head = load_file(dataFiles[0])
-#    refColumnNum = head.index(refColumn)
-#    bunchNumAll = sorted(bunchNumAll)
-    
-    print("Bunches:\n" + str(bunchNum), file = log)
-    print("Bunches:\n" + str(bunchNum),)
-    print("Number of bunches:\t"+str( len(bunchNum) )+"\n", file = log )
-#    print( [len(s) for s in shiftedEnergy if len(s)!=0] )
-#    print( np.array(shiftedEnergy).shape )
-#    print( shiftedEnergy )
-#    print( [len(s) for s in shiftedColumns if len(s) != 0 ])
-#    print( np.array(shiftedColumns).shape )
-#    print(shiftedColumns[1])
-        
-#    peaksAll=[]
-#    splinesAll=[]
-#    linesAll=[]
-#    integralsAll=[]
-#    bunchNumAll=[137]
-#    bunchNum = []
-#    missingBunch = set([])
-#    missingHeader = set([])
-#    missingColumn = ([])
-#    while ( len(bunchNumAll) != 0 ) :
+def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pathToFiles, log,  missingBunch, missingHeader):
     shiftedSplines= []
     shiftedLines= []
+    paths = pathToFiles.keys()
     for bunch in bunchNum  :
-#        bunch = bunchNumAll[0]
         first = last = str(bunch)
-#        print("Bunch: "+first+"-"+last)
         for path in  paths :
             try:
                 f = select_files( pathToFiles[path], first, last )
@@ -250,74 +97,18 @@ def main():
         bunchIndices = [i for i,x in enumerate(bunchNumAll) if x == bunch]
         shiftedLines = [ shiftedEnergy[ind] for ind in bunchIndices]
          
-#        shiftedSplines=[]
         for j, col in enumerate( head[1:-1] ):
-#            shiftedSplinesAll = []
-#            rawEnergy = []
-#            integrals=[]
+
             shiftedSplines= [shiftedColumns[i][j] for i in bunchIndices ]
-#            print( [len(s) for s in shiftedSplines] ) 
-#            print( [len(s) for s in shiftedLines] )
-#            print( [len(s) for s in shiftedSplines] )
-#            shiftedLines=[]
             title = col
             if showSplines and col in columnName:
                 fig = plt.figure(dpi=100)
                 plt.title(title+" Bunches: "+first+"-"+last)
                 plt.ylabel(col)
                 plt.xlabel("Probe [eV]")        
-#            for j in range( len(paths) ) :  
-#                skip=1
-#                path = paths[j]
-#                dataFiles = get_data_files(path)
-#                try:
-#                    dataFiles = select_files(dataFiles, first = first, last = last)
-#                    dataSet, header = load_file(dataFiles[0])
-#                except:
-##                    print("Missing Bunch:\t"+first+"-"+last+"\n\t at:\t"+path.strip(direct))
-#                    missingBunch.add(path.strip(direct)+"_"+first+"_"+last)
-#                    continue
-##                bunchNum =  get_selected_bunches(dataFiles)
-#    
-#                
-#        #        columnName = header[column]
-#                try:
-#                    columnNum = header.index(col)
-#                except:
-##                    print("Missing header:\t"+col+"\n\t at:\t"+path.strip(direct)+" Bunch:\t"+first+"-"+last)
-#                    missingHeader.add(path.strip(direct)+"_"+first+"_"+last)
-#                    skip=0
-##                    continue
-##                refColumnNum = header.index(refColumn)            
-#                for i in range(len(dataFiles)):
-#                    file = dataFiles[i]
-##                    print(file+"\t"+str(skip))
-#                    dataSet, header = load_file(file, skip)
-#
-#                    try:
-#                        photonE = data_to_column(dataSet, refColumnNum, columnNum, file)
-#                    except:
-##                        print("Missing Column:\t"+col+"\n\t at:\t"+file.strip(direct))
-#                        missingColumn.add(file.strip(direct))
-#                        continue
-#                    rawEnergy.append(photonE)
-#           
-#                for k in range ( len(splines) ):
-#                    shiftedVals, shiftedLine = shift_spline(k, peaks, splines[col], lines)
-#                    shiftedSplines.append(shiftedVals)
-#                    shiftedLines.append(shiftedLine)
-#                    plt.plot(shiftedLine, shiftedVals, linewidth=0.5)
-                    
-    #                    integral= def_integral(shiftedLine, shiftedVals, xLow, xHigh)
-    #                    integrals.append(integral)
-    
-        #        save_integral(bunchNum, integrals, title)
     
                 if showSplines and col in columnName:
-#                    lo, hi = find_nearest_bounds(shiftedLine ,xLow, xHigh)
-#                    shiftedLine = shiftedLine[lo:hi]
-#                    shiftedVals = shiftedVals[lo:hi]
-                    if col == "StS norm":
+                    if col == transColumn:
                         plt.axvline(float(xLow), linestyle = "-.", linewidth = 0.5)
                         plt.axvline(float(xHigh), linestyle = "--", linewidth = 0.5)
                     if col == refColumn:
@@ -325,44 +116,15 @@ def main():
                         plt.axvline( float(peakFindEnd), linestyle = "--", linewidth= 0.5, color = 'g' )
                     for i in range( len(shiftedSplines) ):
                         plt.plot(shiftedLines[i], shiftedSplines[i], linewidth=0.5)
-            
-#            peaksAll.extend(peaks)
-#            splinesAll.extend(splines)
-#            linesAll.extend(lines)
-#            integralsAll.extend(integrals)
-    #            bunchNumAll.extend(bunchNum)
-#            shiftedSplinesAll.append(shiftedSplines)
-            
+                        
             lineAvg, valAvg = average_vals(shiftedSplines, shiftedLines)
             lineErr, valErr = standard_error(shiftedSplines, shiftedLines, valAvg, lineAvg)
-    #            valAvg = valAvg.tolist()
             if showSplines and col in columnName:
                 plt.plot(lineAvg, valAvg, linestyle = "--", color = 'r', linewidth =1 )
             
             avgColumns.append(valAvg)
             avgColumns.append(valErr)
     
-#            print("Saved:\t"+col)
-#            if showSplines and col == columnName:    
-#                lo,hi = find_nearest_bounds(lineAvg, xLow, xHigh)
-#                lineAvg = lineAvg[lo:hi]
-#                valAvg = valAvg[lo:hi]
-#                plt.plot(lineAvg, valAvg, linewidth=2, linestyle="--", color = 'r')
-                
-            
-#            peaks.clear()
-#            splines.clear()
-#            lines.clear()
-#            rawEnergy.clear()
-#            shiftedSplines.clear()
-#            integrals.clear()
-##            bunchNum.clear()
-#            shiftedLines.clear()
-        
-#        print( [len(s) for s in shiftedLines] )
-         
-#        print("Missing Column:")
-#        print(missingColumn)
         avgColumns.insert(0, lineAvg)
         avgColumns.insert(1, lineErr)
         avgColumns = np.array(avgColumns)
@@ -378,33 +140,209 @@ def main():
         print("Saved Bunch:\t"+first+"_"+last)
         if ( len(missingBunch)!=0 ):
             print("\tMissing bunch:\t"+str( sorted(missingBunch) ), file = log)
-#            print(missingBunch, file = log)
             missingBunch.clear()
     if ( len(missingHeader)!=0 ):
         print("\nMissing header:" + str( sorted(missingHeader) ), file = log)
-#            print(missingHeader, file = log)
-#            missingHeader.clear()
-#        if ( len(missingColumn)!=0 ):
-#            print("\tMissing column:" + str(missingColumn), file = log)
-##            print(missingColumn, file = log)
-#            missingColumn.clear()
-#        bunchNumAll.remove(bunch)
-
-#        if len(bunchNumAll)==0:
-#            break        
-#    plot_spline(splinesAll, peaksAll, linesAll, "All Splines", shiftedSplines)   
-#    save_integral(bunchNumAll, integralsAll, "All Integrals")
     
     print( "\nLog End: "+ str( datetime.now() ), file = log )
     log.close()
     plt.show()
     plt.close()
-    
-    shiftedSplines = shiftedColumns[head.index("StS norm")]
-    for path in paths:
-        integral = def_integral(shiftedEnergy, shiftedSplines, xHigh, xLow)
     return
+def save_integral(pathToFiles, bunch, shiftedEnergy, shiftedColumns, head, title):
+    # paths = pathToFiles.keys()
 
+    shiftedSplines = [ shiftedColumns[i][head.index(transColumn)] for i in range( len(shiftedColumns) ) ]
+    stop=-1
+    try:
+        
+        integrals = [def_integral( shiftedEnergy[stop],shiftedSplines[stop],xHigh,xLow ) for stop in range( len(shiftedSplines) )]
+    except :
+        print(stop)
+    Int = [I for b, I in sorted( zip(bunch, integrals), key = lambda pair: pair[0] )]
+    bunch.sort()
+    bunch, Int = average_integrals(bunch, Int)
+    timeDelay = np.zeros_like(bunch)
+    for i, b in enumerate(bunch):
+        if b > 0:
+            offSet *= -1.0
+        timeDelay[i] = 2*b + offSet
+    if not os.path.exists(saveDirectory):
+        os.makedirs(saveDirectory)
+    saveFileName = os.path.normpath(saveDirectory +os.sep+ title+"_int_"+xLow+"-"+xHigh+".txt" )
+    save_file(timeDelay, "Time Delay [ns]", Int, columnName+" sum", saveFileName)
+    print("saved integral:\t"+title)
+    if showIntegrals:
+        fig_int = plt.figure(dpi=100)
+        plt.title(title+" Bunches: "+first+"-"+last+ " Integration: "+xLow+"-"+xHigh)
+        plt.ylabel(columnName)
+        plt.xlabel("Time Delay [ns]")
+        plt.plot(timeDelay , Int, marker = 'd')
+    plt.show()
+    plt.close()
+    return
+###############################################################################
+###############################################################################
+#Main driver function for trXAS package
+###############################################################################
+def main():
+    initialize()
+    missingBunch = []
+    missingHeader = []
+    log = saveDirectory+os.sep+"save_log_"+firstBunch+"_"+lastBunch+".txt"
+    
+    print("",file= open(log, "w+"))
+    log = open(log, "w+")
+    print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
+
+
+    bunchNumAll = []
+#    direct, column, first, last, xLow, xHigh = ask_user()
+    paths = os.listdir(direct)
+    for i in range( len(paths) ):
+        paths[i] = os.path.join(direct, paths[i])
+    for path in paths:
+         if "avg" in path:
+            paths.remove(path)
+    dataFiles = get_data_files(paths[1])
+    dataSet, head = load_file(dataFiles[0])
+    refColumnNum = head.index(refColumn)
+    
+    pathToFiles = {}    
+    for i  in range( len(paths) ):
+        path = paths[i]
+        dataFiles = get_data_files(path)
+        dataFiles = select_files(dataFiles, first= firstBunch, last = lastBunch)
+        pathToFiles[path] = dataFiles
+        try:
+            bunchNumAll.extend( get_selected_bunches(dataFiles) )
+        except:
+            continue
+        
+        file = dataFiles[0]
+        if load_file(file, wantMissing=True) :
+            missingHeader.append( file.split(os.sep)[-1] )
+        dataSet, header = load_file(file)
+        photonE = data_to_column(dataSet, refColumnNum, file, False)
+    initialize()
+    bunchNum = sorted(remove_dup(bunchNumAll))
+
+    print("Bunches:\n" + str(bunchNum), file = log)
+    print("Bunches:\n" + str(bunchNum),)
+    print("Number of bunches:\t"+str( len(bunchNum) )+"\n", file = log )
+
+    for path in paths:
+        dataFiles = get_data_files(path)
+        dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
+        for i in range(len(dataFiles)):
+            skip=1
+            findPeak=True
+            file = dataFiles[i]
+            dataSet, header = load_file(file, skip=skip)
+            if i!=0:
+                findPeak = False
+                peaks.append(peaks[-1])
+            photonE = data_to_column(dataSet, refColumnNum, file, findPeak)
+
+    deltas = get_deltas(peaks)
+    shiftedEnergy, shiftedColumns = apply_shift(deltas, splines, lines )
+    print(head.index(transColumn))
+    shiftedSplines = sshiftedSplines = [ shiftedColumns[i][head.index(transColumn)] for i in range( len(shiftedColumns) ) ]
+    print(shiftedSplines)
+    
+    # print( np.array(shiftedSplines).shape )
+    # print( np.array(shiftedEnergy).shape )
+    # print( [ ( len(s) - len(t) )  for s,t in zip( shiftedEnergy,shiftedSplines ) ]  )
+    # print( all( [ not bool( len(s) - len(t) )  for s,t in zip( shiftedEnergy,shiftedSplines ) ] )  )
+    # print(all( [  bool( len(s) ) for s in shiftedEnergy] ) )
+    # print(all( [bool( len(s) ) for s in shiftedSplines] ) )
+
+    
+    # print("Starting column saves...")
+    # save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader)
+    
+    # shiftedSplines= []
+    # shiftedLines= []
+    # for bunch in bunchNum  :
+    #     first = last = str(bunch)
+    #     for path in  paths :
+    #         try:
+    #             f = select_files( pathToFiles[path], first, last )
+    #             if len(f)==0:
+    #                 missingBunch.append( path.strip(direct) )
+    #         except:
+    #             missingBunch.append( path.strip(direct) )
+    #     avgColumns = []
+    #     lineAvg=0      
+    #     lineErr=0
+    #     bunchIndices = [i for i,x in enumerate(bunchNumAll) if x == bunch]
+    #     shiftedLines = [ shiftedEnergy[ind] for ind in bunchIndices]
+         
+    #     for j, col in enumerate( head[1:-1] ):
+
+    #         shiftedSplines= [shiftedColumns[i][j] for i in bunchIndices ]
+    #         title = col
+    #         if showSplines and col in columnName:
+    #             fig = plt.figure(dpi=100)
+    #             plt.title(title+" Bunches: "+first+"-"+last)
+    #             plt.ylabel(col)
+    #             plt.xlabel("Probe [eV]")        
+    
+    #             if showSplines and col in columnName:
+    #                 if col == transColumn:
+    #                     plt.axvline(float(xLow), linestyle = "-.", linewidth = 0.5)
+    #                     plt.axvline(float(xHigh), linestyle = "--", linewidth = 0.5)
+    #                 if col == refColumn:
+    #                     plt.axvline(float(peakFindStart), linestyle = "--", linewidth= 0.5, color = 'g' )
+    #                     plt.axvline( float(peakFindEnd), linestyle = "--", linewidth= 0.5, color = 'g' )
+    #                 for i in range( len(shiftedSplines) ):
+    #                     plt.plot(shiftedLines[i], shiftedSplines[i], linewidth=0.5)
+                        
+    #         lineAvg, valAvg = average_vals(shiftedSplines, shiftedLines)
+    #         lineErr, valErr = standard_error(shiftedSplines, shiftedLines, valAvg, lineAvg)
+    #         if showSplines and col in columnName:
+    #             plt.plot(lineAvg, valAvg, linestyle = "--", color = 'r', linewidth =1 )
+            
+    #         avgColumns.append(valAvg)
+    #         avgColumns.append(valErr)
+    
+    #     avgColumns.insert(0, lineAvg)
+    #     avgColumns.insert(1, lineErr)
+    #     avgColumns = np.array(avgColumns)
+    #     fileName = "avg"+"_bunch_"+first+"_"+last+".txt"
+    #     hdr=""
+    #     for col in head[:-1]:
+    #         hdr += col+"\t"+"SE "+col+"\t"
+    #     hdr = hdr[:-1]
+    #     if not os.path.exists(saveDirectory):
+    #         os.makedirs(saveDirectory)
+    #     save_multicolumn(avgColumns, header = hdr, filename = saveDirectory+os.sep+fileName)
+    #     print("Saved Bunch:\t"+first+"_"+last, file = log)
+    #     print("Saved Bunch:\t"+first+"_"+last)
+    #     if ( len(missingBunch)!=0 ):
+    #         print("\tMissing bunch:\t"+str( sorted(missingBunch) ), file = log)
+    #         missingBunch.clear()
+    # if ( len(missingHeader)!=0 ):
+    #     print("\nMissing header:" + str( sorted(missingHeader) ), file = log)
+    
+    # print( "\nLog End: "+ str( datetime.now() ), file = log )
+    # log.close()
+    # plt.show()
+    # plt.close()
+    
+
+    # shiftedSplines = shiftedColumns[head.index("StS norm")]
+    # # integrals=[]
+    # # for i in range ( len( shifteSplines) ):
+    # #     integrals.append( def_integral(shiftedEnergy[i],shiftedSplines[i],xHigh,xLow) )
+    # integrals = [def_integral( shiftedEnergy[i],shiftedSplines[i],xHigh,xLow ) for i in range( len(shiftedSplines) )]
+    
+    print("Starting saving integrals...")
+    save_integral(pathToFiles, bunchNumAll, shiftedEnergy, shiftedColumns, head, "transient_average")
+    
+    # plt.show()
+    # plt.close()
+    return 
 ###############################################################################        
 if __name__ == "__main__":
     main()
