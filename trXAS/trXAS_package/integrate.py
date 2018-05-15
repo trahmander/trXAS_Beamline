@@ -21,10 +21,16 @@ def find_nearest_index(xVals, x):
 # resturns the first index which is closest to xLow and the first index closest to xHigh
 def find_nearest_bounds(xVals, xLow, xHigh):
     if xLow  == "all" :
-        xHigh = " "
+        xHigh = "all"
         low = 0
-        high = len(xVals)
+        high = len(xVals) -1
     else:
+        xHigh = float(xHigh)
+        xLow = float(xLow)
+        if xHigh < xLow :
+            xHigh = xHigh + xLow
+            xLow = xHigh - xLow
+            xHigh = xHigh - xLow
         low = find_nearest_index(xVals, xLow)
         high = find_nearest_index(xVals, xHigh)
     return low, high
@@ -33,7 +39,10 @@ def def_integral(xVals, yVals, xLow, xHigh):
     low, high = find_nearest_bounds(xVals, xLow, xHigh)
     yInterval = yVals[low:high]
     xInterval = xVals[low:high]
-    integral = simps(yInterval, xInterval )
+    try:
+        integral = simps(yInterval, xInterval )
+    except ValueError:
+        print( ( len(yInterval),len(xInterval) ) )
     return integral
 # removes duplicates in list while preserving order.
 def remove_dup(seq):
@@ -60,18 +69,28 @@ def average_integrals(bunchNum, integrals):
 #Test function for integrate.py
 ###############################################################################
 def test_integrate():
-	xVals = np.linspace(0, 4*np.pi,1001)
-	yVals = np.cos(xVals)
-	yVals = np.exp(2.0*xVals)
-	yInt = [ 2.0 + simps( yVals[:i+1], xVals[:i+1] ) for i in range(len(xVals)) ]
-	yPred = np.sin(xVals)
-	yPred = 0.5*yVals
-
-	plt.plot(xVals,yVals)
-	plt.plot(xVals, yInt, linestyle= '-.')
-	plt.plot(xVals, yPred, linestyle= '--')
-	plt.show()
-	return
+#	xVals = np.linspace(0, 4*np.pi,1001)
+#	yVals = np.cos(xVals)
+#	yVals = np.exp(2.0*xVals)
+#	yInt = [ 2.0 + simps( yVals[:i+1], xVals[:i+1] ) for i in range(len(xVals)) ]
+#	yPred = np.sin(xVals)
+#	yPred = 0.5*yVals
+#
+#	plt.plot(xVals,yVals)
+#	plt.plot(xVals, yInt, linestyle= '-.')
+#	plt.plot(xVals, yPred, linestyle= '--')
+#	plt.show()
+    x = np.linspace(532, 540, 1000)
+    xhigh = "535.13"
+    xlow = "537.3"
+    low, high = find_nearest_bounds(x, xlow, xhigh)
+    print( (low, high) )
+    print( (x[low], x[high])  )
+#    try:
+#        print(x[i+1] - xfind)
+#    except:
+#        print("Hit the upperbound")
+#    return
 ###############################################################################
 if __name__ == "__main__":
 	test_integrate()

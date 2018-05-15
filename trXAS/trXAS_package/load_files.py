@@ -223,9 +223,8 @@ def test_load_files():
          if "avg" in path:
             paths.remove(path)
     
-    dataFiles = get_data_files(paths[0])
-    dataSet, head = load_file(dataFiles[1])
-    refColumnNum = head.index(refColumn)
+    for path in paths:
+        print(path.strip(direct).split("_")[0])
     
     return
 ###############################################################################
