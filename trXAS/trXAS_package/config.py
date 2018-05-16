@@ -14,7 +14,7 @@ openDirectory = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
 saveDirectory= os.path.normpath(os.pardir+os.sep+"test_saves")
 #column specifies the name of the column that you want to plot as a function of photon energy.
 #refColumn specifies the name of the column that you want to compare in order to determine the shifts
-column = ["Y all norm", "StS norm"]
+column = ["Y all norm"]
 transColumn = "StS norm"
 refColumn = "Y all norm"
 #firstBunch determines the the earliest bunch before the pump to average. (Inclusive) 

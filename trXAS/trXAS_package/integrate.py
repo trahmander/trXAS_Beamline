@@ -62,7 +62,7 @@ def average_integrals(bunchNum, integrals):
 		Int = np.average( [integrals[j] for j in indices] )
 		integralsAverage.append(Int)
 		i+=1
-	integrals = remove_dup(integralsAverage)
+	integrals = remove_dup(integralsAverage)# this isnt a good solution. what if 
 	bunchNum = remove_dup(bunchNum)
 	return bunchNum, integrals
 ###############################################################################

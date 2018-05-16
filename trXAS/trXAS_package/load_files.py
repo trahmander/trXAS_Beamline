@@ -216,16 +216,26 @@ def test_load_files():
 #    print(sorted(bunchNumAll))
 #    print("Number of bunches:\t"+str(len(bunchNumAll) ) )
     
-    paths = os.listdir(direct)
-    for i in range( len(paths) ):
-        paths[i] = os.path.join(direct, paths[i])
-    for path in paths:
-         if "avg" in path:
-            paths.remove(path)
+#    paths = os.listdir(direct)
+#    for i in range( len(paths) ):
+#        paths[i] = os.path.join(direct, paths[i])
+#    for path in paths:
+#         if "avg" in path:
+#            paths.remove(path)
+#    
+#    for path in paths:
+#        print(path.strip(direct).split("_")[0])
+        
+#    randcols = []
     
-    for path in paths:
-        print(path.strip(direct).split("_")[0])
-    
+#        randfloats = [random.randint(0,100)*0.1000222 for i in range(10)]
+    randcols= [ [random.randint(0,100)*1.2000222222 for i in range(10)]
+    for i in range(4)]
+    randcols.append( [random.randint(0,100)*1.2000222222 for i in range(9)] )
+    print(randcols)
+    randcols = np.array(randcols)
+    print(randcols.shape)
+    save_multicolumn(randcols, "Blah", saveDirectory+os.sep+"random_save.txt", ["%6e","%6e", "%6e", "%6e", "%6e"])
     return
 ###############################################################################
 if __name__ == "__main__":   
