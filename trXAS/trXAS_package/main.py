@@ -13,6 +13,7 @@ __email__ = "trahman@lbl.gov"
 import os
 from datetime import datetime
 import numpy as np
+import pandas as pd
 from matplotlib import pyplot as plt
 #From modules in trXAS_package
 from user_input import (user_directory,  
@@ -51,7 +52,9 @@ from config import (openDirectory as direct,
                     peakFindStart,
                     peakFindEnd,
                     offSet,
-                    showIntegrals,
+                    saveTransients,
+                    showTransients,
+                    saveSplines,
                     showSplines,
                     peaks,
                     splines,
@@ -64,7 +67,6 @@ from config import (openDirectory as direct,
 def initialize():
     peaks.clear()
     splines.clear()
-#    refSplines.clear()
     lines.clear()
     return
 def ask_user():
@@ -78,6 +80,8 @@ def ask_user():
 #    sample = user_sample()
     return direct, column, first, last, xLow, xHigh
 def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pathToFiles, log,  missingBunch, missingHeader):
+    print("Computing shifts...")
+    
     shiftedSplines= []
     shiftedLines= []
     paths = pathToFiles.keys()
@@ -148,85 +152,55 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
     plt.show()
     plt.close()
     return
-def save_integral( title, pathToFiles, head, transientColumns, bunch, shiftedEnergy, shiftedColumns):
-    # paths = pathToFiles.keys()
-#    transientColumns=[]
-#    header = ""
-#    start=0
-#    end= 0
-#    for path, files in  pathToFiles.items():
-#        title = path.strip(direct).split("_")[0]
-#        header += title+" Time Delay[ns]\t"+title+" Transient\t"
-#        end  = end + len( files )
-        
-#        bunch = bunchAll[start:end-1]
-#        shiftedColumns = shiftedColumnsAll[start:end-1]
-#        shiftedEnergy = shiftedEnergyAll[start:end-1]
-        
+def compute_integral( title, pathToFiles, head, transientColumns, bunch, shiftedEnergy, shiftedColumns, binning=1):        
     shiftedSplines = [ shiftedColumns[i][head.index(transColumn)] for i in range( len(shiftedColumns) ) ] 
     integrals = [ def_integral( e,s, xHigh,xLow ) for e,s in zip(shiftedEnergy, shiftedSplines) ]
-
-    Int = [I for b, I in sorted( zip(bunch, integrals), key = lambda pair: pair[0] )]
+#    print(bunch)
+    bunch, Int = average_integrals(bunch, integrals)
+    Int = [ I for b, I in sorted( zip(bunch, Int), key = lambda pair: pair[0] ) ]
     bunch.sort()
-    bunch, Int = average_integrals(bunch, Int)
-    timeDelay = np.zeros_like(bunch)
-    for i, b in enumerate(bunch):
-        if b > 0:
-            timeDelay[i] = 2*b - offSet
-        timeDelay[i] = 2*b + offSet
+    timeDelay =[ (2*b - offSet) if b>0 else (2*b + offSet) for b in bunch]
+#    print(timeDelay)
+
     if not os.path.exists(saveDirectory):
         os.makedirs(saveDirectory)
-
     transientColumns.append( timeDelay )
-    transientColumns.append( np.array(Int) )
-    saveFileName=saveDirectory+os.sep+title+"_transient_"+xLow+"_"+xHigh+".txt"
-    save_file(timeDelay, "Time Delay [ns]", Int, transColumn+" Transient", saveFileName)
+    transientColumns.append( Int )
     print("saved transient:\t"+title)
-    if showIntegrals:
+    if showTransients:
         fig_int = plt.figure(dpi=100)
         plt.title(title+"_transient: "+xLow+"-"+xHigh+" eV")
         plt.ylabel(transColumn+" sum ")
         plt.xlabel("Time Delay [ns]")
         plt.plot(timeDelay , Int, marker = 'd')
-#        start = end
-#    title = "Avg"
-#    header += title+" Time Delay[ns]\t"+title+" Transient\t"
-#    end  = end + len( files )
-#    
-#    bunch = bunchAll[start:end-1]
-#    shiftedColumns = shiftedColumnsAll
-#    shiftedEnergy = shiftedEnergyAll
-#    
-#    shiftedSplines = [ shiftedColumns[i][head.index(transColumn)] for i in range( len(shiftedColumns) ) ] 
-#    integrals = [ def_integral( e,s, xHigh,xLow ) for e,s in zip(shiftedEnergy, shiftedSplines) ]
-#
-#    Int = [I for b, I in sorted( zip(bunch, integrals), key = lambda pair: pair[0] )]
-#    bunch.sort()
-#    bunch, Int = average_integrals(bunch, Int)
-#    timeDelay = np.zeros_like(bunch)
-#    for i, b in enumerate(bunch):
-#        if b > 0:
-#            timeDelay[i] = 2*b - offSet
-#        timeDelay[i] = 2*b + offSet
-#    if not os.path.exists(saveDirectory):
-#        os.makedirs(saveDirectory)
-#    
-#    transientColumns.append(timeDelay)
-#    transientColumns.append(Int)
-#    
-#    print("saved transient:\t"+title)
-#    if showIntegrals:
-#        fig_int = plt.figure(dpi=100)
-#        plt.title(title+"_transient: "+xLow+"-"+xHigh+" eV")
-#        plt.ylabel(columnName)
-#        plt.xlabel("Time Delay [ns]")
-#        plt.plot(timeDelay , Int, marker = 'd')
-#    transientColumns = np.array(transientColumns)
-#    header[:-1]
-#    fileName = "transients_"+xHigh+"_"+xLow+".txt"
-##    save_multicolumn(transientColumns, header, saveDirectory + os.sep + fileName)
-#    plt.show()
-#    plt.close()
+
+    return
+def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns):
+    print("Computing transients...")
+    transCol=[]
+    header = "Delay[ns]\tAvg Transient\t"
+    compute_integral("Avg", pathToFiles, head, transCol, 
+                      bunchNumAll, 
+                      shiftedEnergy, 
+                      shiftedColumns )
+    start=0
+    end= 0
+    for path, files in  pathToFiles.items():
+        title = path.strip(direct).split("_")[0]
+        header += title+" Delay[ns]\t"+title+" Transient\t"
+        end  = start + len( files )
+        compute_integral(title, pathToFiles, head, transCol, 
+                      bunchNumAll[start:end], 
+                      shiftedEnergy[start:end], 
+                      shiftedColumns[start:end] )
+        start = end
+
+    header = header[:-1]
+    transCol = pd.DataFrame(transCol).values
+
+    
+    fileName = "transient_"+xHigh+"_"+xLow+"_bunch_"+firstBunch+"_"+lastBunch+".txt"
+    save_multicolumn(transCol, header, saveDirectory + os.sep + fileName)
     return
 ###############################################################################
 ###############################################################################
@@ -243,28 +217,31 @@ def main():
     bunchNumAll = []
 #    direct, column, first, last, xLow, xHigh = ask_user()
     paths = os.listdir(direct)
-    for i in range( len(paths) ):
-        paths[i] = os.path.join(direct, paths[i])
-    for path in paths:
-         if "avg" in path:
-            paths.remove(path)
+    paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
+#    for i in range( len(paths) ):
+#        paths[i] = os.path.join(direct, paths[i])
+#    for path in paths:
+#         if "avg" in path:
+#            paths.remove(path)
     dataFiles = get_data_files(paths[1])
     dataSet, head = load_file(dataFiles[0])
     refColumnNum = head.index(refColumn)
     
     pathToFiles = {}    
-    for i  in range( len(paths) ):
-        path = paths[i]
+    for path  in paths :
+#        path = paths[i]
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first= firstBunch, last = lastBunch)
         pathToFiles[path] = dataFiles
         try:
-            bunchNumAll.extend( get_selected_bunches(dataFiles) )
+            newBunch = get_selected_bunches(dataFiles)
+#            print(newBunch)
+            bunchNumAll.extend( newBunch )
         except:
             continue
         file = dataFiles[0]
-        if load_file(file, wantMissing=True) :
-            missingHeader.append( file.split(os.sep)[-1] )
+#        if load_file(file, wantMissing=True) :
+#            missingHeader.append( file.split(os.sep)[-1] )
         dataSet, header = load_file(file)
         photonE = data_to_column(dataSet, refColumnNum, file, False)
     initialize()
@@ -281,6 +258,8 @@ def main():
             skip=1
             findPeak=True
             file = dataFiles[i]
+            if load_file(file, wantMissing=True) :
+                missingHeader.append( file.split(os.sep)[-1] )
             dataSet, header = load_file(file, skip=skip)
             if i!=0:
                 findPeak = False
@@ -289,34 +268,10 @@ def main():
 
     deltas = get_deltas(peaks)
     shiftedEnergy, shiftedColumns = apply_shift(deltas, splines, lines )
-    
-#    print("Computing shifts...")
-#    save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader)
-    print("Computing transients...")
-    
-    start=0
-    end= 0
-    header = ""
-    transCol=[]
-    for path, files in  pathToFiles.items():
-        title = path.strip(direct).split("_")[0]
-        header += title+" Time Delay[ns]\t"+title+" Transient "+transColumn+"\t"
-        end  = end + len( files )
-        save_integral(title, pathToFiles, head, transCol, 
-                      bunchNumAll[start:end-1], 
-                      shiftedEnergy[start:end-1], 
-                      shiftedColumns[start:end-1] )
-        start = end
-    title = "Avg"
-    header += title+" Time Delay[ns]\t"+title+" Transient "+transColumn
-    save_integral(title, pathToFiles, head, transCol, 
-                      bunchNumAll, 
-                      shiftedEnergy, 
-                      shiftedColumns )
-    transCol = np.array(transCol)
-    print(transCol.shape )
-    fileName = "transients_"+xHigh+"_"+xLow+".txt"
-    save_multicolumn(transCol, header, saveDirectory + os.sep + fileName)
+    if saveSplines:
+        save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader)
+    if saveTransients:
+        save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns)
     return 
 ###############################################################################        
 if __name__ == "__main__":

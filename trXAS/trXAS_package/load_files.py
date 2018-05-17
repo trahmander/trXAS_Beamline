@@ -11,8 +11,10 @@ import os
 #import sys
 import random
 import numpy as np
+import itertools
 import pandas as pd
 import csv
+import matplotlib.pyplot as plt
 from integrate import find_nearest_index
 from config import saveDirectory
 from integrate import remove_dup
@@ -229,13 +231,23 @@ def test_load_files():
 #    randcols = []
     
 #        randfloats = [random.randint(0,100)*0.1000222 for i in range(10)]
-    randcols= [ [random.randint(0,100)*1.2000222222 for i in range(10)]
+    randcols= [  [random.randint(0,100)*1.2000222222 for i in range(10)] 
     for i in range(4)]
-    randcols.append( [random.randint(0,100)*1.2000222222 for i in range(9)] )
-    print(randcols)
-    randcols = np.array(randcols)
+    randcols.append(  [random.randint(0,100)*1.2000222222 for i in range(9)]  )
+#    print(randcols)
+#    randcols = np.array(randcols)
+#    randcols = np.array( list( itertools.zip_longest(randcols, fillvalue=0.0) ) )
+    randcols = pd.DataFrame(randcols).fillna(np.nan).values.astype(np.float32)
     print(randcols.shape)
-    save_multicolumn(randcols, "Blah", saveDirectory+os.sep+"random_save.txt", ["%6e","%6e", "%6e", "%6e", "%6e"])
+    print(randcols)
+    save_multicolumn(randcols, "Blah", saveDirectory+os.sep+"random_save.txt")
+    
+    data, head = load_file(saveDirectory+os.sep+"random_save.txt")
+    print(data)
+
+    for i in range( len(data) ):
+        print( np.average(data[i]) )
+        plt.plot(range( len(data[i]) ), data[i])
     return
 ###############################################################################
 if __name__ == "__main__":   

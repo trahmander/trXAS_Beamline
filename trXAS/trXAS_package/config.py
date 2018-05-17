@@ -36,13 +36,18 @@ photonEnergyEnd= "534.8"
 #Choose "all" to integrate on the entire photon energy axis. 
 peakFindStart = "532"
 peakFindEnd= "537"
-#showSplines is set to True if you want the plots for the column you set in column
-#showIntegrals is set to True if you want the plots for the integrals for StS norm.
+#saveSplines is set to True if you want to calculate to save the shifted Splines.
+#showSplines is set to True if you want the plots for the column you set in column.
+#saveTransients is set to True if you want calculate the transients for transColumn.
+#showTransients is set to True if you want the plots for the integrals for transColumn.
+saveSplines = True
 showSplines = False
-showIntegrals = True
+saveTransients = True
+showTransients = True
 #stepSize determines how coarse the splining of your data is. Smaller stepSize is more expensive.
+#offSet is the delay in nanoseconds of the phaseshifter 
+offSet= 0.0
 stepSize = 0.005
-offSet= 0.15
 ############################################################################### 
 ###############################################################################
 #Initialize some values that are shared between the package files. It's best to
@@ -50,6 +55,5 @@ offSet= 0.15
 ###############################################################################
 peaks = []
 splines = []
-#refSplines = []
 lines= []
 ###############################################################################

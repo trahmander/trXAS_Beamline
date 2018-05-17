@@ -1,9 +1,0 @@
-Log Start: 2018-05-10 15:53:07.178893
-
-Bunches:
-[88]
-Number of bunches:	1
-Saved Bunch:	88_88
-Missing header:['0202_diff_spect_pump_103-103_minus_ref_1-16_data.txt']
-
-Log End: 2018-05-10 15:53:11.703966

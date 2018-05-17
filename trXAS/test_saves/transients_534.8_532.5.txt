@@ -1,1 +1,0 @@
-# 0196 Time Delay[ns]	0196 Transient StS norm	0197 Time Delay[ns]	0197 Transient StS norm	0198 Time Delay[ns]	0198 Transient StS norm	0199 Time Delay[ns]	0199 Transient StS norm	0201 Time Delay[ns]	0201 Transient StS norm	0202 Time Delay[ns]	0202 Transient StS norm	Avg Time Delay[ns]	Avg Transient StS norm
