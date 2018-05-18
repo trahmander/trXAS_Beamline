@@ -28,7 +28,9 @@ from load_files import (get_data_files,
                         save_file,
                         save_multicolumn,
                         bin_data)
-from shift import (data_to_column, 
+from shift import (data_to_column,
+                   find_peak,
+                   find_center,
                    shift_spline,
                    get_deltas,
                    apply_shift)
@@ -49,6 +51,9 @@ from config import (openDirectory as direct,
                     lastBunch,
                     photonEnergyStart as xLow,
                     photonEnergyEnd as xHigh,
+                    shiftPeak,
+                    shiftCenter,
+                    shiftMinimize,
                     peakFindStart,
                     peakFindEnd,
                     offSet,
@@ -56,7 +61,7 @@ from config import (openDirectory as direct,
                     showTransients,
                     saveSplines,
                     showSplines,
-                    peaks,
+#                    peaks,
                     splines,
 #                    refSplines,
                     lines)
@@ -65,7 +70,7 @@ from config import (openDirectory as direct,
 #Helper functions for main()
 ###############################################################################
 def initialize():
-    peaks.clear()
+#    peaks.clear()
     splines.clear()
     lines.clear()
     return
@@ -81,7 +86,6 @@ def ask_user():
     return direct, column, first, last, xLow, xHigh
 def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pathToFiles, log,  missingBunch, missingHeader):
     print("Computing shifts...")
-    
     shiftedSplines= []
     shiftedLines= []
     paths = pathToFiles.keys()
@@ -173,7 +177,6 @@ def compute_integral( title, pathToFiles, head, transientColumns, bunch, shifted
         plt.ylabel(transColumn+" sum ")
         plt.xlabel("Time Delay [ns]")
         plt.plot(timeDelay , Int, marker = 'd')
-
     return
 def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns):
     print("Computing transients...")
@@ -216,20 +219,16 @@ def main():
     print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
     bunchNumAll = []
 #    direct, column, first, last, xLow, xHigh = ask_user()
+
     paths = os.listdir(direct)
     paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
-#    for i in range( len(paths) ):
-#        paths[i] = os.path.join(direct, paths[i])
-#    for path in paths:
-#         if "avg" in path:
-#            paths.remove(path)
     dataFiles = get_data_files(paths[1])
     dataSet, head = load_file(dataFiles[0])
     refColumnNum = head.index(refColumn)
-    
+#   Load the data sets of all the scans and get the bunches found. Calculates
+#   the splines for splines for reference column from first file in scan.
     pathToFiles = {}    
     for path  in paths :
-#        path = paths[i]
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first= firstBunch, last = lastBunch)
         pathToFiles[path] = dataFiles
@@ -240,36 +239,56 @@ def main():
         except:
             continue
         file = dataFiles[0]
-#        if load_file(file, wantMissing=True) :
-#            missingHeader.append( file.split(os.sep)[-1] )
         dataSet, header = load_file(file)
-        photonE = data_to_column(dataSet, refColumnNum, file, False)
+        refSpline= data_to_column(dataSet, refColumnNum, file)
     initialize()
     bunchNum = sorted(remove_dup(bunchNumAll))
-
     print("Bunches:\n" + str(bunchNum), file = log)
     print("Bunches:\n" + str(bunchNum),)
     print("Number of bunches:\t"+str( len(bunchNum) )+"\n", file = log )
+#   calculates the linear interpolation and finds reference peaks from reference column.  
     print("Loading files...")
+    refPeaks=[]
+    refCenters= []
     for path in paths:
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
         for i in range(len(dataFiles)):
             skip=1
-            findPeak=True
+#            findPeak=True
             file = dataFiles[i]
             if load_file(file, wantMissing=True) :
                 missingHeader.append( file.split(os.sep)[-1] )
             dataSet, header = load_file(file, skip=skip)
             if i!=0:
-                findPeak = False
-                peaks.append(peaks[-1])
-            photonE = data_to_column(dataSet, refColumnNum, file, findPeak)
-
-    deltas = get_deltas(peaks)
+#                findPeak = False
+                refPeaks.append(refPeaks[-1])
+#            photonE = data_to_column(dataSet, refColumnNum, file, findPeak)
+            refSpline = data_to_column(dataSet, refColumnNum, file)
+            if shiftPeak:
+                refPeaks.append( find_peak(refSpline) )
+            elif shiftCenter:
+                refCenters.append( find_center(lines[-1], refSpline) )
+            elif shiftMinimize :
+                continue
+            else:
+                continue
+#   shifts every column based on deltas calculated from reference column
+    if shiftPeak:
+        deltas = get_deltas(refPeaks)
+    elif shiftCenter:
+        deltas = get_deltas(refCenters)
+    elif shiftMinimize:
+        print("No shift")
+    else :
+        deltas = np.zeros_like(splines)
+        print("No shift")
+    print( set(deltas) )
     shiftedEnergy, shiftedColumns = apply_shift(deltas, splines, lines )
+#   averages and saves collumns from scans.
     if saveSplines:
         save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader)
+#   averages and saves transients from all scans. Also saves each individual scan.
     if saveTransients:
         save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns)
     return 

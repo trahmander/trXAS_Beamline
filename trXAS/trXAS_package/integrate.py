@@ -18,7 +18,7 @@ def find_nearest_index(xVals, x):
             diffMin = diff[i]
             index=i
     return index
-# resturns the first index which is closest to xLow and the first index closest to xHigh
+# returns the first index which is closest to xLow and the first index closest to xHigh
 def find_nearest_bounds(xVals, xLow, xHigh):
     if xLow  == "all" :
         xHigh = "all"

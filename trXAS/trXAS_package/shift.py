@@ -8,23 +8,26 @@ use: load the chosen files into arrays, create linear splines and shift peaks to
 #Import modules
 ###############################################################################
 # built in modules
-import sys
 import numpy as np
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 import scipy.interpolate as itp
+from scipy.integrate import simps
+import scipy.optimize as opt
 #import global variables.
-from config import peaks
-from config import splines
+#from config import peaks
+#from config import splines
 #from config import refSplines
-from config import (lines, 
+from config import (lines,
+                    peaks,
+                    splines,
                     stepSize,
                     peakFindStart,
                     peakFindEnd)
 ###############################################################################
 #finds the x-value of the peak specified around xlow and xhigh. Appends it to peaks.
-def find_peak(xlow, xhigh, func):
-    step = (xhigh - xlow) / stepSize
-    nearPeak = np.linspace(xhigh, xlow, step)
+def find_peak(func):
+    step = (float(peakFindEnd) - float(peakFindStart)) / stepSize
+    nearPeak = np.linspace(float(peakFindStart), float(peakFindEnd), step)
     feature = func(nearPeak)
     maxVal = feature[0]  
     peak = 0
@@ -33,7 +36,14 @@ def find_peak(xlow, xhigh, func):
             maxVal = feature[i]
             peak = i
     peaks.append(nearPeak[peak])
-    return 
+    return nearPeak[peak]
+def find_center(xVals, func):
+#    step = (xhigh - xlow)/stepSize
+#    xVals = np.linspace(xhigh, xlow, step)
+    yVals = func(xVals)
+    mass = simps( yVals, xVals )
+    centerOfMass = simps( np.multiply(xVals, yVals) , xVals) / mass
+    return centerOfMass
 #Interpolation of data. returns linear spline Appends it to splines
 def get_spline(x, col, refCol):
     low = x[0]
@@ -50,7 +60,7 @@ def get_spline(x, col, refCol):
     refSpline = colSpline[refCol]
     return refSpline
 #unpacks the 2d array into 1d arrays given by the columns. uses find_peak and get_spline.
-def data_to_column(dataSet, refCol, file, findPeak):
+def data_to_column(dataSet, refCol, file):
     photonE = []
     dataSet = dataSet.T
     try:
@@ -89,11 +99,11 @@ def data_to_column(dataSet, refCol, file, findPeak):
 #        vals = columns[col]
 #        step = (highE - lowE) / stepSize
         refSpline = get_spline(photonE, columns[1:], refCol-1)
-        if findPeak:
-            find_peak(float(peakFindStart), float(peakFindEnd), refSpline)                                       #should not be hardcoded.
+#        if findPeak:
+#            peakEnergy = find_peak(float(peakFindStart), float(peakFindEnd), refSpline)                                       #should not be hardcoded.
     except:
         print("Didn't load to array:\t"+file)             
-    return photonE
+    return refSpline
 #shifts all peaks to match the earleast peak. returns new splines. cuts the spline at the  low energy side.
 def shift_spline(splineNum, refPeaks, spline, line):
 #    yVals = ySpline[splineNum]( line[splineNum] )
