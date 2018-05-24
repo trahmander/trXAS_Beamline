@@ -33,6 +33,7 @@ from shift import (data_to_column,
                    find_center,
                    shift_spline,
                    get_deltas,
+                   diff_deltas,
                    apply_shift)
 # from shift import shift_lists
 from integrate import (def_integral, 
@@ -262,10 +263,13 @@ def main():
             dataSet, header = load_file(file, skip=skip)
             if i!=0:
 #                findPeak = False
-                refPeaks.append(refPeaks[-1])
+                if shiftPeak:
+                    refPeaks.append(refPeaks[-1])
+                elif shiftCenter:
+                     refCenters.append(refCenters[-1])
 #            photonE = data_to_column(dataSet, refColumnNum, file, findPeak)
             refSpline = data_to_column(dataSet, refColumnNum, file)
-            if shiftPeak:
+            if shiftPeak or shiftMinimize:
                 refPeaks.append( find_peak(refSpline) )
             elif shiftCenter:
                 refCenters.append( find_center(lines[-1], refSpline) )
@@ -279,11 +283,12 @@ def main():
     elif shiftCenter:
         deltas = get_deltas(refCenters)
     elif shiftMinimize:
-        print("No shift")
+        deltas = diff_deltas(splines, lines, refPeaks, header.index(refColumn)-1)
     else :
-        deltas = np.zeros_like(splines)
+        deltas = np.zeros_like(lines)
         print("No shift")
-    print( set(deltas) )
+    print( len(paths)  )
+    print(  set(deltas)  )
     shiftedEnergy, shiftedColumns = apply_shift(deltas, splines, lines )
 #   averages and saves collumns from scans.
     if saveSplines:

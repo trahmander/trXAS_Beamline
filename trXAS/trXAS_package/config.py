@@ -35,8 +35,8 @@ photonEnergyEnd= "534.8"
 #peakFindEnd is the larger energy in the window used to find peaks for shifting.
 #Choose "all" to integrate on the entire photon energy axis. 
 shiftPeak = False
-shiftCenter = True
-shiftMinimize = False
+shiftCenter = False
+shiftMinimize = True
 peakFindStart = "532"
 peakFindEnd= "537"
 #saveSplines is set to True if you want to calculate to save the shifted Splines.
