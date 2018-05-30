@@ -18,7 +18,7 @@ import scipy.optimize as opt
 #from config import splines
 #from config import refSplines
 from config import (lines,
-                    peaks,
+#                    peaks,
                     splines,
                     stepSize,
                     peakFindStart,
@@ -35,14 +35,14 @@ def find_peak(func):
         if feature[i] > maxVal:
             maxVal = feature[i]
             peak = i
-    peaks.append(nearPeak[peak])
+#    peaks.append(nearPeak[peak])
     return nearPeak[peak]
 def find_center(xVals, func):
 #    step = (xhigh - xlow)/stepSize
 #    xVals = np.linspace(xhigh, xlow, step)
     yVals = func(xVals)
     mass = simps( yVals, xVals )
-    centerOfMass = simps( np.multiply(xVals, yVals) , xVals) / mass
+    centerOfMass = simps( xVals*yVals , xVals) / mass
     return centerOfMass
 #Interpolation of data. returns linear spline Appends it to splines
 def get_spline(x, col, refCol):
@@ -118,6 +118,26 @@ def shift_spline(splineNum, refPeaks, spline, line):
         for i in range (len(vals) - index ) :
             vals[i] = vals[i+index]
         return vals[:-index], line[splineNum][:-index]
+#def difference(ref):
+def difference_func(delta, ref, vals):
+    ind = int (np.abs(delta) / stepSize)
+    if delta >0:
+        vals = [ vals[k + ind] for k in range( len(vals) - ind )  ]
+#        vals = vals[:-ind]
+#    elif delta>0:
+#        vals = [ vals[::-1][k+ ind] for k in range( len(vals) -ind)  ]
+#        vals = vals[:-ind][::-1]
+#    diff = 0
+#    for i in range( len(vals) ):
+#        sub = (vals[i] - ref[i])
+#        diff += sub*sub
+#    diff = np.sqrt(diff)
+    smaller = min( len(vals), len(ref) )
+    ref = ref[:smaller]
+    vals = vals[:smaller]
+    diff = np.std( vals - ref ) *  np.sqrt(smaller)
+    return diff
+#    return difference_func
 def get_deltas(refPeaks):
     ref = np.amin(refPeaks)
     deltas=[]
@@ -131,33 +151,40 @@ def diff_deltas(splineCols, lines, refPeaks, refCol):
     refSplines = [s[refCol] for s in splineCols]
     minPeak = 0
     minIndex = 0
-    for i, pk in enumerate(peaks) :
+    for i, pk in enumerate(refPeaks) :
         if pk < minPeak :
             minPeak = pk
             minIndex = i
-    ref = refSplines[minIndex]( lines[minIndex] )    
-    def difference(vals, ref):
-        def difference_func(delta):
-            ind = delta / stepSize
-            if delta <0:
-                vals = [ vals[k + ind] for k in range( len(vals) - ind )  ]
-                vals = vals[:-ind]
-            elif delta>0:
-                vals = [ vals[::-1][k+ ind] for k in range( len(vals) -ind)  ]
-                vals = vals[:-ind][::-1]
-            diff = 0
-            for i in range( len(vals) ):
-                sub = (vals[i] - ref[i])
-                diff += sub*sub
-            diff = np.sqrt(diff)
-            return diff
-        return difference_func
+    ref = refSplines[minIndex]( lines[minIndex] )
+#    print(len(ref) )  
+   
+#    def difference(vals, ref):
+#        def difference_func(delta):
+#            ind = delta / stepSize
+#            if delta <0:
+#                vals = [ vals[k + ind] for k in range( len(vals) - ind )  ]
+#                vals = vals[:-ind]
+#            elif delta>0:
+#                vals = [ vals[::-1][k+ ind] for k in range( len(vals) -ind)  ]
+#                vals = vals[:-ind][::-1]
+#            diff = 0
+#            for i in range( len(vals) ):
+#                sub = (vals[i] - ref[i])
+#                diff += sub*sub
+#            diff = np.sqrt(diff)
+#            return diff
+#        return difference_func
     deltas=[]
+#    iterate = int(0.65/stepSize/2)
+    shifts = np.arange(0,0.65, stepSize)
     for i , spline in enumerate(refSplines):
         vals = spline( lines[i] )
-        diff_fun = difference(vals, ref)
-        res = opt.minimize( diff_fun, 0, bounds = [(0,2)] )
-        deltas.append(res.x)        
+#        print( len(vals)
+#        res = opt.minimize( difference_func, 0, args=(ref, vals), bounds = [(0,1)], options = {'maxiter':iterate} )
+#        deltas.append(res.x[0])
+        error = [difference_func(s, ref, vals) for s in shifts]
+        deltas.append( shifts[ error.index( np.amin(error) ) ]  )
+#        print(deltas)
     return deltas
 def apply_shift(delta, splineCols, lines):
     index = [int ( de / stepSize ) for de in delta]

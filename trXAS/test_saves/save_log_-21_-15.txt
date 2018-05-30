@@ -1,0 +1,21 @@
+Log Start: 2018-05-30 14:39:04.807415
+
+Bunches:
+[-21, -20, -19, -18, -17, -16, -15]
+Number of bunches:	7
+
+Saved Bunch:	-21_-21
+	Missing bunch:	['0198_CuO_O_K-edge_355nm_58p', '0199_CuO_O_K-edge_355nm_58p', '0201_CuO_O_K-edge_355nm_58p', '0202_CuO_O_K-edge_355nm_58p']
+Saved Bunch:	-20_-20
+	Missing bunch:	['0198_CuO_O_K-edge_355nm_58p', '0199_CuO_O_K-edge_355nm_58p', '0201_CuO_O_K-edge_355nm_58p', '0202_CuO_O_K-edge_355nm_58p']
+Saved Bunch:	-19_-19
+	Missing bunch:	['0198_CuO_O_K-edge_355nm_58p', '0199_CuO_O_K-edge_355nm_58p', '0201_CuO_O_K-edge_355nm_58p', '0202_CuO_O_K-edge_355nm_58p']
+Saved Bunch:	-18_-18
+	Missing bunch:	['0198_CuO_O_K-edge_355nm_58p', '0199_CuO_O_K-edge_355nm_58p', '0201_CuO_O_K-edge_355nm_58p', '0202_CuO_O_K-edge_355nm_58p']
+Saved Bunch:	-17_-17
+	Missing bunch:	['0198_CuO_O_K-edge_355nm_58p', '0199_CuO_O_K-edge_355nm_58p', '0201_CuO_O_K-edge_355nm_58p', '0202_CuO_O_K-edge_355nm_58p']
+Saved Bunch:	-16_-16
+	Missing bunch:	['0198_CuO_O_K-edge_355nm_58p', '0199_CuO_O_K-edge_355nm_58p', '0201_CuO_O_K-edge_355nm_58p', '0202_CuO_O_K-edge_355nm_58p']
+Saved Bunch:	-15_-15
+
+Log End: 2018-05-30 14:39:25.792180

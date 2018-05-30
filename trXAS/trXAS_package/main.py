@@ -87,8 +87,9 @@ def ask_user():
     return direct, column, first, last, xLow, xHigh
 def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pathToFiles, log,  missingBunch, missingHeader):
     print("Computing shifts...")
-    shiftedSplines= []
-    shiftedLines= []
+#    print(len(shiftedColumns)  )
+#    shiftedSplines= []
+#    shiftedLines= []
     paths = pathToFiles.keys()
     for bunch in bunchNum  :
         first = last = str(bunch)
@@ -103,6 +104,7 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
         lineAvg=0      
         lineErr=0
         bunchIndices = [i for i,x in enumerate(bunchNumAll) if x == bunch]
+#        print(bunchIndices)
         shiftedLines = [ shiftedEnergy[ind] for ind in bunchIndices]
          
         for j, col in enumerate( head[1:-1] ):
@@ -261,23 +263,26 @@ def main():
             if load_file(file, wantMissing=True) :
                 missingHeader.append( file.split(os.sep)[-1] )
             dataSet, header = load_file(file, skip=skip)
+            refSpline = data_to_column(dataSet, refColumnNum, file)
             if i!=0:
 #                findPeak = False
-                if shiftPeak:
+                if shiftPeak or shiftMinimize:
                     refPeaks.append(refPeaks[-1])
-                elif shiftCenter:
+                elif shiftCenter or shiftMinimize:
                      refCenters.append(refCenters[-1])
-#            photonE = data_to_column(dataSet, refColumnNum, file, findPeak)
-            refSpline = data_to_column(dataSet, refColumnNum, file)
-            if shiftPeak or shiftMinimize:
-                refPeaks.append( find_peak(refSpline) )
-            elif shiftCenter:
-                refCenters.append( find_center(lines[-1], refSpline) )
-            elif shiftMinimize :
-                continue
             else:
-                continue
+#                refSpline = data_to_column(dataSet, refColumnNum, file)
+                if shiftPeak or shiftMinimize:
+                    refPeaks.append( find_peak(refSpline) )
+                elif shiftCenter or shiftMinimize:
+                    refCenters.append( find_center(lines[-1], refSpline) )
+    #            elif shiftMinimize :
+    #                continue
+                else:
+                    break
+            
 #   shifts every column based on deltas calculated from reference column
+#    print(refCenters)
     if shiftPeak:
         deltas = get_deltas(refPeaks)
     elif shiftCenter:
@@ -287,8 +292,10 @@ def main():
     else :
         deltas = np.zeros_like(lines)
         print("No shift")
-    print( len(paths)  )
-    print(  set(deltas)  )
+#    print( len(paths)  )
+#    print(  deltas  )
+#    print( len(lines) )
+#    print( len(splines) )
     shiftedEnergy, shiftedColumns = apply_shift(deltas, splines, lines )
 #   averages and saves collumns from scans.
     if saveSplines:

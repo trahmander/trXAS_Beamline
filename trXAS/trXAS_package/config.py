@@ -24,8 +24,8 @@ refColumn = "Y all norm"
 # bunches in your directory. If you only want to look at 1 bunch. Choose that for 
 # for both values. ie: firstBunch = "7", lastBunch = "7" would look at just the 
 # 7th bunch after time 0.
-firstBunch = "1"
-lastBunch = "1"
+firstBunch = "all"
+lastBunch = "all"
 #photonEnergyStart is the smaller energy in the window to do an integration.
 #photonEnergyEnd os the larger energy in the window to do an integration.
 #Choose "all" to integrate on the entire photon energy axis. 
@@ -34,19 +34,19 @@ photonEnergyEnd= "534.8"
 #peakFindStart is the smaller energy in the window used to find peaks for shifting.
 #peakFindEnd is the larger energy in the window used to find peaks for shifting.
 #Choose "all" to integrate on the entire photon energy axis. 
-shiftPeak = False
+shiftPeak = True
 shiftCenter = False
-shiftMinimize = True
+shiftMinimize = False
 peakFindStart = "532"
 peakFindEnd= "537"
 #saveSplines is set to True if you want to calculate to save the shifted Splines.
 #showSplines is set to True if you want the plots for the column you set in column.
 #saveTransients is set to True if you want calculate the transients for transColumn.
 #showTransients is set to True if you want the plots for the integrals for transColumn.
-saveSplines = True
-showSplines = True
-saveTransients = False
-showTransients = False
+saveSplines = False
+showSplines = False
+saveTransients = True
+showTransients = True
 #stepSize determines how coarse the splining of your data is. Smaller stepSize is more expensive.
 #offSet is the delay in nanoseconds of the phaseshifter 
 offSet= 0.0
@@ -56,7 +56,7 @@ stepSize = 0.005
 #Initialize some values that are shared between the package files. It's best to
 # keep these lists clear. (They should just be empty brackets).
 ###############################################################################
-peaks = []
+#peaks = []
 splines = []
 lines= []
 ###############################################################################
