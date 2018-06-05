@@ -1,1 +1,0 @@
-# Photon Energy (eV)	X ref norm	X ref	X pump norm	X pump	Y ref norm	Y ref	Y pump norm	Y pump	X all norm	X all	Y all norm	Y all	X all Y ref norm	X all Y ref	Y all X ref norm	Y all X ref	BC(X hist) norm	BC(Y hist) norm	StS norm	BCSC norm	BCLR norm	BC(X hist)	BC(Y hist)	StS	BCSC	BCLR		

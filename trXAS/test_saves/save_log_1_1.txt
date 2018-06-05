@@ -1,9 +1,0 @@
-Log Start: 2018-05-30 12:27:32.312512
-
-Bunches:
-[1]
-Number of bunches:	1
-
-Saved Bunch:	1_1
-
-Log End: 2018-05-30 12:47:27.651483

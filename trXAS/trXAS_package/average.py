@@ -11,6 +11,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy import optimize as opt
 import random
+
+from config import stepSize
 ###############################################################################
 #some constants
 e = np.e
@@ -40,6 +42,19 @@ def average_vals(vals, lines):
     valAvg /= numVals
     lineAvg /= numVals
     return lineAvg, valAvg
+def cut_splines(vals, deltas):
+    ind = [ int(d/stepSize) for d in deltas ]
+    try:
+        rightShift = np.abs( min( [i for i in ind if i<=0] ) )
+    except(ValueError):
+        rightShift=0
+    try:
+        leftShift = max( [i for i in ind if i >=0] )
+    except (ValueError):
+        leftShift=0
+    vals = [ val[ rightShift : len(val) - leftShift ] for val in vals ]
+#    lines = [ line[ rightShift : len(line) - leftShift ] for line in lines ]
+    return vals
 def standard_error(vals, lines, valAvg, lineAvg):
     yErr = np.zeros_like(valAvg)
     xErr = np.zeros_like(lineAvg)

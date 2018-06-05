@@ -10,7 +10,7 @@ import os
 ###############################################################################
 #OpenDirectory is the name of the directory for your scans.
 #SaveDirectory is the name of the directory to save the averages in.
-openDirectory = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
+openDirectory = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_355nm_58pc")
 saveDirectory= os.path.normpath(os.pardir+os.sep+"test_saves")
 #column specifies the name of the column that you want to plot as a function of photon energy.
 #refColumn specifies the name of the column that you want to compare in order to determine the shifts
@@ -34,22 +34,23 @@ photonEnergyEnd= "534.8"
 #peakFindStart is the smaller energy in the window used to find peaks for shifting.
 #peakFindEnd is the larger energy in the window used to find peaks for shifting.
 #Choose "all" to integrate on the entire photon energy axis. 
-shiftPeak = True
+shiftPeak = False
 shiftCenter = False
-shiftMinimize = False
+shiftMinimize = True
 peakFindStart = "532"
 peakFindEnd= "537"
 #saveSplines is set to True if you want to calculate to save the shifted Splines.
 #showSplines is set to True if you want the plots for the column you set in column.
 #saveTransients is set to True if you want calculate the transients for transColumn.
 #showTransients is set to True if you want the plots for the integrals for transColumn.
-saveSplines = False
+saveSplines = True
 showSplines = False
 saveTransients = True
-showTransients = True
+showTransients = False
 #stepSize determines how coarse the splining of your data is. Smaller stepSize is more expensive.
-#offSet is the delay in nanoseconds of the phaseshifter 
-offSet= 0.0
+#offSet is how much time in nano seconds that t0 is after the reference bunch. 
+#Example: if t0 is 150ps before the first bunch then offset would be 2  - 0.15 = 1.85
+offSet= 1.85
 stepSize = 0.005
 ############################################################################### 
 ###############################################################################

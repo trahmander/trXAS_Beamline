@@ -41,10 +41,11 @@ from integrate import (def_integral,
                        find_nearest_bounds,
                        remove_dup)
 from average import (average_vals,
-                     standard_error)
+                     standard_error,
+                     cut_splines)
 # Load global variables. These are also used in shift.py
 from config import (openDirectory as direct,
-                    saveDirectory,
+#                    saveDirectory,
                     column as columnName,
                     refColumn,
                     transColumn,
@@ -71,7 +72,6 @@ from config import (openDirectory as direct,
 #Helper functions for main()
 ###############################################################################
 def initialize():
-#    peaks.clear()
     splines.clear()
     lines.clear()
     return
@@ -85,7 +85,7 @@ def ask_user():
 #    probe = user_probe()
 #    sample = user_sample()
     return direct, column, first, last, xLow, xHigh
-def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pathToFiles, log,  missingBunch, missingHeader):
+def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pathToFiles, log,  missingBunch, missingHeader, saveDirectory):
     print("Computing shifts...")
 #    print(len(shiftedColumns)  )
 #    shiftedSplines= []
@@ -106,10 +106,12 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
         bunchIndices = [i for i,x in enumerate(bunchNumAll) if x == bunch]
 #        print(bunchIndices)
         shiftedLines = [ shiftedEnergy[ind] for ind in bunchIndices]
+#        shiftedLines = cut_splines(shiftedLines,deltas)
          
         for j, col in enumerate( head[1:-1] ):
 
             shiftedSplines= [shiftedColumns[i][j] for i in bunchIndices ]
+#            shiftedSplines = cut_splines(shiftedSplines, deltas)
             title = col
             if showSplines and col in columnName:
                 fig = plt.figure(dpi=100)
@@ -143,8 +145,8 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
         for col in head[:-1]:
             hdr += col+"\t"+"SE "+col+"\t"
         hdr = hdr[:-1]
-        if not os.path.exists(saveDirectory):
-            os.makedirs(saveDirectory)
+#        if not os.path.exists(saveDirectory):
+#            os.makedirs(saveDirectory)
         save_multicolumn(avgColumns, header = hdr, filename = saveDirectory+os.sep+fileName)
         print("Saved Bunch:\t"+first+"_"+last, file = log)
         print("Saved Bunch:\t"+first+"_"+last)
@@ -154,13 +156,16 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
     if ( len(missingHeader)!=0 ):
         print("\nMissing header:" + str( sorted(missingHeader) ), file = log)
     
-    print( "\nLog End: "+ str( datetime.now() ), file = log )
-    log.close()
+    print( "\nSaving Shifts: "+ str( datetime.now() ), file = log )
+#    log.close()
     plt.show()
     plt.close()
     return
 def compute_integral( title, pathToFiles, head, transientColumns, bunch, shiftedEnergy, shiftedColumns, binning=1):        
-    shiftedSplines = [ shiftedColumns[i][head.index(transColumn)] for i in range( len(shiftedColumns) ) ] 
+    transIndex = head.index(transColumn)
+    shiftedSplines = [ shiftedColumns[i][transIndex] for i in range( len(shiftedColumns) ) ]
+#    shiftedSplines = cut_splines(shiftedSplines, deltas)
+#    shiftedEnergy = cut_splines(shiftedEnergy,deltas)
     integrals = [ def_integral( e,s, xHigh,xLow ) for e,s in zip(shiftedEnergy, shiftedSplines) ]
 #    print(bunch)
     bunch, Int = average_integrals(bunch, integrals)
@@ -169,8 +174,8 @@ def compute_integral( title, pathToFiles, head, transientColumns, bunch, shifted
     timeDelay =[ (2*b - offSet) if b>0 else (2*b + offSet) for b in bunch]
 #    print(timeDelay)
 
-    if not os.path.exists(saveDirectory):
-        os.makedirs(saveDirectory)
+#    if not os.path.exists(saveDirectory):
+#        os.makedirs(saveDirectory)
     transientColumns.append( timeDelay )
     transientColumns.append( Int )
     print("saved transient:\t"+title)
@@ -181,7 +186,7 @@ def compute_integral( title, pathToFiles, head, transientColumns, bunch, shifted
         plt.xlabel("Time Delay [ns]")
         plt.plot(timeDelay , Int, marker = 'd')
     return
-def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns):
+def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory):
     print("Computing transients...")
     transCol=[]
     header = "Delay[ns]\tAvg Transient\t"
@@ -203,10 +208,13 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns)
 
     header = header[:-1]
     transCol = pd.DataFrame(transCol).values
-
-    
+    if not os.path.exists(saveDirectory):
+        os.makedirs(saveDirectory)
     fileName = "transient_"+xHigh+"_"+xLow+"_bunch_"+firstBunch+"_"+lastBunch+".txt"
     save_multicolumn(transCol, header, saveDirectory + os.sep + fileName)
+    print( "\nSaved Transients: "+ str( datetime.now() ), file = log )
+#    plt.show()
+#    plt.close()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    )
     return
 ###############################################################################
 ###############################################################################
@@ -216,21 +224,29 @@ def main():
     initialize()
     missingBunch = []
     missingHeader = []
-    log = saveDirectory+os.sep+"save_log_"+firstBunch+"_"+lastBunch+".txt"    
-    print("",file= open(log, "w+"))
-    log = open(log, "w+")
-    print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
+    
     bunchNumAll = []
 #    direct, column, first, last, xLow, xHigh = ask_user()
 
     paths = os.listdir(direct)
     paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
+    saveDirectory= direct+os.sep
+    for p in paths:
+        saveDirectory += ( p.strip(direct).split("_")[0] + "_" )
+    saveDirectory +="avg"
+    if not os.path.exists(saveDirectory):
+        os.makedirs(saveDirectory)
+    log = saveDirectory+os.sep+"save_log_"+firstBunch+"_"+lastBunch+".txt"    
+    print("",file= open(log, "w+"))
+    log = open(log, "w+")
+    print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
     dataFiles = get_data_files(paths[1])
     dataSet, head = load_file(dataFiles[0])
     refColumnNum = head.index(refColumn)
 #   Load the data sets of all the scans and get the bunches found. Calculates
 #   the splines for splines for reference column from first file in scan.
-    pathToFiles = {}    
+    pathToFiles = {} 
+    
     for path  in paths :
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first= firstBunch, last = lastBunch)
@@ -293,16 +309,22 @@ def main():
         deltas = np.zeros_like(lines)
         print("No shift")
 #    print( len(paths)  )
-#    print(  deltas  )
+    print(  deltas  )
+#    print( np.array(refPeaks) - np.array(deltas) )
 #    print( len(lines) )
 #    print( len(splines) )
     shiftedEnergy, shiftedColumns = apply_shift(deltas, splines, lines )
+    shiftedEnergy = cut_splines(shiftedEnergy,deltas)
+    shiftedColumns = [ cut_splines(column, deltas) for column in shiftedColumns ]
 #   averages and saves collumns from scans.
     if saveSplines:
-        save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader)
+        save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader, saveDirectory)
 #   averages and saves transients from all scans. Also saves each individual scan.
     if saveTransients:
-        save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns)
+        save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory)
+    log.close()
+    plt.show()
+    plt.close()
     return 
 ###############################################################################        
 if __name__ == "__main__":

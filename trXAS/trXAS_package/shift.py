@@ -120,12 +120,17 @@ def shift_spline(splineNum, refPeaks, spline, line):
         return vals[:-index], line[splineNum][:-index]
 #def difference(ref):
 def difference_func(delta, ref, vals):
-    ind = int (np.abs(delta) / stepSize)
-    if delta >0:
+    if delta<stepSize/2 and delta> -1*stepSize/2:
+        ind = 0    
+    elif delta>0:
+        ind = int( delta/stepSize )
         vals = [ vals[k + ind] for k in range( len(vals) - ind )  ]
 #        vals = vals[:-ind]
-#    elif delta>0:
-#        vals = [ vals[::-1][k+ ind] for k in range( len(vals) -ind)  ]
+    elif delta<0:
+        ind = int( -1*delta/stepSize )
+        vals = [ vals[::-1][k+ ind] for k in range( len(vals) -ind)  ]
+        ref = ref[::-1]
+        
 #        vals = vals[:-ind][::-1]
 #    diff = 0
 #    for i in range( len(vals) ):
@@ -149,12 +154,14 @@ def get_deltas(refPeaks):
     return deltas
 def diff_deltas(splineCols, lines, refPeaks, refCol):
     refSplines = [s[refCol] for s in splineCols]
-    minPeak = 0
-    minIndex = 0
-    for i, pk in enumerate(refPeaks) :
-        if pk < minPeak :
-            minPeak = pk
-            minIndex = i
+#    minPeak = 0
+#    minIndex = 0
+#    for i, pk in enumerate(refPeaks) :
+#        if pk < minPeak :
+#            minPeak = pk
+#            minIndex = i
+    
+    minIndex = refPeaks.index( min(refPeaks) )
     ref = refSplines[minIndex]( lines[minIndex] )
 #    print(len(ref) )  
    
@@ -176,7 +183,7 @@ def diff_deltas(splineCols, lines, refPeaks, refCol):
 #        return difference_func
     deltas=[]
 #    iterate = int(0.65/stepSize/2)
-    shifts = np.arange(0,0.65, stepSize)
+    shifts = np.linspace(-0.5,0.5, 101)
     for i , spline in enumerate(refSplines):
         vals = spline( lines[i] )
 #        print( len(vals)
@@ -195,13 +202,20 @@ def apply_shift(delta, splineCols, lines):
         if ind == 0:
             for col in spline :
                 values.append( col( lines[i] ) )
-        else:
+        elif ind>0:
             for col in spline:
                 val = col( lines[i] )
-                for k in range( len(val) - ind ):
-                    val[k] = val[k+ind]
-                values.append(val[:-ind])
+                val = [ val[k + ind] for k in range( len(val) - ind )  ]
+#                val = val[:-ind]
+                values.append(val)
             lines[i] = lines[i][:-ind]
+        else:
+            ind = -1*ind
+            for col in spline:
+                val = col( lines[i] )
+                val = [ val[::-1][k+ ind] for k in range( len(val) -ind)  ]
+                values.append(val[::-1])
+            lines[i] = lines[i][ind:]
     
         valuesAllCol.append(values)
     return lines, valuesAllCol

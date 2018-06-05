@@ -195,7 +195,6 @@ def save_multicolumn(data, header, filename):
 ###############################################################################
 #test function for load_files.
 ###############################################################################
-
 def test_load_files():
 #    sys.stdout= open(saveDirectory+os.sep+"save_log.txt", "w+")
     direct = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
