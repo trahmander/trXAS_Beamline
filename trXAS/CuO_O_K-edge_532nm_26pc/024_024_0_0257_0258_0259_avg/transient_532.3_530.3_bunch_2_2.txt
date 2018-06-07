@@ -1,0 +1,2 @@
+# Delay[ns]	Avg Transient	024 Delay[ns]	024 Transient	024 Delay[ns]	024 Transient	0 Delay[ns]	0 Transient	0257 Delay[ns]	0257 Transient	0258 Delay[ns]	0258 Transient	0259 Delay[ns]	0259 Transient
+2.150000e+00	3.558744e-02	2.150000e+00	6.739005e-02	2.150000e+00	5.700731e-02	2.150000e+00	7.448524e-04	2.150000e+00	2.139426e-02	2.150000e+00	2.812818e-02	2.150000e+00	3.885999e-02

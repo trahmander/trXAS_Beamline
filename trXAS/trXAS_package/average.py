@@ -27,18 +27,23 @@ def lorentzian(A, B, fwhm, x0):
     return lorentzian_func
 #average the values from "numVals" number of splines and return the new line and spline values.
 def average_vals(vals, lines):
-    valAvg = np.zeros_like(lines[0])
-    lineAvg = np.zeros_like(lines[0])    
+#    valAvg = np.zeros_like(lines[0])
+#    lineAvg = np.zeros_like(lines[0])    
     numVals=len(vals)
+#    print(numVals)
+    end  = min( [len(v) for v in vals] )
+    valAvg = np.zeros(end)
+    lineAvg = np.zeros(end)
     for i in range( numVals ):
-        val = vals[i]
-        line = lines[i]
-        smaller = min(len(val), len(valAvg) )
-        for j in range( smaller ):
+        val = vals[i][:end]
+        line = lines[i][:end]
+
+#        smaller = min(len(val), len(valAvg) )
+        for j in range( end ):
             valAvg[j] += val[j]
             lineAvg[j] += line[j]
-        valAvg = valAvg[:smaller]
-        lineAvg = lineAvg[:smaller]
+#        valAvg = valAvg[:smaller]
+#        lineAvg = lineAvg[:smaller]
     valAvg /= numVals
     lineAvg /= numVals
     return lineAvg, valAvg
@@ -59,17 +64,18 @@ def standard_error(vals, lines, valAvg, lineAvg):
     yErr = np.zeros_like(valAvg)
     xErr = np.zeros_like(lineAvg)
     numVals = len(vals)
+    end = min( len(v) for v in vals )
     for i in range(numVals):
-        val = vals[i]
-        line = lines[i]
-        smaller = min(len(val), len(valAvg))
-        for j in range(smaller):
+        val = vals[i][:end]
+        line = lines[i][:end]
+#        smaller = min(len(val), len(valAvg))
+        for j in range(end):
             dy = (valAvg[j] - val[j])
             yErr[j] += dy*dy
             dx = lineAvg[j] - line[j]
             xErr[j] += dx*dx
-        yErr = yErr[:smaller]
-        xErr = xErr[:smaller]
+#        yErr = yErr[:smaller]
+#        xErr = xErr[:smaller]
     yErr /= numVals
     yErr = np.sqrt(yErr)
     xErr /= numVals

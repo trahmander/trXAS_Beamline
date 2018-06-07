@@ -3,6 +3,7 @@
 #Import modules
 ###############################################################################
 from scipy.integrate import simps, romb, trapz, cumtrapz
+from scipy.optimize import curve_fit
 import random
 import numpy as np
 from matplotlib import pyplot as plt
@@ -17,6 +18,7 @@ def find_nearest_index(xVals, x):
         if diff[i] < diffMin:
             diffMin = diff[i]
             index=i
+    
     return index
 # returns the first index which is closest to xLow and the first index closest to xHigh
 def find_nearest_bounds(xVals, xLow, xHigh):
@@ -65,32 +67,24 @@ def average_integrals(bunchNum, integrals):
 	integrals = remove_dup(integralsAverage)# this isnt a good solution. what if two bunches are degenerate
 	bunchNum = remove_dup(bunchNum)
 	return bunchNum, integrals
+
+def exp(t, A, T, t0):
+    return A*np.heaviside(t-t0, 0.5)*np.e**(-1*(t - t0)/T)
+
+    
 ###############################################################################
 #Test function for integrate.py
 ###############################################################################
 def test_integrate():
-#	xVals = np.linspace(0, 4*np.pi,1001)
-#	yVals = np.cos(xVals)
-#	yVals = np.exp(2.0*xVals)
-#	yInt = [ 2.0 + simps( yVals[:i+1], xVals[:i+1] ) for i in range(len(xVals)) ]
-#	yPred = np.sin(xVals)
-#	yPred = 0.5*yVals
-#
-#	plt.plot(xVals,yVals)
-#	plt.plot(xVals, yInt, linestyle= '-.')
-#	plt.plot(xVals, yPred, linestyle= '--')
-#	plt.show()
-    x = np.linspace(532, 540, 1000)
-    xhigh = "535.13"
-    xlow = "537.3"
-    low, high = find_nearest_bounds(x, xlow, xhigh)
-    print( (low, high) )
-    print( (x[low], x[high])  )
-#    try:
-#        print(x[i+1] - xfind)
-#    except:
-#        print("Hit the upperbound")
-#    return
+    x_axis = np.linspace(-10, 100, 1000)
+    y = [exp(x, 1.0, 2.0, 3.0 ) + 0.1*random.randint(0,100) for x in x_axis]
+    opt, cov = curve_fit(exp, x_axis, y, p0 = [1.0, 2.0])
+    print(opt)
+    y_fit = exp(x_axis, opt[0], opt[1], opt[2])
+    plt.plot(x_axis,y)
+    plt.plot(x_axis, y_fit)
+    return
+
 ###############################################################################
 if __name__ == "__main__":
 	test_integrate()

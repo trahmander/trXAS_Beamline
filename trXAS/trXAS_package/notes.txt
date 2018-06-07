@@ -1,8 +1,7 @@
 ##########################################################################################
 TO DO:
 ##########################################################################################
-# 	Need a more sophisticated average that factors in dwell times?
-# 	Make the peak energy the nominal value.
+# 	Add in the phase-shifter stuff.
 # 	May need to improve my r value minimizer shift method. now it just takes steps. It
     would be better if I used a minimize function from scipy or something.
 ##########################################################################################

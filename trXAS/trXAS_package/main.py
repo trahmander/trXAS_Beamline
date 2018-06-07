@@ -14,6 +14,7 @@ import os
 from datetime import datetime
 import numpy as np
 import pandas as pd
+from scipy.optimize import curve_fit
 from matplotlib import pyplot as plt
 #From modules in trXAS_package
 from user_input import (user_directory,  
@@ -39,7 +40,8 @@ from shift import (data_to_column,
 from integrate import (def_integral, 
                        average_integrals, 
                        find_nearest_bounds,
-                       remove_dup)
+                       remove_dup,
+                       exp)
 from average import (average_vals,
                      standard_error,
                      cut_splines)
@@ -56,6 +58,7 @@ from config import (openDirectory as direct,
                     shiftPeak,
                     shiftCenter,
                     shiftMinimize,
+                    shiftNone,
                     peakFindStart,
                     peakFindEnd,
                     offSet,
@@ -179,12 +182,15 @@ def compute_integral( title, pathToFiles, head, transientColumns, bunch, shifted
     transientColumns.append( timeDelay )
     transientColumns.append( Int )
     print("saved transient:\t"+title)
+    opt, cov = curve_fit(exp, timeDelay, Int, p0=[0.1, 10.0, offSet] )
+    print(opt)
     if showTransients:
         fig_int = plt.figure(dpi=100)
         plt.title(title+"_transient: "+xLow+"-"+xHigh+" eV")
         plt.ylabel(transColumn+" sum ")
         plt.xlabel("Time Delay [ns]")
         plt.plot(timeDelay , Int, marker = 'd')
+        plt.plot(timeDelay, exp(timeDelay, opt[0], opt[1], opt[2]) )
     return
 def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory):
     print("Computing transients...")
@@ -197,7 +203,7 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns,
     start=0
     end= 0
     for path, files in  pathToFiles.items():
-        title = path.strip(direct).split("_")[0]
+        title = path.strip(direct)[:4]
         header += title+" Delay[ns]\t"+title+" Transient\t"
         end  = start + len( files )
         compute_integral(title, pathToFiles, head, transCol, 
@@ -301,15 +307,19 @@ def main():
 #    print(refCenters)
     if shiftPeak:
         deltas = get_deltas(refPeaks)
+        print("peak matching shift")
     elif shiftCenter:
         deltas = get_deltas(refCenters)
+        print("geometric center matching shift")
     elif shiftMinimize:
         deltas = diff_deltas(splines, lines, refPeaks, header.index(refColumn)-1)
-    else :
+        print("least squares minimizing shift")
+    if shiftNone :
         deltas = np.zeros_like(lines)
         print("No shift")
 #    print( len(paths)  )
-    print(  deltas  )
+#    print(  deltas  )
+#    print(refPeaks)
 #    print( np.array(refPeaks) - np.array(deltas) )
 #    print( len(lines) )
 #    print( len(splines) )
