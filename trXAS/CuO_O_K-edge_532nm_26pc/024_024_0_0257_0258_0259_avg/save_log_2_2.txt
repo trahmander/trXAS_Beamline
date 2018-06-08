@@ -1,9 +1,0 @@
-Log Start: 2018-06-05 12:27:29.907037
-
-Bunches:
-[2]
-Number of bunches:	1
-
-Saved Bunch:	2_2
-
-Saving Shifts: 2018-06-05 13:05:37.415272

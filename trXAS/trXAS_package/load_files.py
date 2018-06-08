@@ -197,56 +197,11 @@ def save_multicolumn(data, header, filename):
 ###############################################################################
 def test_load_files():
 #    sys.stdout= open(saveDirectory+os.sep+"save_log.txt", "w+")
-    direct = os.path.normpath(os.pardir+ os.sep+ "test_data_bunchbybunch")
-#    paths = os.listdir(direct)
-#    bunchNumAll=[]
-#    for path in paths:
-#         if "avg" in path:
-#            paths.remove(path)
-#    for i in range( len(paths) ):
-#        paths[i] = os.path.join(direct, paths[i])
-#    print(paths)
-#    for i  in range( len(paths) ):
-#        path = paths[i]
-#        print(path.strip(direct).split("_")[0])
-#        dataFiles = get_data_files(path)
-#        dataFiles = select_files(dataFiles, first = "-1", last = "1")
-#        print([file.strip(direct) for file in dataFiles])
-#        bunchNumAll.extend( get_selected_bunches(dataFiles) )
-#        bunchNumAll = remove_dup(bunchNumAll)
-#    print(sorted(bunchNumAll))
-#    print("Number of bunches:\t"+str(len(bunchNumAll) ) )
-    
-#    paths = os.listdir(direct)
-#    for i in range( len(paths) ):
-#        paths[i] = os.path.join(direct, paths[i])
-#    for path in paths:
-#         if "avg" in path:
-#            paths.remove(path)
-#    
-#    for path in paths:
-#        print(path.strip(direct).split("_")[0])
-        
-#    randcols = []
-    
-#        randfloats = [random.randint(0,100)*0.1000222 for i in range(10)]
-    randcols= [  [random.randint(0,100)*1.2000222222 for i in range(10)] 
-    for i in range(4)]
-    randcols.append(  [random.randint(0,100)*1.2000222222 for i in range(9)]  )
-#    print(randcols)
-#    randcols = np.array(randcols)
-#    randcols = np.array( list( itertools.zip_longest(randcols, fillvalue=0.0) ) )
-    randcols = pd.DataFrame(randcols).fillna(np.nan).values.astype(np.float32)
-    print(randcols.shape)
-    print(randcols)
-    save_multicolumn(randcols, "Blah", saveDirectory+os.sep+"random_save.txt")
-    
-    data, head = load_file(saveDirectory+os.sep+"random_save.txt")
-    print(data)
-
-    for i in range( len(data) ):
-        print( np.average(data[i]) )
-        plt.plot(range( len(data[i]) ), data[i])
+    direct = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_532nm_26pc")
+    paths = os.listdir(direct)
+    paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
+    print( [p.split(os.sep)[-1].split("_")[0] for p in paths] )
+    print (paths)
     return
 ###############################################################################
 if __name__ == "__main__":   

@@ -12,6 +12,7 @@ __email__ = "trahman@lbl.gov"
 #From buit in modules
 import os
 from datetime import datetime
+from timeit import default_timer as timer
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
@@ -133,6 +134,8 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
                         plt.plot(shiftedLines[i], shiftedSplines[i], linewidth=0.5)
                         
             lineAvg, valAvg = average_vals(shiftedSplines, shiftedLines)
+#            print(title+" Bunches: "+first+"-"+last)
+#            print(valAvg)
             lineErr, valErr = standard_error(shiftedSplines, shiftedLines, valAvg, lineAvg)
             if showSplines and col in columnName:
                 plt.plot(lineAvg, valAvg, linestyle = "--", color = 'r', linewidth =1 )
@@ -183,7 +186,7 @@ def compute_integral( title, pathToFiles, head, transientColumns, bunch, shifted
     transientColumns.append( Int )
     print("saved transient:\t"+title)
     opt, cov = curve_fit(exp, timeDelay, Int, p0=[0.1, 10.0, offSet] )
-    print(opt)
+    print( "A="+str(opt[0])+"\nT="+str(opt[1])+"\nt0="+str(opt[2]) )
     if showTransients:
         fig_int = plt.figure(dpi=100)
         plt.title(title+"_transient: "+xLow+"-"+xHigh+" eV")
@@ -196,14 +199,14 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns,
     print("Computing transients...")
     transCol=[]
     header = "Delay[ns]\tAvg Transient\t"
-    compute_integral("Avg", pathToFiles, head, transCol, 
+    compute_integral(saveDirectory.split(os.sep)[-1], pathToFiles, head, transCol, 
                       bunchNumAll, 
                       shiftedEnergy, 
                       shiftedColumns )
     start=0
     end= 0
     for path, files in  pathToFiles.items():
-        title = path.strip(direct)[:4]
+        title = path.split(os.sep)[-1].split("_")[0]
         header += title+" Delay[ns]\t"+title+" Transient\t"
         end  = start + len( files )
         compute_integral(title, pathToFiles, head, transCol, 
@@ -227,6 +230,7 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns,
 #Main driver function for trXAS package
 ###############################################################################
 def main():
+    startTime = timer()
     initialize()
     missingBunch = []
     missingHeader = []
@@ -238,7 +242,7 @@ def main():
     paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
     saveDirectory= direct+os.sep
     for p in paths:
-        saveDirectory += ( p.strip(direct).split("_")[0] + "_" )
+        saveDirectory += ( p.split(os.sep)[-1].split("_")[0] ) + "_"
     saveDirectory +="avg"
     if not os.path.exists(saveDirectory):
         os.makedirs(saveDirectory)
@@ -333,6 +337,8 @@ def main():
     if saveTransients:
         save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory)
     log.close()
+    endTime = timer()
+    print( "Time:\t"+ str(endTime - startTime) )
     plt.show()
     plt.close()
     return 

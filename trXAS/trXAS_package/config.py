@@ -10,11 +10,11 @@ import os
 ###############################################################################
 #OpenDirectory is the name of the directory for your scans.
 #SaveDirectory is the name of the directory to save the averages in.
-openDirectory = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_355nm_58pc")
+openDirectory = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_532nm_14pc")
 saveDirectory= os.path.normpath(os.pardir+os.sep+"test_saves")
 #column specifies the name of the column that you want to plot as a function of photon energy.
 #refColumn specifies the name of the column that you want to compare in order to determine the shifts
-column = ["StS norm"]
+column = ["Y all norm","StS norm"]
 transColumn = "StS norm"
 refColumn = "Y all norm"
 #firstBunch determines the the earliest bunch before the pump to average. (Inclusive) 
@@ -24,16 +24,16 @@ refColumn = "Y all norm"
 # bunches in your directory. If you only want to look at 1 bunch. Choose that for 
 # for both values. ie: firstBunch = "7", lastBunch = "7" would look at just the 
 # 7th bunch after time 0.
-firstBunch = "-1"
-lastBunch = "2"
+firstBunch = "all"
+lastBunch = "all"
 #These are the different options for the shifting method. Only one should be True.
 #Shift peak, matches the maximum in the range specified by peakFindStart and peakFindEnd.
 #shiftCenter matches the geometric center of the curves.
 #shiftMinimize tries to minimize the difference in the spectra as a function of the shift.
-shiftPeak = False
-shiftCenter = False
-shiftMinimize = True
 shiftNone = False
+shiftPeak = True
+shiftCenter = False
+shiftMinimize = False
 #peakFindStart is the smaller energy in the window used to find peaks for shifting.
 #peakFindEnd is the larger energy in the window used to find peaks for shifting.
 #Choose "all" to integrate on the entire photon energy axis. 
@@ -42,16 +42,16 @@ peakFindEnd= "537"
 #photonEnergyStart is the smaller energy in the window to do an integration.
 #photonEnergyEnd os the larger energy in the window to do an integration.
 #Choose "all" to integrate on the entire photon energy axis. 
-photonEnergyStart = "532.5"
+photonEnergyStart = "532.8"
 photonEnergyEnd= "534.8"
 #saveSplines is set to True if you want to calculate to save the shifted Splines.
 #showSplines is set to True if you want the plots for the column you set in column.
 #saveTransients is set to True if you want calculate the transients for transColumn.
 #showTransients is set to True if you want the plots for the integrals for transColumn.
-saveSplines = True
-showSplines = True
-saveTransients = False
-showTransients = False
+saveSplines = False
+showSplines = False
+saveTransients = True
+showTransients = True
 #stepSize determines how coarse the splining of your data is. Smaller stepSize is more expensive.
 #offSet is how much time in nano seconds that t0 is after the reference bunch. 
 #Example: if t0 is 150ps before the first bunch then offset would be 2  - 0.15 = 1.85
