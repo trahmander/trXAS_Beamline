@@ -152,22 +152,31 @@ def get_deltas(refPeaks):
         else:
             deltas.append(peak - ref)
     return deltas
-def diff_deltas(splineCols, lines, refPeaks, refCol):
-    refSplines = [s[refCol] for s in splineCols]  
+def diff_deltas(splineCols, lines, scanSize, refPeaks, refCol):
+    refSplines = [s[refCol] for s in splineCols] 
+    scanIndex=[]
+    scan = 0
+    for size in scanSize:
+        scanIndex.append(scan)
+        scan += size
+    refPeaks = [refPeaks[ind] for ind in scanIndex]
     minIndex = refPeaks.index( min(refPeaks) )
     ref = refSplines[minIndex]( lines[minIndex] )
 #    print(len(ref) )  
    
     deltas=[]
 #    iterate = int(0.65/stepSize/2)
-    shifts = np.linspace(-0.5,0.5, 101)
+    shifts = np.arange(-0.55,0.55, stepSize)
+    
     for i , spline in enumerate(refSplines):
         vals = spline( lines[i] )
 #        print( len(vals) )
 #        res = opt.minimize( difference_func, 0, args=(ref, vals), bounds = [(-0.5,0.5)], options = {'maxiter':iterate} )
 #        deltas.append(res.x[0])
         error = [difference_func(s, ref, vals) for s in shifts]
-        deltas.append( shifts[ error.index( np.amin(error) ) ]  )
+        delt = shifts[ error.index( np.amin(error) ) ]
+        for j in range( scanSize[i]  ):
+            deltas.append( delt  )
     return deltas
 def apply_shift(delta, splineCols, lines):
     index = [int ( de / stepSize ) for de in delta]

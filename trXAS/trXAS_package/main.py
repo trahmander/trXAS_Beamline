@@ -185,15 +185,15 @@ def compute_integral( title, pathToFiles, head, transientColumns, bunch, shifted
     transientColumns.append( timeDelay )
     transientColumns.append( Int )
     print("saved transient:\t"+title)
-    opt, cov = curve_fit(exp, timeDelay, Int, p0=[0.1, 10.0, offSet] )
-    print( "A="+str(opt[0])+"\nT="+str(opt[1])+"\nt0="+str(opt[2]) )
+#    opt, cov = curve_fit(exp, timeDelay, Int, p0=[0.1, 10.0, offSet] )
+#    print( "A="+str(opt[0])+"\nT="+str(opt[1])+"\nt0="+str(opt[2]) )
     if showTransients:
         fig_int = plt.figure(dpi=100)
         plt.title(title+"_transient: "+xLow+"-"+xHigh+" eV")
         plt.ylabel(transColumn+" sum ")
         plt.xlabel("Time Delay [ns]")
         plt.plot(timeDelay , Int, marker = 'd')
-        plt.plot(timeDelay, exp(timeDelay, opt[0], opt[1], opt[2]) )
+#        plt.plot(timeDelay, exp(timeDelay, opt[0], opt[1], opt[2]) )
     return
 def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory):
     print("Computing transients...")
@@ -279,9 +279,13 @@ def main():
     print("Loading files...")
     refPeaks=[]
     refCenters= []
+    refSplines = []
+    refLines = []
+    scanSize=[]
     for path in paths:
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
+        scanSize.append( len(dataFiles) )
         for i in range(len(dataFiles)):
             skip=1
 #            findPeak=True
@@ -296,14 +300,18 @@ def main():
                     refPeaks.append(refPeaks[-1])
                 elif shiftCenter or shiftMinimize:
                      refCenters.append(refCenters[-1])
+#                if shiftMinimize:
+#                    refSplines.append( refSplines[-1] )
+#                    refLines.append( refLines[-1] )
             else:
 #                refSpline = data_to_column(dataSet, refColumnNum, file)
                 if shiftPeak or shiftMinimize:
                     refPeaks.append( find_peak(refSpline) )
                 elif shiftCenter or shiftMinimize:
                     refCenters.append( find_center(lines[-1], refSpline) )
-    #            elif shiftMinimize :
-    #                continue
+                if shiftMinimize:
+                    refSplines.append( splines[-1] )
+                    refLines.append( lines[-1] )
                 else:
                     break
             
@@ -316,7 +324,7 @@ def main():
         deltas = get_deltas(refCenters)
         print("geometric center matching shift")
     elif shiftMinimize:
-        deltas = diff_deltas(splines, lines, refPeaks, header.index(refColumn)-1)
+        deltas = diff_deltas(refSplines, refLines, scanSize, refPeaks, header.index(refColumn)-1)
         print("least squares minimizing shift")
     if shiftNone :
         deltas = np.zeros_like(lines)
