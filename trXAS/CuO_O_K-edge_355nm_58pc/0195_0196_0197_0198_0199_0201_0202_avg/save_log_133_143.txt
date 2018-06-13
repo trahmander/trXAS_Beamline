@@ -1,0 +1,19 @@
+Log Start: 2018-06-12 17:08:32.607006
+
+Bunches:
+[133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143]
+Number of bunches:	11
+
+Saved Bunch:	133_133
+Saved Bunch:	134_134
+Saved Bunch:	135_135
+Saved Bunch:	136_136
+Saved Bunch:	137_137
+Saved Bunch:	138_138
+Saved Bunch:	139_139
+Saved Bunch:	140_140
+Saved Bunch:	141_141
+Saved Bunch:	142_142
+Saved Bunch:	143_143
+
+Saving Shifts: 2018-06-12 17:09:29.685123

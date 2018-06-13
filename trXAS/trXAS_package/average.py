@@ -85,6 +85,20 @@ def average_by_bunch(bunchNum, vals, line):
     for bunch in bunchNum:
         x=1
     return
+def remove_outliers(dataX,dataY, m = 2.):
+    diff = np.abs(np.array(dataY) - np.median(dataY))
+    mdev = np.median(diff)
+    s =[ d/mdev if mdev!=0 else 0 for d in diff]
+    i=0
+    size = len(dataY)
+    while (i < size ):
+        if s[i]>=m:
+            del dataY[i]
+            del dataX[i]
+            size-=1
+        i+=1
+            
+    return dataX, dataY
 ###############################################################################
 #Test function for average.py
 ###############################################################################

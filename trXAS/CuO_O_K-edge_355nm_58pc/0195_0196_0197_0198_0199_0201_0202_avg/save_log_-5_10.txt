@@ -1,0 +1,26 @@
+Log Start: 2018-06-12 17:06:57.230167
+
+Bunches:
+[-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Number of bunches:	15
+
+Saved Bunch:	-5_-5
+Saved Bunch:	-4_-4
+Saved Bunch:	-3_-3
+Saved Bunch:	-2_-2
+Saved Bunch:	-1_-1
+	Missing bunch:	['019', '019', '0196', '0197', '0199', '0201', '0202']
+Saved Bunch:	1_1
+Saved Bunch:	2_2
+Saved Bunch:	3_3
+Saved Bunch:	4_4
+Saved Bunch:	5_5
+Saved Bunch:	6_6
+Saved Bunch:	7_7
+Saved Bunch:	8_8
+Saved Bunch:	9_9
+Saved Bunch:	10_10
+
+Missing header:['0202_diff_spect_pump_15-15_minus_ref_1-16_data.txt']
+
+Saving Shifts: 2018-06-12 17:08:20.470954

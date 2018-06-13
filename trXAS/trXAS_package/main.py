@@ -45,7 +45,8 @@ from integrate import (def_integral,
                        exp)
 from average import (average_vals,
                      standard_error,
-                     cut_splines)
+                     cut_splines,
+                     remove_outliers)
 # Load global variables. These are also used in shift.py
 from config import (openDirectory as direct,
 #                    saveDirectory,
@@ -124,21 +125,22 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
                 plt.xlabel("Probe [eV]")        
     
                 if showSplines and col in columnName:
+                    plt.axhline(0, linestyle = "-", color= "grey")
                     if col == transColumn:
                         plt.axvline(float(xLow), linestyle = "-.", linewidth = 0.5)
-                        plt.axvline(float(xHigh), linestyle = "--", linewidth = 0.5)
+                        plt.axvline(float(xHigh), linestyle = "-.", linewidth = 0.5)
                     if col == refColumn:
-                        plt.axvline(float(peakFindStart), linestyle = "--", linewidth= 0.5, color = 'g' )
-                        plt.axvline( float(peakFindEnd), linestyle = "--", linewidth= 0.5, color = 'g' )
-                    for i in range( len(shiftedSplines) ):
-                        plt.plot(shiftedLines[i], shiftedSplines[i], linewidth=0.5)
+                        plt.axvline(float(peakFindStart), linestyle = "-.", linewidth= 0.5, color = 'g' )
+                        plt.axvline( float(peakFindEnd), linestyle = "-.", linewidth= 0.5, color = 'g' )
+                        for i in range( len(shiftedSplines) ):
+                            plt.plot(shiftedLines[i], shiftedSplines[i], linewidth=0.5, linestyle = "--")
                         
             lineAvg, valAvg = average_vals(shiftedSplines, shiftedLines)
 #            print(title+" Bunches: "+first+"-"+last)
 #            print(valAvg)
             lineErr, valErr = standard_error(shiftedSplines, shiftedLines, valAvg, lineAvg)
             if showSplines and col in columnName:
-                plt.plot(lineAvg, valAvg, linestyle = "--", color = 'r', linewidth =1 )
+                plt.plot(lineAvg, valAvg, linestyle = "-", linewidth =1.5 )
             
             avgColumns.append(valAvg)
             avgColumns.append(valErr)
@@ -177,7 +179,8 @@ def compute_integral( title, pathToFiles, head, transientColumns, bunch, shifted
     bunch, Int = average_integrals(bunch, integrals)
     Int = [ I for b, I in sorted( zip(bunch, Int), key = lambda pair: pair[0] ) ]
     bunch.sort()
-    timeDelay =[ (2*b - offSet) if b>0 else (2*b + offSet) for b in bunch]
+    timeDelay =[ (2*b -2 + offSet) if b>0 else (2*b + offSet) for b in bunch]
+    timeDelay, Int = remove_outliers(timeDelay, Int)
 #    print(timeDelay)
 
 #    if not os.path.exists(saveDirectory):
@@ -189,10 +192,11 @@ def compute_integral( title, pathToFiles, head, transientColumns, bunch, shifted
 #    print( "A="+str(opt[0])+"\nT="+str(opt[1])+"\nt0="+str(opt[2]) )
     if showTransients:
         fig_int = plt.figure(dpi=100)
-        plt.title(title+"_transient: "+xLow+"-"+xHigh+" eV")
-        plt.ylabel(transColumn+" sum ")
+        plt.title(title+"_transient")
+        plt.axhline(0, linestyle = "-", color= "grey")
+        plt.ylabel(transColumn+" Integrated  [Arb]")
         plt.xlabel("Time Delay [ns]")
-        plt.plot(timeDelay , Int, marker = 'd')
+        plt.plot(timeDelay , Int, marker = 'd', linestyle= "-", color = "green")
 #        plt.plot(timeDelay, exp(timeDelay, opt[0], opt[1], opt[2]) )
     return
 def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory):

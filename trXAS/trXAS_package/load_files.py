@@ -16,7 +16,9 @@ import pandas as pd
 import csv
 import matplotlib.pyplot as plt
 from integrate import find_nearest_index
-from config import saveDirectory
+from config import (saveDirectory,
+                    transColumn,
+                    offSet)
 from integrate import remove_dup
 ###############################################################################
 #returns a list of all the files from the path chosen by user.
@@ -79,7 +81,7 @@ def select_bunches(dataFiles, first, last):
             if high - end_ref >=0:
                 high+=1
             if low == high :
-                if (low - end_ref >= int(first)) and (low - end_ref <= int(last)):
+                if (low - end_ref > int(first)) and (low - end_ref <= int(last) + 1):
                     dFiles.append(file)
             else:
                 if low - end_ref == int(first) and high - end_ref == int(last) :
@@ -140,10 +142,10 @@ def get_selected_bunches(dataFiles):
         
         low = int( bunches[0] )
         high = int( bunches[1] )
-        if high >= end_ref:
-            bunchNum.append(high-end_ref+1)
-        else:
+        if high > end_ref:
             bunchNum.append(high-end_ref)
+        else:
+            bunchNum.append(high-end_ref-1)
     return bunchNum
 def bin_data(xVals, yVals, xOriginal):
     binning = [find_nearest_index(xVals, x) for x in xOriginal]
@@ -192,16 +194,69 @@ def save_multicolumn(data, header, filename):
     data = np.array(data).T
     np.savetxt(filename, data, fmt= "%6e", header = header, delimiter = "\t", newline = os.linesep)
     return
+def select_data(bunchSet, dataSet):
+    data = []
+    bunches = []
+    for d in dataSet:
+        bunch = d.strip("avg_bunch").strip(".txt").split("_")[0]
+        if int(bunch) in bunchSet:
+            data.append(d)
+            bunches.append( int(bunch) )
+    dataSet = data
+    bunchSet = bunches
+    return dataSet, bunchSet
 ###############################################################################
 #test function for load_files.
 ###############################################################################
 def test_load_files():
 #    sys.stdout= open(saveDirectory+os.sep+"save_log.txt", "w+")
-    direct = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_532nm_26pc")
+    direct = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_532nm_14pc")
+#    paths = os.listdir(direct)
+#    paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
+#    print( [p.split(os.sep)[-1].split("_")[0] for p in paths] )
+#    print (paths)
+#    for path  in paths :
+#        dataFiles = get_data_files(path)
+#        dataFiles = select_files(dataFiles, first= -2, last = 2)
+##        pathToFiles[path] = dataFiles
+#        try:
+#            print(dataFiles)
+#            newBunch = get_selected_bunches(dataFiles)
+#            print(newBunch)
+#            bunchNumAll.extend( newBunch )
+#        except:
+#            continue
     paths = os.listdir(direct)
-    paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
-    print( [p.split(os.sep)[-1].split("_")[0] for p in paths] )
-    print (paths)
+    path = [ os.path.join(direct,p) for p in paths if "avg" in p ][0]
+    datafiles = os.listdir(path)
+    datafiles = [d for d in datafiles if "avg_bunch" in d]
+    bunches = [1,3,135,140,-1]
+    datafiles, bunches = select_data(bunches, datafiles)
+    datafiles = [os.path.join(path, d) for d in datafiles]
+    dataSet, head = load_file(datafiles[0])
+    transIndex = head.index(transColumn)
+    
+    photonE=[]
+    trans=[]
+    delay =[ int( (2*b -2 + offSet)*1000 ) if b>0 else int( (2*b + offSet)*1000 ) for b in bunches]
+    for file in datafiles:
+        dataSet = load_file(file, wantHeader=False)
+        dataSet = dataSet.T
+        photonE.append( dataSet[0] )
+        trans.append( dataSet[transIndex] )
+    fig,ax = plt.subplots(dpi=100)
+    plt.title("Pump-Probe Difference for different time delays")
+    plt.xlabel("Probe [eV]")
+    plt.xlim(530, 545)
+    plt.ylabel("Pump-Probe Difference [Arb]")
+    plt.axvline(533.2, linestyle = "-.", linewidth = 0.5, color = "orange")
+    plt.axvline(534.9, linestyle = "-.", linewidth = 0.5, color = "orange")
+    plt.axvline(535.0, linestyle = "-.", linewidth = 0.5, color = "green")
+    plt.axvline(536.0, linestyle = "-.", linewidth = 0.5, color = "green")
+    for i in range( len(trans) ):
+        line = ax.plot(photonE[i], trans[i], linestyle="-", linewidth= "1.5", label = str(delay[i])+" ps"  )
+    ax.legend()
+    plt.savefig( , bbox_inches="tight", format = "eps")
     return
 ###############################################################################
 if __name__ == "__main__":   
