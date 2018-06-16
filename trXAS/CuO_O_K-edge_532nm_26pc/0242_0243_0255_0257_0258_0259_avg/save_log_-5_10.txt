@@ -1,0 +1,24 @@
+Log Start: 2018-06-13 13:07:50.085993
+
+Bunches:
+[-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Number of bunches:	15
+
+Saved Bunch:	-5_-5
+Saved Bunch:	-4_-4
+Saved Bunch:	-3_-3
+Saved Bunch:	-2_-2
+Saved Bunch:	-1_-1
+	Missing bunch:	['0', '024', '024', '0257', '0258', '0259']
+Saved Bunch:	1_1
+Saved Bunch:	2_2
+Saved Bunch:	3_3
+Saved Bunch:	4_4
+Saved Bunch:	5_5
+Saved Bunch:	6_6
+Saved Bunch:	7_7
+Saved Bunch:	8_8
+Saved Bunch:	9_9
+Saved Bunch:	10_10
+
+Saving Shifts: 2018-06-13 13:08:59.604056

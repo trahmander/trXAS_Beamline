@@ -63,6 +63,7 @@ from config import (openDirectory as direct,
                     shiftNone,
                     peakFindStart,
                     peakFindEnd,
+                    literaturePeakValue,
                     offSet,
                     saveTransients,
                     showTransients,
@@ -90,7 +91,7 @@ def ask_user():
 #    probe = user_probe()
 #    sample = user_sample()
     return direct, column, first, last, xLow, xHigh
-def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pathToFiles, log,  missingBunch, missingHeader, saveDirectory):
+def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pathToFiles, log,  missingBunch, missingHeader, saveDirectory, litDiff):
     print("Computing shifts...")
 #    print(len(shiftedColumns)  )
 #    shiftedSplines= []
@@ -126,12 +127,12 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
     
                 if showSplines and col in columnName:
                     plt.axhline(0, linestyle = "-", color= "grey")
-                    if col == transColumn:
+                    if col == transColumn and bool( float(xLow) ):
                         plt.axvline(float(xLow), linestyle = "-.", linewidth = 0.5)
                         plt.axvline(float(xHigh), linestyle = "-.", linewidth = 0.5)
-                    if col == refColumn:
-                        plt.axvline(float(peakFindStart), linestyle = "-.", linewidth= 0.5, color = 'g' )
-                        plt.axvline( float(peakFindEnd), linestyle = "-.", linewidth= 0.5, color = 'g' )
+                    if col == refColumn and bool( float(peakFindStart) ):
+                        plt.axvline(float(peakFindStart)-litDiff, linestyle = "-.", linewidth= 0.5, color = 'g' )
+                        plt.axvline( float(peakFindEnd)-litDiff, linestyle = "-.", linewidth= 0.5, color = 'g' )
                         for i in range( len(shiftedSplines) ):
                             plt.plot(shiftedLines[i], shiftedSplines[i], linewidth=0.5, linestyle = "--")
                         
@@ -169,7 +170,7 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
     plt.show()
     plt.close()
     return
-def compute_integral( title, pathToFiles, head, transientColumns, bunch, shiftedEnergy, shiftedColumns, binning=1):        
+def compute_integral( title, pathToFiles, head, transientColumns, bunch, shiftedEnergy, shiftedColumns,saveDirectory, savePlot= False, binning=1):        
     transIndex = head.index(transColumn)
     shiftedSplines = [ shiftedColumns[i][transIndex] for i in range( len(shiftedColumns) ) ]
 #    shiftedSplines = cut_splines(shiftedSplines, deltas)
@@ -196,17 +197,26 @@ def compute_integral( title, pathToFiles, head, transientColumns, bunch, shifted
         plt.axhline(0, linestyle = "-", color= "grey")
         plt.ylabel(transColumn+" Integrated  [Arb]")
         plt.xlabel("Time Delay [ns]")
-        plt.plot(timeDelay , Int, marker = 'd', linestyle= "-", color = "green")
+        plt.plot(timeDelay , Int, marker = 'd', linestyle= "-", color = "orange")
 #        plt.plot(timeDelay, exp(timeDelay, opt[0], opt[1], opt[2]) )
+        if savePlot:
+            scanType = saveDirectory.split(os.sep)[-2]
+            saveName  = saveDirectory+os.sep+scanType+"_transient_avg_"+xLow+"-"+xHigh+"eV.eps"
+            plt.savefig( saveName, bbox_inches="tight", format = "eps")
     return
 def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory):
     print("Computing transients...")
+    scanType = direct.split(os.sep)[-1]
     transCol=[]
     header = "Delay[ns]\tAvg Transient\t"
+    if not os.path.exists(saveDirectory):
+        os.makedirs(saveDirectory)
     compute_integral(saveDirectory.split(os.sep)[-1], pathToFiles, head, transCol, 
                       bunchNumAll, 
                       shiftedEnergy, 
-                      shiftedColumns )
+                      shiftedColumns,
+                      saveDirectory,
+                      savePlot=True)
     start=0
     end= 0
     for path, files in  pathToFiles.items():
@@ -216,14 +226,14 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns,
         compute_integral(title, pathToFiles, head, transCol, 
                       bunchNumAll[start:end], 
                       shiftedEnergy[start:end], 
-                      shiftedColumns[start:end] )
+                      shiftedColumns[start:end],
+                      saveDirectory)
         start = end
 
     header = header[:-1]
     transCol = pd.DataFrame(transCol).values
-    if not os.path.exists(saveDirectory):
-        os.makedirs(saveDirectory)
-    fileName = "transient_"+xHigh+"_"+xLow+"_bunch_"+firstBunch+"_"+lastBunch+".txt"
+
+    fileName = "transient_"+xLow+"_"+xHigh+"_bunch_"+firstBunch+"_"+lastBunch+".txt"
     save_multicolumn(transCol, header, saveDirectory + os.sep + fileName)
     print( "\nSaved Transients: "+ str( datetime.now() ), file = log )
 #    plt.show()
@@ -241,7 +251,6 @@ def main():
     
     bunchNumAll = []
 #    direct, column, first, last, xLow, xHigh = ask_user()
-
     paths = os.listdir(direct)
     paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
     saveDirectory= direct+os.sep
@@ -300,35 +309,34 @@ def main():
             refSpline = data_to_column(dataSet, refColumnNum, file)
             if i!=0:
 #                findPeak = False
-                if shiftPeak or shiftMinimize:
-                    refPeaks.append(refPeaks[-1])
-                elif shiftCenter or shiftMinimize:
+#                if shiftPeak or shiftMinimize:
+                refPeaks.append(refPeaks[-1])
+                if shiftCenter or shiftMinimize:
                      refCenters.append(refCenters[-1])
 #                if shiftMinimize:
 #                    refSplines.append( refSplines[-1] )
 #                    refLines.append( refLines[-1] )
             else:
 #                refSpline = data_to_column(dataSet, refColumnNum, file)
-                if shiftPeak or shiftMinimize:
-                    refPeaks.append( find_peak(refSpline) )
-                elif shiftCenter or shiftMinimize:
+#                if shiftPeak or shiftMinimize:
+                refPeaks.append( find_peak(refSpline) )
+                if shiftCenter or shiftMinimize:
                     refCenters.append( find_center(lines[-1], refSpline) )
                 if shiftMinimize:
                     refSplines.append( splines[-1] )
                     refLines.append( lines[-1] )
                 else:
-                    break
-            
+                    break            
 #   shifts every column based on deltas calculated from reference column
 #    print(refCenters)
     if shiftPeak:
-        deltas = get_deltas(refPeaks)
+        deltas = get_deltas(refPeaks, literaturePeakValue)
         print("peak matching shift")
     elif shiftCenter:
         deltas = get_deltas(refCenters)
         print("geometric center matching shift")
     elif shiftMinimize:
-        deltas = diff_deltas(refSplines, refLines, scanSize, refPeaks, header.index(refColumn)-1)
+        deltas = diff_deltas(refSplines, refLines, scanSize, refPeaks, header.index(refColumn)-1, literaturePeakValue)
         print("least squares minimizing shift")
     if shiftNone :
         deltas = np.zeros_like(lines)
@@ -339,18 +347,19 @@ def main():
 #    print( np.array(refPeaks) - np.array(deltas) )
 #    print( len(lines) )
 #    print( len(splines) )
-    shiftedEnergy, shiftedColumns = apply_shift(deltas, splines, lines )
+    shiftedEnergy, shiftedColumns, litDiff = apply_shift(deltas, splines, lines, refPeaks, literaturePeakValue )
     shiftedEnergy = cut_splines(shiftedEnergy,deltas)
     shiftedColumns = [ cut_splines(column, deltas) for column in shiftedColumns ]
 #   averages and saves collumns from scans.
     if saveSplines:
-        save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader, saveDirectory)
+        save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader, saveDirectory, litDiff)
 #   averages and saves transients from all scans. Also saves each individual scan.
     if saveTransients:
         save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory)
     log.close()
     endTime = timer()
     print( "Time:\t"+ str(endTime - startTime) )
+    initialize()
     plt.show()
     plt.close()
     return 

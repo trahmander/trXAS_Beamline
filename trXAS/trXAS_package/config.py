@@ -9,9 +9,7 @@ import os
 #Enter manual  user inputs.
 ###############################################################################
 #OpenDirectory is the name of the directory for your scans.
-#SaveDirectory is the name of the directory to save the averages in.
-openDirectory = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_532nm_14pc")
-saveDirectory= os.path.normpath(os.pardir+os.sep+"test_saves")
+openDirectory = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_532nm_26pc")
 #column specifies the name of the column that you want to plot as a function of photon energy.
 #refColumn specifies the name of the column that you want to compare in order to determine the shifts
 column = ["Y all norm","StS norm"]
@@ -24,8 +22,8 @@ refColumn = "Y all norm"
 # bunches in your directory. If you only want to look at 1 bunch. Choose that for 
 # for both values. ie: firstBunch = "7", lastBunch = "7" would look at just the 
 # 7th bunch after time 0.
-firstBunch = "-5"
-lastBunch = "10"
+firstBunch = "all"
+lastBunch = "all"
 #These are the different options for the shifting method. Exactly one should be True.
 #ShiftNone means that that the spectra will remain unchanged. This is good for making
 #   initial guesses for peakFindStart and peakFindEnd 
@@ -44,19 +42,22 @@ peakFindEnd= "537"
 #photonEnergyStart is the smaller energy in the window to do an integration.
 #photonEnergyEnd os the larger energy in the window to do an integration.
 #Choose "all" to integrate on the entire photon energy axis. 
-photonEnergyStart = "535.0"
-photonEnergyEnd= "536.0"
+photonEnergyStart = "528.4"
+photonEnergyEnd= "529.9"
 #saveSplines is set to True if you want to calculate to save the shifted Splines.
 #showSplines is set to True if you want the plots for the column you set in column.
 #saveTransients is set to True if you want calculate the transients for transColumn.
 #showTransients is set to True if you want the plots for the integrals for transColumn.
-saveSplines = True
+saveSplines = False
 showSplines = False
-saveTransients = False
-showTransients = False
+saveTransients = True
+showTransients = True
 #phaseShifter = False
+#literaturePeakValue is a nominal value to shift the reference peak to.
+#   set this to 0 if you don't want to shift to this value.
 #stepSize determines how coarse the splining of your data is. Smaller stepSize is more expensive.
 #offSet is how much time in nano seconds that t0 is before the first pump bunch.
+literaturePeakValue = 530.1
 offSet= 0.15
 stepSize = 0.005
 ############################################################################### 
@@ -64,7 +65,6 @@ stepSize = 0.005
 #Initialize some values that are shared between the package files. It's best to
 # keep these lists clear. (They should just be empty brackets).
 ###############################################################################
-#peaks = []
 splines = []
 lines= []
 ###############################################################################

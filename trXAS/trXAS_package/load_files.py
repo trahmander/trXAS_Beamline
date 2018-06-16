@@ -16,8 +16,8 @@ import pandas as pd
 import csv
 import matplotlib.pyplot as plt
 from integrate import find_nearest_index
-from config import (saveDirectory,
-                    transColumn,
+from average import average_vals
+from config import (transColumn,
                     offSet)
 from integrate import remove_dup
 ###############################################################################
@@ -210,7 +210,8 @@ def select_data(bunchSet, dataSet):
 ###############################################################################
 def test_load_files():
 #    sys.stdout= open(saveDirectory+os.sep+"save_log.txt", "w+")
-    direct = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_532nm_14pc")
+    scanType = "CuO_O_K-edge_532nm_14pc" 
+    direct = os.path.normpath(os.pardir+ os.sep+ scanType)
 #    paths = os.listdir(direct)
 #    paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
 #    print( [p.split(os.sep)[-1].split("_")[0] for p in paths] )
@@ -249,14 +250,19 @@ def test_load_files():
     plt.xlabel("Probe [eV]")
     plt.xlim(530, 545)
     plt.ylabel("Pump-Probe Difference [Arb]")
-    plt.axvline(533.2, linestyle = "-.", linewidth = 0.5, color = "orange")
-    plt.axvline(534.9, linestyle = "-.", linewidth = 0.5, color = "orange")
-    plt.axvline(535.0, linestyle = "-.", linewidth = 0.5, color = "green")
-    plt.axvline(536.0, linestyle = "-.", linewidth = 0.5, color = "green")
+    plt.axvline(533.2, linestyle = "--", linewidth = 0.5, color = "orange")
+    plt.axvline(534.9, linestyle = "--", linewidth = 0.5, color = "orange")
+    plt.axvline(535.0, linestyle = "--", linewidth = 0.5, color = "green")
+    plt.axvline(536.0, linestyle = "--", linewidth = 0.5, color = "green")
+#    dataToPlot = [ sorted(zip( delay, photonE, trans ), key = lambda tup: tup[0] ) ]
+#    delay = [d for d,p,t in dataToPlot]
+#    photonE = [p for d,p,t in dataToPlot]
+#    trans = [t for d,p,t in dataToPlot]
     for i in range( len(trans) ):
         line = ax.plot(photonE[i], trans[i], linestyle="-", linewidth= "1.5", label = str(delay[i])+" ps"  )
     ax.legend()
-    plt.savefig( , bbox_inches="tight", format = "eps")
+    filename = path+os.sep+scanType+"_StS_avg_5Delays.eps"
+    plt.savefig( filename, bbox_inches="tight", format = "eps")
     return
 ###############################################################################
 if __name__ == "__main__":   

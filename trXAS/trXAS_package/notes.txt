@@ -1,25 +1,65 @@
 ##########################################################################################
+HOW TO USE:
+##########################################################################################
+
+GOOD INITIAL CONFIG VALUES: Read config comments for a description of these values.
+##########################################################################################
+column = ["Y all norm","StS norm"]
+transColumn = "StS norm"
+refColumn = "Y all norm"
+firstBunch = "1"
+lastBunch = "5"
+shiftNone = True
+shiftPeak = False
+shiftCenter = False
+shiftMinimize = False
+peakFindStart = "0.0"
+peakFindEnd= "0.0"
+photonEnergyStart = "0.0"
+photonEnergyEnd= "0.0"
+saveSplines = True
+showSplines = True
+saveTransients = False
+showTransients = False
+literaturePeakValue = 0.0
+offSet= 0.0
+stepSize = 0.005
+splines = []
+lines= []
+
+CALCULATING AVERAGES AND TRANSIENTS:
+##########################################################################################
+1.  Start off with the 'GOOD INTIAL CONFIG VALUES'. Specify an approriate directory in 
+    'openDirectory'. Run 'main.py'
+2.  You should see the 'Y all norm' spectra of all the scans. At this point, pick a suitable
+    window with 'peakFindStart' and 'peakFindEnd' so that the  peak is within the window for all
+    the scans. Run main.py until you're happy with the window specified by the green dashed lines.
+    If you have a literature value for the peak that you would like to set, change the
+    value of 'literaturePeakValue'. Otherwise, just keep it at 0.0. Run 'main.py'.
+3.  At this point, you can choose a shifting method. The least squares minimizing method is
+    usually a good choice. To select this set 'shiftMinimize' to 'True' and set all other
+    shift methods to 'False'.
+4.  Now set values for 'photonEnergyStart' and 'photonEnergyEnd' in order to specify an
+    integration region for calculating transients. Run main.py until you're happy with the 
+    window contained by the blue dashed lines.
+5.  Specify the first to last bunch that you would like to save the data for. You can
+    calculate the new average data and/or calculate the average transients. 
+6.  To calculate the new average spectra and curves, set 'saveSplines' to 'True'. To see
+    the plots , set 'showSplines' to 'True'. (If saving many bunches, set this to 'False')
+    so that the computation time and memory allocation for the program is lower. There will 
+    be as many plots as the number of bunches * the number of elements in the "column" list.
+7.  To calculate the average transiensts, set 'saveTransients' to 'True'. To see the plots,
+    set 'showTransients' to 'True'. There will be one plot per scan plus a plot for the average.
+8.  If necessary, put in the values for offSet. You can also play around with the stepSize
+    and the different shifting methods. When ready, Run main for your results.
+9.  The data will be saved in a folder named after all the scan #'s under the directory in
+    'openDirectory'. The average spectra and curves will be saved as "avg_bunch_x_x".
+    Transients will be saved as "transient_photonEnergyStart_photonEnergyEnd_bunch_firstBunch_lastBunch".
+##########################################################################################
+##########################################################################################
 TO DO:
 ##########################################################################################
 # 	Add in the phase-shifter stuff.
 # 	May need to improve my r value minimizer shift method. now it just takes steps. It
     would be better if I used a minimize function from scipy or something.
-##########################################################################################
-##########################################################################################
-HOW TO USE:
-##########################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ##########################################################################################
