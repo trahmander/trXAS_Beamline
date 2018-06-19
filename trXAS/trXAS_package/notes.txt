@@ -43,10 +43,11 @@ CALCULATING AVERAGES AND TRANSIENTS:
     integration region for calculating transients. Run main.py until you're happy with the 
     window contained by the blue dashed lines.
 5.  Specify the first to last bunch that you would like to save the data for. You can
-    calculate the new average data and/or calculate the average transients. 
+    calculate the new average data and/or calculate the average transients. These are done
+    independently by setting the 'saveSplines' and 'saveTransients' variables to True or False. 
 6.  To calculate the new average spectra and curves, set 'saveSplines' to 'True'. To see
-    the plots , set 'showSplines' to 'True'. (If saving many bunches, set this to 'False')
-    so that the computation time and memory allocation for the program is lower. There will 
+    the plots , set 'showSplines' to 'True'. (If saving many bunches, set this to 'False'
+    so that the computation time and memory allocation for the program is lower). There will 
     be as many plots as the number of bunches * the number of elements in the "column" list.
 7.  To calculate the average transiensts, set 'saveTransients' to 'True'. To see the plots,
     set 'showTransients' to 'True'. There will be one plot per scan plus a plot for the average.
@@ -61,5 +62,5 @@ TO DO:
 ##########################################################################################
 # 	Add in the phase-shifter stuff.
 # 	May need to improve my r value minimizer shift method. now it just takes steps. It
-    would be better if I used a minimize function from scipy or something.
+    could be better if I used a minimize function from scipy or something.
 ##########################################################################################

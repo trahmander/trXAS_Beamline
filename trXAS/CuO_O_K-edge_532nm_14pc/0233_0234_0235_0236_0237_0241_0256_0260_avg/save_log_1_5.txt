@@ -1,4 +1,4 @@
-Log Start: 2018-06-12 16:46:53.803894
+Log Start: 2018-06-18 11:44:39.449117
 
 Bunches:
 [1, 2, 3, 4, 5]
@@ -10,4 +10,4 @@ Saved Bunch:	3_3
 Saved Bunch:	4_4
 Saved Bunch:	5_5
 
-Saving Shifts: 2018-06-12 16:47:27.730655
+Saving Shifts: 2018-06-18 11:45:14.201426

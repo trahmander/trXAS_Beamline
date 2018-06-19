@@ -26,6 +26,7 @@ from user_input import (user_directory,
 from load_files import (get_data_files,
                         load_file,
                         select_files,
+                        select_data,
                         get_selected_bunches,
                         save_file,
                         save_multicolumn,
@@ -46,6 +47,7 @@ from integrate import (def_integral,
 from average import (average_vals,
                      standard_error,
                      cut_splines,
+                     chunk_list,
                      remove_outliers)
 # Load global variables. These are also used in shift.py
 from config import (openDirectory as direct,
@@ -239,6 +241,57 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns,
 #    plt.show()
 #    plt.close()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    )
     return
+def avg_bunches(direct, first, last):
+    print("Averaging bunches:\t"+str(first)+"-"+str(last) )
+    paths = os.listdir(direct)
+    path = [ os.path.join(direct,p) for p in paths if "avg" in p ][0]
+    datafiles = os.listdir(path)
+    datafiles = [d for d in datafiles if "avg_bunch" in d]
+    bunches = [1,2,3,4, 5,6]
+    datafiles, bunches = select_data(bunches, datafiles)
+    datafiles = [os.path.join(path, d) for d in datafiles]
+    dataSet, head = load_file(datafiles[0])
+
+#    delay =[ int( (2*b -2 + offSet)*1000 ) if b>0 else int( (2*b + offSet)*1000 ) for b in bunches]
+#    chunkDelay = chunk_list(delay, 3)     
+    saveColumns=[]
+    photonEAvg=0
+    photonEErr=0
+    for j, col in enumerate( head[1:] ):
+#        print(col)
+        photonE=[]
+        colVal=[]
+        colIndex = head.index(col)
+        for file in datafiles:
+            dataSet = load_file(file, wantHeader=False)
+            dataSet = dataSet.T
+            photonE.append( dataSet[0] )
+            colVal.append( dataSet[colIndex] )
+        chunkE = chunk_list(photonE, 3)
+        chunkCol = chunk_list(colVal, 3)
+       
+#        Avg = [ average_vals(y,x) for x,y in zip(chunkE, chunkCol) ]
+#        
+#        photonEAvg = [x for x,y in Avg]
+#        colAvg = [y for x,y in Avg]
+        photonEAvg, colAvg = average_vals( chunkCol[0], chunkE[0] )
+        photonEErr, colErr = standard_error(chunkCol[0], chunkE[0], colAvg, photonEAvg) 
+                
+#        photonEErr = [x for x,y in sterr]
+#        colErr = [y for x,y in sterr]
+        saveColumns.append(colAvg)
+        saveColumns.append(colErr)
+   
+    saveColumns.insert(0, photonEAvg)
+    saveColumns.insert(1, photonEErr)
+    saveColumns = np.array(saveColumns)
+    fileName = "avg"+"_bunch_"+first+"_"+last+".txt"
+    hdr=""
+    for col in head[:-1]:
+        hdr += col+"\t"+"SE "+col+"\t"
+    hdr = hdr[:-1]
+    save_multicolumn(saveColumns, header = hdr, filename = path+os.sep+fileName)
+    return
 ###############################################################################
 ###############################################################################
 #Main driver function for trXAS package
@@ -362,6 +415,8 @@ def main():
     initialize()
     plt.show()
     plt.close()
+    
+    avg_bunches(direct, "1", "3")
     return 
 ###############################################################################        
 if __name__ == "__main__":

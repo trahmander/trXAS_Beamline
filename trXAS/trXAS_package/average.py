@@ -81,10 +81,8 @@ def standard_error(vals, lines, valAvg, lineAvg):
     xErr /= numVals
     xErr = np.sqrt(xErr)
     return xErr, yErr
-def average_by_bunch(bunchNum, vals, line):
-    for bunch in bunchNum:
-        x=1
-    return
+def chunk_list(seq, size):
+    return list( zip( *[iter(seq)]*size  ) )
 def remove_outliers(dataX,dataY, m = 2.):
     diff = np.abs(np.array(dataY) - np.median(dataY))
     mdev = np.median(diff)
@@ -104,8 +102,10 @@ def remove_outliers(dataX,dataY, m = 2.):
 ###############################################################################
 def test_average():
     randomLists=[]
-    for i in range(5):
+    for i in range(4):
         rand= [random.randint(0,100) for r in range(10) ]
+        print( rand )
+        print( chunk_list(rand, 6) )
         randomLists.append( rand )
     print(randomLists)
 
@@ -115,11 +115,12 @@ def test_average():
 #    print(avg[0])
 #    print(err[0])
     
-    randomLists = np.array(randomLists)
-    avg = np.mean(randomLists, axis = 1)
-    err = np.std(randomLists, axis = 1)/ np.sqrt(len(randomLists[0]))
-    print(avg)
-    print(err)
+#    randomLists = np.array(randomLists)
+#    avg = np.mean(randomLists, axis = 1)
+#    err = np.std(randomLists, axis = 1)/ np.sqrt(len(randomLists[0]))
+#    print(avg)
+#    print(err)
+        
     
     return
 if __name__ == "__main__":
