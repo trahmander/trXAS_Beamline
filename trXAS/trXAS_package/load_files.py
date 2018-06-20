@@ -199,10 +199,12 @@ def select_data(bunchSet, dataSet):
     data = []
     bunches = []
     for d in dataSet:
-        bunch = d.strip("avg_bunch").strip(".txt").split("_")[0]
-        if int(bunch) in bunchSet:
+        bunch = d.strip("avg_bunch").strip(".txt").split("_")
+        first=bunch[0]
+        last = bunch[1]
+        if first == last and int(first) in bunchSet:
             data.append(d)
-            bunches.append( int(bunch) )
+            bunches.append( int(first) )
     dataSet = data
     bunchSet = bunches
     return dataSet, bunchSet

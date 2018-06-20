@@ -9,7 +9,7 @@ import os
 #Enter manual  user inputs.
 ###############################################################################
 #OpenDirectory is the name of the directory for your scans.
-openDirectory = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_532nm_14pc")
+openDirectory = os.path.normpath(os.pardir+ os.sep+ "CuO_O_K-edge_532nm_26pc")
 #column specifies the name of the column that you want to plot as a function of photon energy.
 #refColumn specifies the name of the column that you want to compare in order to determine the shifts
 column = ["Y all norm","StS norm"]

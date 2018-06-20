@@ -250,19 +250,23 @@ def avg_bunches(direct, first, last):
     bunches = [1,2,3,4, 5,6]
     datafiles, bunches = select_data(bunches, datafiles)
     datafiles = [os.path.join(path, d) for d in datafiles]
-    dataSet, head = load_file(datafiles[0])
+    dataSet, hd = load_file(datafiles[0])
 
 #    delay =[ int( (2*b -2 + offSet)*1000 ) if b>0 else int( (2*b + offSet)*1000 ) for b in bunches]
 #    chunkDelay = chunk_list(delay, 3)     
     saveColumns=[]
     photonEAvg=0
     photonEErr=0
-    for j, col in enumerate( head[1:] ):
+#    print(head)
+#    print(head[0])
+#    print(head[1])
+    for j, col in enumerate( hd[2:] ):
 #        print(col)
         photonE=[]
         colVal=[]
-        colIndex = head.index(col)
+        colIndex = hd.index(col)
         for file in datafiles:
+#            print(file)
             dataSet = load_file(file, wantHeader=False)
             dataSet = dataSet.T
             photonE.append( dataSet[0] )
@@ -287,8 +291,8 @@ def avg_bunches(direct, first, last):
     saveColumns = np.array(saveColumns)
     fileName = "avg"+"_bunch_"+first+"_"+last+".txt"
     hdr=""
-    for col in head[:-1]:
-        hdr += col+"\t"+"SE "+col+"\t"
+    for col in hd[:-1]:
+        hdr += col+"\t"
     hdr = hdr[:-1]
     save_multicolumn(saveColumns, header = hdr, filename = path+os.sep+fileName)
     return
