@@ -46,6 +46,7 @@ from integrate import (def_integral,
                        exp)
 from average import (average_vals,
                      standard_error,
+                     sum_error,
                      cut_splines,
                      chunk_list,
                      remove_outliers)
@@ -254,47 +255,58 @@ def avg_bunches(direct, first, last):
 
 #    delay =[ int( (2*b -2 + offSet)*1000 ) if b>0 else int( (2*b + offSet)*1000 ) for b in bunches]
 #    chunkDelay = chunk_list(delay, 3)     
-    saveColumns=[]
+    avgColumns=[]
     photonEAvg=0
-    photonEErr=0
+#    photonEErr=0
 #    print(head)
 #    print(head[0])
 #    print(head[1])
-    for j, col in enumerate( hd[2:] ):
-#        print(col)
-        photonE=[]
+    photonE=[]
+    for j, col in enumerate( hd ):
+#        print(col) 
         colVal=[]
         colIndex = hd.index(col)
         for file in datafiles:
 #            print(file)
             dataSet = load_file(file, wantHeader=False)
             dataSet = dataSet.T
-            photonE.append( dataSet[0] )
+            if j == 0 :
+                photonE.append( dataSet[0] )
             colVal.append( dataSet[colIndex] )
-        chunkE = chunk_list(photonE, 3)
+        if j ==0:
+            chunkE = chunk_list(photonE, 3)
         chunkCol = chunk_list(colVal, 3)
        
 #        Avg = [ average_vals(y,x) for x,y in zip(chunkE, chunkCol) ]
 #        
 #        photonEAvg = [x for x,y in Avg]
 #        colAvg = [y for x,y in Avg]
-        photonEAvg, colAvg = average_vals( chunkCol[0], chunkE[0] )
-        photonEErr, colErr = standard_error(chunkCol[0], chunkE[0], colAvg, photonEAvg) 
-                
-#        photonEErr = [x for x,y in sterr]
-#        colErr = [y for x,y in sterr]
-        saveColumns.append(colAvg)
-        saveColumns.append(colErr)
-   
-    saveColumns.insert(0, photonEAvg)
-    saveColumns.insert(1, photonEErr)
-    saveColumns = np.array(saveColumns)
+        if j == 0:
+            continue
+        elif j == 1:
+            photonEErr = sum_error(chunkCol[0])
+            avgColumns.append(photonEErr)
+        else:
+            if j % 2 == 0:
+                photonEAvg, colAvg = average_vals( chunkCol[0], chunkE[0] )
+        #        photonEErr, colErr = standard_error(chunkCol[0], chunkE[0], colAvg, photonEAvg) 
+                        
+        #        photonEErr = [x for x,y in sterr]
+        #        colErr = [y for x,y in sterr]
+                avgColumns.append(colAvg)
+    #        saveColumns.append(colErr)
+            else:
+                err = sum_error(chunkCol[0])
+                avgColumns.append(err)
+    avgColumns.insert(0, photonEAvg)
+#    avgColumns.insert(1, photonEErr)
+    avgColumns = np.array(avgColumns)
     fileName = "avg"+"_bunch_"+first+"_"+last+".txt"
     hdr=""
     for col in hd[:-1]:
         hdr += col+"\t"
     hdr = hdr[:-1]
-    save_multicolumn(saveColumns, header = hdr, filename = path+os.sep+fileName)
+    save_multicolumn(avgColumns, header = hdr, filename = path+os.sep+fileName)
     return
 ###############################################################################
 ###############################################################################

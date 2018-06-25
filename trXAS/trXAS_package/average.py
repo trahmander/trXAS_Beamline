@@ -81,6 +81,12 @@ def standard_error(vals, lines, valAvg, lineAvg):
     xErr /= numVals
     xErr = np.sqrt(xErr)
     return xErr, yErr
+def sum_error(errs):
+    standardErr = 0
+    for err in errs:
+        standardErr += err*err
+    standardErr = np.sqrt(standardErr)
+    return standardErr
 def chunk_list(seq, size):
     return list( zip( *[iter(seq)]*size  ) )
 def remove_outliers(dataX,dataY, m = 2.):

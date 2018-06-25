@@ -212,75 +212,50 @@ def select_data(bunchSet, dataSet):
 #test function for load_files.
 ###############################################################################
 def test_load_files():
-#    sys.stdout= open(saveDirectory+os.sep+"save_log.txt", "w+")
-    scanType = ["CuO_O_K-edge_532nm_14pc","CuO_O_K-edge_532nm_26pc","CuO_O_K-edge_355nm_58pc"] 
-    directs = [os.path.normpath(os.pardir+ os.sep+ scan) for scan in scanType]
-#    paths = os.listdir(direct)
-#    paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
-#    print( [p.split(os.sep)[-1].split("_")[0] for p in paths] )
-#    print (paths)
-#    for path  in paths :
-#        dataFiles = get_data_files(path)
-#        dataFiles = select_files(dataFiles, first= -2, last = 2)
-##        pathToFiles[path] = dataFiles
-#        try:
-#            print(dataFiles)
-#            newBunch = get_selected_bunches(dataFiles)
-#            print(newBunch)
-#            bunchNumAll.extend( newBunch )
-#        except:
-#            continue
-    figavg,axavg = plt.subplots(dpi=100)
-    plt.title("Pump-Probe Difference 150-4150ps")
-    plt.xlabel("Probe [eV]")
-    plt.xlim(525, 540)
-    plt.ylabel("Difference Signal [arb. units]")
-    for j, direct in enumerate(directs):
-        paths = os.listdir(direct)
-        path = [ os.path.join(direct,p) for p in paths if "avg" in p ][0]
-        datafiles = os.listdir(path)
-        datafiles = [d for d in datafiles if "avg_bunch" in d]
-        bunches = [1,2,3,4,5,6]
-        datafiles, bunches = select_data(bunches, datafiles)
-        datafiles = [os.path.join(path, d) for d in datafiles]
-        dataSet, head = load_file(datafiles[0])
-        transIndex = head.index(transColumn)
-        
-        photonE=[]
-        trans=[]
-        delay =[ int( (2*b -2 + offSet)*1000 ) if b>0 else int( (2*b + offSet)*1000 ) for b in bunches]
-        for file in datafiles:
-            dataSet = load_file(file, wantHeader=False)
-            dataSet = dataSet.T
-            photonE.append( dataSet[0] )
-            trans.append( dataSet[transIndex] )
-    #    fig,ax = plt.subplots(dpi=100)
-    #    plt.title("Pump-Probe Difference for different time delays")
-#        plt.xlabel("Probe [eV]")
-#        plt.xlim(525, 540)
-#        plt.ylabel("Pump-Probe Difference [Arb]")
-    #    plt.axvline(533.2, linestyle = "--", linewidth = 0.5, color = "orange")
-    #    plt.axvline(534.9, linestyle = "--", linewidth = 0.5, color = "orange")
-    #    plt.axvline(535.0, linestyle = "--", linewidth = 0.5, color = "green")
-    #    plt.axvline(536.0, linestyle = "--", linewidth = 0.5, color = "green")
-    #    for i in range( len(trans) ):
-    #        line = ax.plot(photonE[i], trans[i], linestyle="-", linewidth= "1.5", label = str(delay[i])+" ps"  )
-    #    ax.legend()
-    #    filename = path+os.sep+scanType+"_StS_avg_5Delays.eps"
-    #    plt.savefig( filename, bbox_inches="tight", format = "eps")
-        
-        chunkE = chunk_list(photonE, 3)
-        chunkTran = chunk_list(trans, 3)
-        chunkDelay = chunk_list(delay, 3)
-        Avg = [ average_vals(y,x) for x,y in zip(chunkE, chunkTran) ]
-        photonEAvg = [x for x,y in Avg]
-        transAvg = [y for x,y in Avg]
-        labels = [ str(tup[0])+"-"+str(tup[-1]) for tup in chunkDelay ]
-#        figavg,axavg = plt.subplots(dpi=100)
-#        for i in range( len(transAvg) ):
-        line = axavg.plot(photonEAvg[0], transAvg[0], linestyle="-", linewidth= "1.5", label = scanType[j]  )
-        axavg.legend()
-    plt.savefig(os.path.normpath(os.pardir+os.sep+"DiffSignalFirst3Bunches.eps"), bbox_inches="tight", format = "eps")
+
+#    scanType = ["CuO_O_K-edge_532nm_14pc","CuO_O_K-edge_532nm_26pc","CuO_O_K-edge_355nm_58pc"] 
+#    directs = [os.path.normpath(os.pardir+ os.sep+ scan) for scan in scanType]
+#
+#    figavg,axavg = plt.subplots(dpi=100)
+#    plt.title("Pump-Probe Difference 150-4150ps")
+#    plt.xlabel("Probe [eV]")
+#    plt.xlim(525, 540)
+#    plt.ylabel("Difference Signal [arb. units]")
+#    for j, direct in enumerate(directs):
+#        paths = os.listdir(direct)
+#        path = [ os.path.join(direct,p) for p in paths if "avg" in p ][0]
+#        datafiles = os.listdir(path)
+#        datafiles = [d for d in datafiles if "avg_bunch" in d]
+#        bunches = [1,2,3,4,5,6]
+#        datafiles, bunches = select_data(bunches, datafiles)
+#        datafiles = [os.path.join(path, d) for d in datafiles]
+#        dataSet, head = load_file(datafiles[0])
+#        transIndex = head.index(transColumn)
+#        
+#        photonE=[]
+#        trans=[]
+#        delay =[ int( (2*b -2 + offSet)*1000 ) if b>0 else int( (2*b + offSet)*1000 ) for b in bunches]
+#        for file in datafiles:
+#            dataSet = load_file(file, wantHeader=False)
+#            dataSet = dataSet.T
+#            photonE.append( dataSet[0] )
+#            trans.append( dataSet[transIndex] )
+# 
+#        chunkE = chunk_list(photonE, 3)
+#        chunkTran = chunk_list(trans, 3)
+#        chunkDelay = chunk_list(delay, 3)
+#        Avg = [ average_vals(y,x) for x,y in zip(chunkE, chunkTran) ]
+#        photonEAvg = [x for x,y in Avg]
+#        transAvg = [y for x,y in Avg]
+#        labels = [ str(tup[0])+"-"+str(tup[-1]) for tup in chunkDelay ]
+##        figavg,axavg = plt.subplots(dpi=100)
+##        for i in range( len(transAvg) ):
+#        line = axavg.plot(photonEAvg[0], transAvg[0], linestyle="-", linewidth= "1.5", label = scanType[j]  )
+#        axavg.legend()
+#    plt.savefig(os.path.normpath(os.pardir+os.sep+"DiffSignalFirst3Bunches.eps"), bbox_inches="tight", format = "eps")
+    direct = "CuO_O_K-edge_532nm_26pc"
+    path = [ os.path.join(direct,p) for p in paths if "avg" in p ][0]
+    file = path+os.sep+"avg_bunch_1_3"
     return
 ###############################################################################
 if __name__ == "__main__":   
