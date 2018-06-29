@@ -61,6 +61,5 @@ CALCULATING AVERAGES AND TRANSIENTS:
 TO DO:
 ##########################################################################################
 # 	Add in the phase-shifter stuff.
-# 	May need to improve my r value minimizer shift method. now it just takes steps. It
-    could be better if I used a minimize function from scipy or something.
+#	Make a better zero-intersection finder for integration instead of manually doing it.
 ##########################################################################################

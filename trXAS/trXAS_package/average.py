@@ -7,11 +7,12 @@ use: For averaging splines together.
 ###############################################################################
 #Import modules
 ###############################################################################
+#From built-in modules
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy import optimize as opt
 import random
-
+#From modules in trXAS_package
 from config import stepSize
 ###############################################################################
 #some constants
@@ -31,21 +32,25 @@ def average_vals(vals, lines):
 #    lineAvg = np.zeros_like(lines[0])    
     numVals=len(vals)
 #    print(numVals)
-    end  = min( [len(v) for v in vals] )
-    valAvg = np.zeros(end)
-    lineAvg = np.zeros(end)
-    for i in range( numVals ):
-        val = vals[i][:end]
-        line = lines[i][:end]
+    if numVals == 1:
+        lineAvg = lines
+        valAvg = vals
+    else:
+        end  = min( [len(v) for v in vals] )
+        valAvg = np.zeros(end)
+        lineAvg = np.zeros(end)
+        for i in range( numVals ):
+            val = vals[i][:end]
+            line = lines[i][:end]
 
-#        smaller = min(len(val), len(valAvg) )
-        for j in range( end ):
-            valAvg[j] += val[j]
-            lineAvg[j] += line[j]
-#        valAvg = valAvg[:smaller]
-#        lineAvg = lineAvg[:smaller]
-    valAvg /= numVals
-    lineAvg /= numVals
+    #        smaller = min(len(val), len(valAvg) )
+            for j in range( end ):
+                valAvg[j] += val[j]
+                lineAvg[j] += line[j]
+    #        valAvg = valAvg[:smaller]
+    #        lineAvg = lineAvg[:smaller]
+        valAvg /= numVals
+        lineAvg /= numVals
     return lineAvg, valAvg
 def cut_splines(vals, deltas):
     ind = [ int(d/stepSize) for d in deltas ]
@@ -109,11 +114,14 @@ def remove_outliers(dataX,dataY, m = 2.):
 def test_average():
     randomLists=[]
     for i in range(4):
-        rand= [random.randint(0,100) for r in range(10) ]
+        rand= [random.randint(0,100) for r in range(5) ]
         print( rand )
-        print( chunk_list(rand, 6) )
+        chunkRand = chunk_list(rand,1)
+        print( chunkRand )
+        for chunk in chunkRand:
+            print( str(chunk[0])+"-"+str(chunk[-1]) )
         randomLists.append( rand )
-    print(randomLists)
+    # print(randomLists)
 
     
 #    avg = average_vals(randomLists, randomLists)

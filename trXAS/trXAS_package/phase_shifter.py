@@ -39,9 +39,7 @@ def data_to_column(dataSet, col, file):
             ) = dataSet                                
     except Exception as e:
         print("Didn't load to array:\t"+file)
-        print( e )
-        bunches = file.split("_pump_")[1].split("_minus_")[0]
-        bunches = bunches.split("-")             
+        print( e )           
     return columns[col]
 def get_time_delays(file, delay):
     bunches = file.split("_pump_")[1].split("_minus_")[0]
@@ -58,3 +56,13 @@ def get_time_delays(file, delay):
             bunch = high-end_ref-1        
         timeDelay = [ (2*bunch -2 + d ) if bunch>0 else (2*bunch + d) for d in delay]
     return timeDelay
+#puts together all the transiensts from all the files. 
+def combine_time(dataSets):
+    return
+#averages rows of the datafile that have the same time delay and returns a new non-redundant set.
+def average_same_time(dataSets):
+    return
+def test_phase_shifter():
+    return
+if __name__ == '__main__':
+    test_phase_shifter()

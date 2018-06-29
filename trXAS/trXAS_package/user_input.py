@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 20 12:40:16 2018
-use: ask for directory and ask for column, ask for bunches to average over.
+use: This file is used for console inputs, it's pretty useless since, we just use the config file.
 @author: 2-310-GL group
 """
-#prompts user for the directory to look for files.
+
 import os
+#prompts user for the directory to look for files.
 def user_directory():
     print("This software is used for averaging spectral distributions")
     print("Please enter the directory that you wish to send data.")

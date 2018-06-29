@@ -91,43 +91,44 @@ def select_bunches(dataFiles, first, last):
 #        raise Exception
     #        print(file)
     return dFiles
-#returns data files with the chosen pump
-def select_pump(dataFiles, pump):
-    if pump == "all":
-        dFiles = dataFiles
-    else:
-        dFiles=[]
-        for file in dataFiles:
-            if pump in dataFiles:
-                dFiles.append(file)
-    return dFiles
-#returns data files with the chosen edge.
-def select_probe(dataFiles, probe):
-    if probe == "all":
-        dFiles=dataFiles
-    else:
-        dFiles=[]
-        for file in dataFiles:
-            if probe in dataFiles:
-                dFiles.append(file)
-    return dFiles
-#returns data files with the chosen sample
-def select_sample(dataFiles, sample):
-    if sample == "all":
-        dFiles=dataFiles
-    else:
-        dFiles=[]
-        for file in dataFiles:
-            if sample in dataFiles:
-                dFiles.append(file)
-    return dFiles
-#functions which combines all the "select" functions.
-def select_files(dataFiles, first="all", last="all", sample="all", pump="all", probe="all", *args, **kwargs):
-    dataFiles = select_bunches(dataFiles, first, last)
-    dataFiles = select_sample(dataFiles, sample)
-    dataFiles = select_pump(dataFiles, pump)
-    dataFiles = select_probe(dataFiles, probe)
-    return dataFiles
+# #returns data files with the chosen pump
+# def select_pump(dataFiles, pump):
+#     if pump == "all":
+#         dFiles = dataFiles
+#     else:
+#         dFiles=[]
+#         for file in dataFiles:
+#             if pump in dataFiles:
+#                 dFiles.append(file)
+#     return dFiles
+# #returns data files with the chosen edge.
+# def select_probe(dataFiles, probe):
+#     if probe == "all":
+#         dFiles=dataFiles
+#     else:
+#         dFiles=[]
+#         for file in dataFiles:
+#             if probe in dataFiles:
+#                 dFiles.append(file)
+#     return dFiles
+# #returns data files with the chosen sample
+# def select_sample(dataFiles, sample):
+#     if sample == "all":
+#         dFiles=dataFiles
+#     else:
+#         dFiles=[]
+#         for file in dataFiles:
+#             if sample in dataFiles:
+#                 dFiles.append(file)
+#     return dFiles
+# #functions which combines all the "select" functions.
+# def select_files(dataFiles, first="all", last="all", sample="all", pump="all", probe="all", *args, **kwargs):
+#     dataFiles = select_bunches(dataFiles, first, last)
+#     dataFiles = select_sample(dataFiles, sample)
+#     dataFiles = select_pump(dataFiles, pump)
+#     dataFiles = select_probe(dataFiles, probe)
+#     return dataFiles
+# get a list of all the bunches that appear in a collection of files
 def get_selected_bunches(dataFiles):
     bunchNum=[]
     ref = dataFiles[0].split("_ref_")[1].split("_data.txt")[0]
@@ -135,10 +136,8 @@ def get_selected_bunches(dataFiles):
     
     start_ref = int( ref[0] )
     end_ref = int( ref[1] )
-#    print( (start_ref, end_ref) )
     for file in dataFiles:
         bunches = file.split("_pump_")[1].split("_minus_")[0]
-#        print (bunches)
         bunches = bunches.split("-")
         
         low = int( bunches[0] )
@@ -169,8 +168,6 @@ def bin_data(xVals, yVals, xOriginal):
           nxt = binning[i+1]
           midPre = int( np.floor( (cur+pre )/2 ) )
           midNxt  = int( np.ceil( (cur+nxt )/2 ) )
-#          print(midPre)
-#          print(midNxt)
           if midPre >= midNxt :
               xBin[i] = xVals[midNxt]
               yBin[i] = yVals[midNxt]
@@ -184,16 +181,13 @@ def save_file(xVals, xName, yVals, columnName, fileName):
     yVals = np.array(yVals)
     data = np.array([xVals, yVals])
     data = data.T
-#    print(data)
-#    with open (fileName, 'w+') as csvfile :
-#        writer = csv.writer(csvfile, delimiter = "\t", )
-#        writer.writerow(head)
-#        writer.writerows( data )
     np.savetxt( fileName, data , header = head, delimiter="\t", newline = os.linesep)
     return
-def save_multicolumn(data, header, filename):
+def save_multicolumn(data, header, filename, com= '# '):
+    # if not os.path.exists(saveDirectory):
+    #     os.makedirs(saveDirectory)
     data = np.array(data).T
-    np.savetxt(filename, data, fmt= "%6e", header = header, delimiter = "\t", newline = os.linesep)
+    np.savetxt(filename, data, fmt= "%6e", header = header, delimiter = "\t", newline = os.linesep, comments = com)
     return
 def select_data(bunchSet, dataSet):
     data = []
@@ -212,50 +206,36 @@ def select_data(bunchSet, dataSet):
 #test function for load_files.
 ###############################################################################
 def test_load_files():
+    dataFiles = ["/home/busha/Documents/trXAS_Beamline/trXAS/CuO_O_K-edge_355nm_58pc/0195_0196_0197_0198_0199_0201_0202_avg/avg_bunch_1_3.txt",
+    "/home/busha/Downloads/avg_bunch_1_3_old.txt"]
+    labels= ["new", "old"]
+    dataSet, header = load_file(dataFiles[1])
+    dataSets = [ np.array( load_file(file, wantHeader=False) ).T for file in dataFiles ]
+    # print(header)
+    # print(len(header))
+    # print( [data.shape for data in dataSets] )
+    for j, col in enumerate(header[:-1]):
+        if j <3:
+        # if j%2==1:
+        # print(col)
 
-#    scanType = ["CuO_O_K-edge_532nm_14pc","CuO_O_K-edge_532nm_26pc","CuO_O_K-edge_355nm_58pc"] 
-#    directs = [os.path.normpath(os.pardir+ os.sep+ scan) for scan in scanType]
-#
-#    figavg,axavg = plt.subplots(dpi=100)
-#    plt.title("Pump-Probe Difference 150-4150ps")
-#    plt.xlabel("Probe [eV]")
-#    plt.xlim(525, 540)
-#    plt.ylabel("Difference Signal [arb. units]")
-#    for j, direct in enumerate(directs):
-#        paths = os.listdir(direct)
-#        path = [ os.path.join(direct,p) for p in paths if "avg" in p ][0]
-#        datafiles = os.listdir(path)
-#        datafiles = [d for d in datafiles if "avg_bunch" in d]
-#        bunches = [1,2,3,4,5,6]
-#        datafiles, bunches = select_data(bunches, datafiles)
-#        datafiles = [os.path.join(path, d) for d in datafiles]
-#        dataSet, head = load_file(datafiles[0])
-#        transIndex = head.index(transColumn)
-#        
-#        photonE=[]
-#        trans=[]
-#        delay =[ int( (2*b -2 + offSet)*1000 ) if b>0 else int( (2*b + offSet)*1000 ) for b in bunches]
-#        for file in datafiles:
-#            dataSet = load_file(file, wantHeader=False)
-#            dataSet = dataSet.T
-#            photonE.append( dataSet[0] )
-#            trans.append( dataSet[transIndex] )
-# 
-#        chunkE = chunk_list(photonE, 3)
-#        chunkTran = chunk_list(trans, 3)
-#        chunkDelay = chunk_list(delay, 3)
-#        Avg = [ average_vals(y,x) for x,y in zip(chunkE, chunkTran) ]
-#        photonEAvg = [x for x,y in Avg]
-#        transAvg = [y for x,y in Avg]
-#        labels = [ str(tup[0])+"-"+str(tup[-1]) for tup in chunkDelay ]
-##        figavg,axavg = plt.subplots(dpi=100)
-##        for i in range( len(transAvg) ):
-#        line = axavg.plot(photonEAvg[0], transAvg[0], linestyle="-", linewidth= "1.5", label = scanType[j]  )
-#        axavg.legend()
-#    plt.savefig(os.path.normpath(os.pardir+os.sep+"DiffSignalFirst3Bunches.eps"), bbox_inches="tight", format = "eps")
-    direct = "CuO_O_K-edge_532nm_26pc"
-    path = [ os.path.join(direct,p) for p in paths if "avg" in p ][0]
-    file = path+os.sep+"avg_bunch_1_3"
+            fig,ax = plt.subplots(dpi=100)
+            plt.title(col)
+            plt.ylabel(col)
+            plt.xlabel("Probe [eV]")
+            for i, data in enumerate(dataSets):
+                # if i == 1:    
+                photonE = data[0]
+                val = data[j]
+                line = ax.plot(photonE, val, linewidth= 0.5, label = labels[i])
+            ax.legend()
+    plt.show()
+    plt.close()
+
+    
+
+
+   
     return
 ###############################################################################
 if __name__ == "__main__":   

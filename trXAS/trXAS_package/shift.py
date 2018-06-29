@@ -13,12 +13,8 @@ import numpy as np
 import scipy.interpolate as itp
 from scipy.integrate import simps
 import scipy.optimize as opt
-#import global variables.
-#from config import peaks
-#from config import splines
-#from config import refSplines
+#From modules in trXAS_package
 from config import (lines,
-#                    peaks,
                     splines,
                     stepSize,
                     peakFindStart,

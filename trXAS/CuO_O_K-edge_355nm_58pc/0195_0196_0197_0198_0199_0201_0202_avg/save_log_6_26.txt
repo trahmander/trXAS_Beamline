@@ -1,0 +1,31 @@
+Log Start: 2018-06-27 17:56:43.621931
+
+Bunches:
+[6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+Number of bunches:	21
+
+Saved Bunch:	6_6
+Saved Bunch:	7_7
+Saved Bunch:	8_8
+Saved Bunch:	9_9
+Saved Bunch:	10_10
+Saved Bunch:	11_11
+Saved Bunch:	12_12
+Saved Bunch:	13_13
+Saved Bunch:	14_14
+Saved Bunch:	15_15
+Saved Bunch:	16_16
+Saved Bunch:	17_17
+Saved Bunch:	18_18
+Saved Bunch:	19_19
+Saved Bunch:	20_20
+Saved Bunch:	21_21
+Saved Bunch:	22_22
+Saved Bunch:	23_23
+Saved Bunch:	24_24
+Saved Bunch:	25_25
+Saved Bunch:	26_26
+
+Missing header:['0198_diff_spect_pump_30-30_minus_ref_1-16_data.txt', '0201_diff_spect_pump_33-33_minus_ref_1-16_data.txt']
+
+Saving Shifts: 2018-06-27 17:58:29.981259
