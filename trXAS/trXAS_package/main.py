@@ -287,6 +287,57 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns,
     save_multicolumn(transCol, header, saveDirectory + os.sep + fileName)
     print( "\nSaved Transients: "+ str( datetime.now() ), file = log )                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   )
     return
+def make_shifts(dataFiles, paths, missingHeader, refColumnNum):
+    refPeaks=[]
+    refCenters= []
+    refSplines = []
+    refLines = []
+    scanSize=[]
+    for path in paths:
+        dataFiles = get_data_files(path)
+        dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
+        scanSize.append( len(dataFiles) )
+        for i in range(len(dataFiles)):
+            skip=1
+            file = dataFiles[i]
+            if load_file(file, wantMissing=True) :
+                missingHeader.append( file.split(os.sep)[-1] )
+            dataSet, header = load_file(file, skip=skip)
+            refSpline = data_to_column(dataSet, refColumnNum, file)
+            if i!=0:
+                refPeaks.append(refPeaks[-1])
+                if shiftCenter or shiftMinimize:
+                     refCenters.append(refCenters[-1])
+            else:
+                refPeaks.append( find_peak(refSpline) )
+                if shiftCenter or shiftMinimize:
+                    refCenters.append( find_center(lines[-1], refSpline) )
+                if shiftMinimize:
+                    refSplines.append( splines[-1] )
+                    refLines.append( lines[-1] )
+                else:
+                    break            
+#   shifts every column based on deltas calculated from reference column
+    if shiftPeak:
+        deltas = get_deltas(refPeaks, literaturePeakValue)
+        print("peak matching shift")
+    elif shiftCenter:
+        deltas = get_deltas(refCenters)
+        print("geometric center matching shift")
+    elif shiftMinimize:
+        deltas = diff_deltas(refSplines, refLines, scanSize, refPeaks, header.index(refColumn)-1, literaturePeakValue)
+        print("least squares minimizing shift")
+    if shiftNone :
+        deltas = np.zeros_like( lines )
+        print("No shift")
+    shiftedEnergy, shiftedColumns, litDiff = apply_shift(deltas, splines, lines, refPeaks, literaturePeakValue )
+    shiftedEnergy = cut_splines(shiftedEnergy,deltas)
+    shiftedColumns = [ cut_splines(column, deltas) for column in shiftedColumns ]
+    return shiftedEnergy, shiftedColumns
+def save_phases_shifter():
+    print("Computing phase shifter transients")
+
+    return
 
 ###############################################################################
 ###############################################################################
@@ -339,6 +390,7 @@ def main():
     print("Number of bunches:\t"+str( len(bunchNum) )+"\n", file = log )
 #   calculates the linear interpolation and finds reference peaks from reference column.  
     print("Loading files...")
+    make_shifts()
     refPeaks=[]
     refCenters= []
     refSplines = []

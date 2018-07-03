@@ -4,7 +4,7 @@ Created on Wed Jun 20 12:02:24 2018
 
 @author: 2-310-GL group
 """
-
+import random
 def data_to_column(dataSet, col, file):
     dataSet = dataSet.T
     try:
@@ -58,11 +58,25 @@ def get_time_delays(file, delay):
     return timeDelay
 #puts together all the transiensts from all the files. 
 def combine_time(dataSets):
-    return
+    allDelays=[]
+    AllCols= []
+    for data in dataSets:
+        allDelays.extend(data)
+    return allDelays
 #averages rows of the datafile that have the same time delay and returns a new non-redundant set.
-def average_same_time(dataSets):
-    return
+# def average_same_time(dataSets):
+#     return
 def test_phase_shifter():
+    randomLists=[]
+    for i in range(4):
+        rand= [random.randint(0,100) for r in range(5) ]
+        print( rand )
+        randomLists.append( rand )
+    print(randomLists)
+    print( len(randomLists) )
+    allLists = combine_time(randomLists)
+    print(allLists)
+    print( len(allLists) )
     return
 if __name__ == '__main__':
     test_phase_shifter()

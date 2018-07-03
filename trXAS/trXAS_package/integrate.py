@@ -64,8 +64,8 @@ def average_integrals(bunchNum, integrals):
 		Int = np.average( [integrals[j] for j in indices] )
 		integralsAverage.append(Int)
 		i+=1
-	integrals = remove_dup(integralsAverage)# this isnt a good solution. what if two bunches are degenerate
 	bunchNum = remove_dup(bunchNum)
+	integrals = remove_dup(integralsAverage)# this isnt a good solution. what if two bunches have the same integral.
 	return bunchNum, integrals
 
 def exp(t, A, T, t0):
