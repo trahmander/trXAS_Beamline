@@ -49,11 +49,13 @@ from average import (average_vals,
                      cut_splines,
                      chunk_list,
                      remove_outliers)
+from phase_shifter import get_time_delays
 # Load global variables. These are also used in shift.py
 from config import (openDirectory as direct,
                     column as columnName,
                     refColumn,
                     transColumn,
+                    psColumn,
                     firstBunch, 
                     lastBunch,
                     averageStart,
@@ -74,6 +76,7 @@ from config import (openDirectory as direct,
                     saveSplines,
                     showSplines,
                     saveAverage,
+                    savePhaseShifter,
                     splines,
                     lines)
 ###############################################################################
@@ -98,8 +101,9 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
     print("Computing shifts...")
     
     paths = pathToFiles.keys()
-    averageSplines = []
-    averageBunches= []
+    if saveAverage:
+        averageSplines = []
+        averageBunches= []
     for bunch in bunchNum  :
         first = last = str(bunch)
 
@@ -190,7 +194,7 @@ def avg_bunches(dataSets, bunches, head, first, last, saveDirectory, binning=1):
         for h in head:
             hd.append(h)
             hd.append("SE "+h)
-
+        # print(hd)
         chunkBunch = chunk_list(bunches, binning)
         for i, chunk in enumerate(chunkBunch):
             firstChunk = str(chunk[0])
@@ -218,17 +222,18 @@ def avg_bunches(dataSets, bunches, head, first, last, saveDirectory, binning=1):
             avgColumns = np.array(avgColumns)
             fileName = "avg"+"_bunch_"+firstChunk+"_"+lastChunk+".txt"
             hdr=""
-            for col in hd[:-1]:
-                hdr += col+"\t"+"SE "+col+"\t"
+            for col in hd:
+                hdr += col+"\t"
             hdr = hdr[:-1]
+            # print(hdr)
             print("Saved Bunch:\t"+firstChunk+"_"+lastChunk)
             save_multicolumn(avgColumns, header = hdr, filename = saveDirectory+os.sep+fileName, com = '')
     return
-def compute_integral( title, pathToFiles, head, transientColumns, bunch, shiftedEnergy, shiftedColumns,saveDirectory, savePlot= False, binning=1):        
+def compute_integral( title, pathToFiles, head, transientColumns, bunch, shiftedEnergy, shiftedColumns,saveDirectory, savePlot= False, binning=1, wantPlot=False):        
     transIndex = head.index(transColumn)
     shiftedSplines = [ shiftedColumns[i][transIndex] for i in range( len(shiftedColumns) ) ]
 
-    integrals = [ def_integral( e,s, xHigh,xLow ) for e,s in zip(shiftedEnergy, shiftedSplines) ]
+    integrals = [ def_integral( e,s, xLow,xHigh , wantPlot=wantPlot) for e,s in zip(shiftedEnergy, shiftedSplines) ]
     bunch, Int = average_integrals(bunch, integrals)
     Int = [ I for b, I in sorted( zip(bunch, Int), key = lambda pair: pair[0] ) ]
     bunch.sort()
@@ -277,7 +282,8 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns,
                       bunchNumAll[start:end], 
                       shiftedEnergy[start:end], 
                       shiftedColumns[start:end],
-                      saveDirectory)
+                      saveDirectory,
+                      wantPlot=False)
         start = end
 
     header = header[:-1]
@@ -285,9 +291,10 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns,
 
     fileName = "transient_"+xLow+"_"+xHigh+"_bunch_"+firstBunch+"_"+lastBunch+".txt"
     save_multicolumn(transCol, header, saveDirectory + os.sep + fileName)
-    print( "\nSaved Transients: "+ str( datetime.now() ), file = log )                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   )
+    # print( ("\nSaved Transients:\t"+fileName ), file = log )                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   )
     return
 def make_shifts(dataFiles, paths, missingHeader, refColumnNum):
+    print("Loading files...")
     refPeaks=[]
     refCenters= []
     refSplines = []
@@ -312,12 +319,9 @@ def make_shifts(dataFiles, paths, missingHeader, refColumnNum):
                 refPeaks.append( find_peak(refSpline) )
                 if shiftCenter or shiftMinimize:
                     refCenters.append( find_center(lines[-1], refSpline) )
-                if shiftMinimize:
-                    refSplines.append( splines[-1] )
-                    refLines.append( lines[-1] )
-                else:
-                    break            
-#   shifts every column based on deltas calculated from reference column
+                refSplines.append( splines[-1] )
+                refLines.append( lines[-1] )       
+#   shifts every column based on deltas calculated from reference colum
     if shiftPeak:
         deltas = get_deltas(refPeaks, literaturePeakValue)
         print("peak matching shift")
@@ -333,12 +337,67 @@ def make_shifts(dataFiles, paths, missingHeader, refColumnNum):
     shiftedEnergy, shiftedColumns, litDiff = apply_shift(deltas, splines, lines, refPeaks, literaturePeakValue )
     shiftedEnergy = cut_splines(shiftedEnergy,deltas)
     shiftedColumns = [ cut_splines(column, deltas) for column in shiftedColumns ]
-    return shiftedEnergy, shiftedColumns
-def save_phases_shifter():
+    return shiftedEnergy, shiftedColumns, litDiff
+def save_phase_shifter(head, paths, saveDirectory, missingHeader):
     print("Computing phase shifter transients")
-
+    transIndex = head.index(psColumn)
+    saveDirectory = os.path.normpath(saveDirectory+os.sep+"phase_shifter_transients")
+    if not os.path.exists(saveDirectory):
+        os.makedirs(saveDirectory)
+    allDelays=[]
+    allTrans=[]
+    for path in paths:
+        dataFiles = get_data_files(path)
+        dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
+        # scanSize.append( len(dataFiles) )
+        pathDelay=[]
+        pathTrans=[]
+        # size=0
+        for i in range(len(dataFiles)):
+            skip=1
+            file = dataFiles[i]
+            if load_file(file, wantMissing=True) :
+                missingHeader.append( file.split(os.sep)[-1] )
+            dataSet, header = load_file(file, skip=skip)
+            delay = data_to_column(dataSet, 0, file, wantSpline=False)
+            delay = get_time_delays(file, delay)
+            transCol = data_to_column(dataSet, transIndex, file, wantSpline=False)
+            pathDelay.extend(delay)
+            pathTrans.extend(transCol)
+            allDelays.extend( list(delay) )
+            allTrans.extend( list(transCol) )
+            # print( len(delays) )
+            # size+=len(delay)
+        # print(size)
+        # print( len(pathDelay) )
+        delayAvg, transAvg = average_integrals(pathDelay, pathTrans)
+        # print(len(transAvg))
+        transAvg = [ I for b, I in sorted( zip(delayAvg, transAvg), key = lambda pair: pair[0] ) ]
+        delayAvg.sort()
+        if showTransients:
+            fig = plt.figure(dpi=100)
+            plt.title(path+" PS")
+            plt.xlabel("Time Delay [ns]")
+            plt.ylabel(psColumn)
+            plt.plot(pathDelay, pathTrans, marker='d', linestyle = "None")
+    # print(len(allDelays))
+    delayAvg, transAvg = average_integrals(allDelays, allTrans)
+    # print( len(delayAvg) )
+    transAvg = [ I for b, I in sorted( zip(delayAvg, transAvg), key = lambda pair: pair[0] ) ]
+    delayAvg.sort()
+    saveCol=[delayAvg, transAvg]
+    saveCol = pd.DataFrame(saveCol).values
+    fileName = "ps_transient"+"_bunch_"+firstBunch+"_"+lastBunch+".txt"
+    header = "Delay [ns]\t"+transColumn
+    save_multicolumn(saveCol, header, saveDirectory + os.sep + fileName, com='')
+    if showTransients:
+        fig = plt.figure(dpi=100)
+        plt.title("average PS")
+        plt.xlabel("Time Delay [ns]")
+        plt.ylabel(psColumn)
+        plt.plot(delayAvg, transAvg, linestyle= "None", marker = 'd')
+    print("Saved transient:\t"+fileName)
     return
-
 ###############################################################################
 ###############################################################################
 #Main driver function for trXAS package
@@ -382,66 +441,24 @@ def main():
             continue
         file = dataFiles[0]
         dataSet, header = load_file(file)
-        refSpline= data_to_column(dataSet, refColumnNum, file)
+        refSpline= data_to_column(dataSet, refColumnNum, file, wantSpline=False)
     initialize()
     bunchNum = sorted(remove_dup(bunchNumAll))
     print("Bunches:\n" + str(bunchNum), file = log)
     print("Bunches:\n" + str(bunchNum),)
     print("Number of bunches:\t"+str( len(bunchNum) )+"\n", file = log )
 #   calculates the linear interpolation and finds reference peaks from reference column.  
-    print("Loading files...")
-    make_shifts()
-    refPeaks=[]
-    refCenters= []
-    refSplines = []
-    refLines = []
-    scanSize=[]
-    for path in paths:
-        dataFiles = get_data_files(path)
-        dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
-        scanSize.append( len(dataFiles) )
-        for i in range(len(dataFiles)):
-            skip=1
-            file = dataFiles[i]
-            if load_file(file, wantMissing=True) :
-                missingHeader.append( file.split(os.sep)[-1] )
-            dataSet, header = load_file(file, skip=skip)
-            refSpline = data_to_column(dataSet, refColumnNum, file)
-            if i!=0:
-                refPeaks.append(refPeaks[-1])
-                if shiftCenter or shiftMinimize:
-                     refCenters.append(refCenters[-1])
-            else:
-                refPeaks.append( find_peak(refSpline) )
-                if shiftCenter or shiftMinimize:
-                    refCenters.append( find_center(lines[-1], refSpline) )
-                if shiftMinimize:
-                    refSplines.append( splines[-1] )
-                    refLines.append( lines[-1] )
-                else:
-                    break            
-#   shifts every column based on deltas calculated from reference column
-    if shiftPeak:
-        deltas = get_deltas(refPeaks, literaturePeakValue)
-        print("peak matching shift")
-    elif shiftCenter:
-        deltas = get_deltas(refCenters)
-        print("geometric center matching shift")
-    elif shiftMinimize:
-        deltas = diff_deltas(refSplines, refLines, scanSize, refPeaks, header.index(refColumn)-1, literaturePeakValue)
-        print("least squares minimizing shift")
-    if shiftNone :
-        deltas = np.zeros_like( lines )
-        print("No shift")
-    shiftedEnergy, shiftedColumns, litDiff = apply_shift(deltas, splines, lines, refPeaks, literaturePeakValue )
-    shiftedEnergy = cut_splines(shiftedEnergy,deltas)
-    shiftedColumns = [ cut_splines(column, deltas) for column in shiftedColumns ]
+
 #   averages and saves collumns from scans.
-    if saveSplines:
-        save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader, saveDirectory, litDiff)
-#   averages and saves transients from all scans. Also saves each individual scan.
-    if saveTransients:
-        save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory)
+    if saveSplines or saveTransients:
+        shiftedEnergy, shiftedColumns, litDiff = make_shifts(dataFiles, paths, missingHeader, refColumnNum)
+        if saveSplines:
+            save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader, saveDirectory, litDiff)
+    #   averages and saves transients from all scans. Also saves each individual scan.
+        if saveTransients:
+            save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory)
+    elif savePhaseShifter:
+        save_phase_shifter(head, paths, saveDirectory, missingHeader)
     log.close()
     # endTime = timer()
     # print( "Time:\t"+ str(endTime - startTime) )

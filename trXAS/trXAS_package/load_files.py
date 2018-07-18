@@ -92,42 +92,42 @@ def select_bunches(dataFiles, first, last):
     #        print(file)
     return dFiles
 # #returns data files with the chosen pump
-# def select_pump(dataFiles, pump):
-#     if pump == "all":
-#         dFiles = dataFiles
-#     else:
-#         dFiles=[]
-#         for file in dataFiles:
-#             if pump in dataFiles:
-#                 dFiles.append(file)
-#     return dFiles
-# #returns data files with the chosen edge.
-# def select_probe(dataFiles, probe):
-#     if probe == "all":
-#         dFiles=dataFiles
-#     else:
-#         dFiles=[]
-#         for file in dataFiles:
-#             if probe in dataFiles:
-#                 dFiles.append(file)
-#     return dFiles
-# #returns data files with the chosen sample
-# def select_sample(dataFiles, sample):
-#     if sample == "all":
-#         dFiles=dataFiles
-#     else:
-#         dFiles=[]
-#         for file in dataFiles:
-#             if sample in dataFiles:
-#                 dFiles.append(file)
-#     return dFiles
-# #functions which combines all the "select" functions.
-# def select_files(dataFiles, first="all", last="all", sample="all", pump="all", probe="all", *args, **kwargs):
-#     dataFiles = select_bunches(dataFiles, first, last)
-#     dataFiles = select_sample(dataFiles, sample)
-#     dataFiles = select_pump(dataFiles, pump)
-#     dataFiles = select_probe(dataFiles, probe)
-#     return dataFiles
+def select_pump(dataFiles, pump):
+    if pump == "all":
+        dFiles = dataFiles
+    else:
+        dFiles=[]
+        for file in dataFiles:
+            if pump in dataFiles:
+                dFiles.append(file)
+    return dFiles
+#returns data files with the chosen edge.
+def select_probe(dataFiles, probe):
+    if probe == "all":
+        dFiles=dataFiles
+    else:
+        dFiles=[]
+        for file in dataFiles:
+            if probe in dataFiles:
+                dFiles.append(file)
+    return dFiles
+#returns data files with the chosen sample
+def select_sample(dataFiles, sample):
+    if sample == "all":
+        dFiles=dataFiles
+    else:
+        dFiles=[]
+        for file in dataFiles:
+            if sample in dataFiles:
+                dFiles.append(file)
+    return dFiles
+#functions which combines all the "select" functions.
+def select_files(dataFiles, first="all", last="all", sample="all", pump="all", probe="all", *args, **kwargs):
+    dataFiles = select_bunches(dataFiles, first, last)
+    dataFiles = select_sample(dataFiles, sample)
+    dataFiles = select_pump(dataFiles, pump)
+    dataFiles = select_probe(dataFiles, probe)
+    return dataFiles
 # get a list of all the bunches that appear in a collection of files
 def get_selected_bunches(dataFiles):
     bunchNum=[]
@@ -175,7 +175,7 @@ def bin_data(xVals, yVals, xOriginal):
               xBin[i] = np.average(xVals[midPre:midNxt])
               yBin[i] = np.average(yVals[midPre:midNxt])
     return xBin, yBin
-def save_file(xVals, xName, yVals, columnName, fileName):
+def save_file(xVals, xName, yVals, columnName, fileName, com='# '):
     head = xName+"\t"+columnName
     xVals = np.array(xVals)
     yVals = np.array(yVals)

@@ -1,7 +1,6 @@
 ##########################################################################################
 HOW TO USE:
 ##########################################################################################
-
 GOOD INITIAL CONFIG VALUES: Read config comments for a description of these values.
 ##########################################################################################
 column = ["Y all norm","StS norm"]
@@ -26,7 +25,7 @@ offSet= 0.0
 stepSize = 0.005
 splines = []
 lines= []
-
+##########################################################################################
 CALCULATING AVERAGES AND TRANSIENTS:
 ##########################################################################################
 1.  Start off with the 'GOOD INTIAL CONFIG VALUES'. Specify an approriate directory in 
@@ -55,11 +54,13 @@ CALCULATING AVERAGES AND TRANSIENTS:
     and the different shifting methods. When ready, Run main for your results.
 9.  The data will be saved in a folder named after all the scan #'s under the directory in
     'openDirectory'. The average spectra and curves will be saved as "avg_bunch_x_x".
-    Transients will be saved as "transient_photonEnergyStart_photonEnergyEnd_bunch_firstBunch_lastBunch".
+    Transients will be saved as "transient_photonEnergyStart_photonEnergyEnd_bunch_firstBunch_lastBunch".   
+##########################################################################################
+AVERAGE PHASE SHIFTER SCANS:
 ##########################################################################################
 ##########################################################################################
 TO DO:
 ##########################################################################################
-# 	Add in the phase-shifter stuff.
 #	Make a better zero-intersection finder for integration instead of manually doing it.
+	Implement a way to see the new zero vertical line so that I can check it.
 ##########################################################################################

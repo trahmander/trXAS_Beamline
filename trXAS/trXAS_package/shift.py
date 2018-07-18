@@ -56,11 +56,10 @@ def get_spline(x, col, refCol):
     refSpline = colSpline[refCol]
     return refSpline
 #unpacks the 2d array into 1d arrays given by the columns. uses find_peak and get_spline.
-def data_to_column(dataSet, refCol, file):
-    photonE = []
+def data_to_column(dataSet, colIndex, file, wantSpline=True):
     dataSet = dataSet.T
     try:
-        columns = (photonE, #SEphotonE,
+        columns = (firstColumn, #SEphotonE,
             xRefNorm, #SExRefNorm,
             xRef, #SExRef,
             xPumpNorm, #SExPumpNorm, 
@@ -94,12 +93,16 @@ def data_to_column(dataSet, refCol, file):
 #        refVals = columns[refCol]
 #        vals = columns[col]
 #        step = (highE - lowE) / stepSize
-        refSpline = get_spline(photonE, columns[1:], refCol-1)
+        if wantSpline:
+            colData = get_spline(firstColumn, columns[1:], colIndex-1)
+        else:
+            colData = columns[colIndex]
 #        if findPeak:
 #            peakEnergy = find_peak(float(peakFindStart), float(peakFindEnd), refSpline)                                       #should not be hardcoded.
-    except:
-        print("Didn't load to array:\t"+file)             
-    return refSpline
+    except Exception as e:
+        print("Didn't load to array:\t"+file)
+        print(e)             
+    return colData
 #shifts all peaks to match the earleast peak. returns new splines. cuts the spline at the  low energy side.
 def shift_spline(splineNum, refPeaks, spline, line):
 #    yVals = ySpline[splineNum]( line[splineNum] )
@@ -161,8 +164,11 @@ def diff_deltas(splineCols, lines, scanSize, refPeaks, refCol, litVal):
     scanIndex=[]
     scan = 0
     for size in scanSize:
-        scanIndex.append(scan)
-        scan += size
+        if size !=0:
+            scanIndex.append(scan)
+            scan += size
+        else:
+            continue
     refPeaks = [refPeaks[ind] for ind in scanIndex]
     if bool(litVal):
         refIndex = ref_index(refPeaks, litVal)

@@ -14,6 +14,7 @@ openDirectory = os.path.normpath(os.pardir+ os.sep+ "TiO2_O_K-edge_355nm_49pc")
 #refColumn specifies the name of the column that you want to compare in order to determine the shifts
 column = ["Y all norm","StS norm"]
 transColumn = "StS norm"
+psColumn = "StS"
 refColumn = "Y all norm"
 #firstBunch determines the the earliest bunch before the pump to average. (Inclusive) 
 #lastBunch determines the latest bunch after the pump to average. (Inclusive)
@@ -22,13 +23,14 @@ refColumn = "Y all norm"
 # bunches in your directory. If you only want to look at 1 bunch. Choose that for 
 # for both values. ie: firstBunch = "7", lastBunch = "7" would look at just the 
 # 7th bunch after time 0.
-#averageStart and averageEnd are for averaging different bunches together.
+#averageStart and averageEnd are for averaging different bunches together. This
+# must be within the range specified by firstBunch and lastBunch.
 #averageBinning is the binning for avereging different bunches together.
 # a binning of 2 will mean that every two consecutive bunches will be averaged.
-firstBunch = "1"
-lastBunch = "5"
+firstBunch = "all"
+lastBunch = "all"
 averageStart= "1"
-averageEnd = "3"
+averageEnd = "5"
 averageBinning="3"
 #These are the different options for the shifting method. Exactly one should be True.
 #ShiftNone means that that the spectra will remain unchanged. This is good for making
@@ -36,10 +38,10 @@ averageBinning="3"
 #Shift peak, matches the maximum in the range specified by peakFindStart and peakFindEnd.
 #shiftCenter matches the geometric center of the curves.
 #shiftMinimize tries to minimize the difference in the spectra as a function of the shift.
-shiftNone = True
+shiftNone = False
 shiftPeak = False
 shiftCenter = False
-shiftMinimize = False
+shiftMinimize = True
 #peakFindStart is the smaller energy in the window used to find peaks for shifting.
 #peakFindEnd is the larger energy in the window used to find peaks for shifting.
 #Choose "all" to integrate on the entire photon energy axis. 
@@ -49,23 +51,24 @@ peakFindEnd= "537"
 #photonEnergyEnd os the larger energy in the window to do an integration.
 #Choose "all" to integrate on the entire photon energy axis. 
 photonEnergyStart = "528.5"
-photonEnergyEnd= "529.9"
+photonEnergyEnd= "529.5"
+integrationWindow = 0.5
 #saveSplines is set to True if you want to calculate to save the shifted Splines.
 #showSplines is set to True if you want the plots for the column you set in column.
 #saveAverage is set to True if you want to average different bunches together.
 #saveTransients is set to True if you want calculate the transients for transColumn.
 #showTransients is set to True if you want the plots for the integrals for transColumn.
-saveSplines = True
-showSplines = True
+saveSplines = False
+showSplines = False
 saveAverage = False
-saveTransients = False
-showTransients = False
-phaseShifter = False
+saveTransients = True
+savePhaseShifter = False
+showTransients = True
 #literaturePeakValue is a nominal value to shift the reference peak to.
 #   set this to 0 if you don't want to shift to this value.
 #stepSize determines how coarse the splining of your data is. Smaller stepSize is more expensive.
 #offSet is how much time in nano seconds that t0 is before the first pump bunch.
-literaturePeakValue = 0
+literaturePeakValue = 530.1
 offSet= 0.15
 stepSize = 0.005
 ############################################################################### 

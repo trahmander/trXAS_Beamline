@@ -5,6 +5,7 @@ Created on Wed Jun 20 12:02:24 2018
 @author: 2-310-GL group
 """
 import random
+import numpy as np
 def data_to_column(dataSet, col, file):
     dataSet = dataSet.T
     try:
@@ -44,6 +45,7 @@ def data_to_column(dataSet, col, file):
 def get_time_delays(file, delay):
     bunches = file.split("_pump_")[1].split("_minus_")[0]
     bunches = bunches.split("-")
+    delay = np.array(delay)/1000
     if bunches[0] == bunches[1]:
         ref = file.split("_ref_")[1].split("_data.txt")[0]
         ref = ref.split("-")        
@@ -59,7 +61,7 @@ def get_time_delays(file, delay):
 #puts together all the transiensts from all the files. 
 def combine_time(dataSets):
     allDelays=[]
-    AllCols= []
+    allCols= []
     for data in dataSets:
         allDelays.extend(data)
     return allDelays
