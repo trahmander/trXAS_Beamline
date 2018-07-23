@@ -35,8 +35,8 @@ def find_zero(yVals, xVals, xVal):
 			if nearZeroVal[j]>0 and nearZeroVal[j+1]<0:
 				  fall.add( (nearZero[j] + nearZero[j+1])/2.0 )
 		if len(fall) == 0:
-			# zero = nearZero[ np.argmin( np.abs(nearZeroVal) ) ]
-			zero = xVal
+			zero = nearZero[ np.argmin( np.abs(nearZeroVal) ) ]
+			# zero = xVal
 		else:
 			zero = np.average( list(fall) )
 		return zero
@@ -81,6 +81,7 @@ def def_integral(xVals, yVals, xLow, xHigh, wantPlot=False):
 		integral = simps(yInterval, xInterval )
 	except ValueError:
 		print( ( len(yInterval),len(xInterval) ) )
+	integral = integral / (high - low)
 	return integral
 # removes duplicates in list while preserving order.
 def remove_dup(seq):

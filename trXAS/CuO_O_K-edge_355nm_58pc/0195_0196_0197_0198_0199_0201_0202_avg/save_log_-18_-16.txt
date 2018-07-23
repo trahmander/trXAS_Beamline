@@ -1,0 +1,13 @@
+Log Start: 2018-07-05 16:23:57.254783
+
+Bunches:
+[-18, -17, -16]
+Number of bunches:	3
+
+Saved Bunch:	-18_-18
+	Missing bunch:	['019', '0199', '0201', '0202']
+Saved Bunch:	-17_-17
+	Missing bunch:	['019', '0199', '0201', '0202']
+Saved Bunch:	-16_-16
+
+Saving Shifts: 2018-07-05 16:24:10.078107

@@ -1,0 +1,10 @@
+Log Start: 2018-07-03 15:03:20.653273
+
+Bunches:
+[-21]
+Number of bunches:	1
+
+Saved Bunch:	-21_-21
+	Missing bunch:	['0216_TiO2_O_K-edge_355nm_58', '0217_TiO2_O_K-edge_355nm_58', '0218_TiO2_O_K-edge_355nm_58']
+
+Saving Shifts: 2018-07-03 15:03:24.096632

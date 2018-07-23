@@ -238,7 +238,7 @@ def compute_integral( title, pathToFiles, head, transientColumns, bunch, shifted
     Int = [ I for b, I in sorted( zip(bunch, Int), key = lambda pair: pair[0] ) ]
     bunch.sort()
     timeDelay =[ (2*b -2 + offSet) if b>0 else (2*b + offSet) for b in bunch]
-    timeDelay, Int = remove_outliers(timeDelay, Int)
+    # timeDelay, Int = remove_outliers(timeDelay, Int)
 
     transientColumns.append( timeDelay )
     transientColumns.append( Int )

@@ -1,0 +1,7 @@
+# Delay[ns]	Avg Transient	0195 Delay[ns]	0195 Transient	0196 Delay[ns]	0196 Transient	0197 Delay[ns]	0197 Transient	0198 Delay[ns]	0198 Transient	0199 Delay[ns]	0199 Transient	0201 Delay[ns]	0201 Transient	0202 Delay[ns]	0202 Transient
+-4.185000e+01	-1.281738e-03	-4.185000e+01	2.077981e-02	-4.185000e+01	-3.780052e-03	-4.185000e+01	-2.084498e-02	-3.185000e+01	-1.102078e-03	-3.185000e+01	-5.760804e-03	-3.185000e+01	-1.170626e-02	-3.185000e+01	-3.621123e-02
+-3.985000e+01	-2.284070e-03	-3.985000e+01	-1.714197e-02	-3.785000e+01	-1.395255e-02	-3.985000e+01	-1.558609e-02	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan
+-3.785000e+01	-1.146574e-03	-3.785000e+01	-1.189571e-02	-3.585000e+01	-3.625531e-03	-3.585000e+01	-3.968231e-02	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan
+-3.385000e+01	3.686261e-03	-3.585000e+01	-9.410311e-03	-3.385000e+01	-2.250149e-03	-3.185000e+01	7.561957e-04	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan
+   nan	   nan	-3.385000e+01	2.251602e-02	-3.185000e+01	2.256846e-02	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan
+   nan	   nan	-3.185000e+01	1.087219e-02	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan	   nan

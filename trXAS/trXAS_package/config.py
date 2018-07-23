@@ -52,7 +52,7 @@ peakFindEnd= "537"
 #Choose "all" to integrate on the entire photon energy axis. 
 photonEnergyStart = "528.5"
 photonEnergyEnd= "529.5"
-integrationWindow = 0.5
+integrationWindow = 1.0
 #saveSplines is set to True if you want to calculate to save the shifted Splines.
 #showSplines is set to True if you want the plots for the column you set in column.
 #saveAverage is set to True if you want to average different bunches together.
