@@ -16,6 +16,7 @@ import scipy.optimize as opt
 #From modules in trXAS_package
 from config import (lines,
                     splines,
+                    xOrig,
                     stepSize,
                     peakFindStart,
                     peakFindEnd)
@@ -32,6 +33,7 @@ def find_peak(func):
             maxVal = feature[i]
             peak = i
 #    peaks.append(nearPeak[peak])
+            
     return nearPeak[peak]
 def find_center(xVals, func):
 #    step = (xhigh - xlow)/stepSize
@@ -52,6 +54,7 @@ def get_spline(x, col, refCol):
         spline = itp.interp1d(x, y, kind = 'slinear')
         colSpline.append(spline)
     splines.append(colSpline)
+    xOrig.append(x)
     lines.append(line)
     refSpline = colSpline[refCol]
     return refSpline

@@ -1,0 +1,18 @@
+Log Start: 2018-07-23 16:02:45.893830
+
+Bunches:
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Number of bunches:	10
+
+Saved Bunch:	1_1
+Saved Bunch:	2_2
+Saved Bunch:	3_3
+Saved Bunch:	4_4
+Saved Bunch:	5_5
+Saved Bunch:	6_6
+Saved Bunch:	7_7
+Saved Bunch:	8_8
+Saved Bunch:	9_9
+Saved Bunch:	10_10
+
+Saving Shifts: 2018-07-23 16:04:00.007121

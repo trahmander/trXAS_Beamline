@@ -1,0 +1,10 @@
+Log Start: 2018-07-27 15:35:48.307877
+
+Bunches:
+[147, 148, 149, 150, 151, 152, 153, 154]
+Number of bunches:	8
+
+Saved Bunch:	147_147
+	Missing bunch:	['262_C60-Cu_C_K-edge_355nm_42', '263_C60-Cu_C_K-edge_355nm_42', '264_C60-Cu_C_K-edge_355nm_42']
+Saved Bunch:	148_148
+	Missing bunch:	['262_C60-Cu_C_K-edge_355nm_42', '263_C60-Cu_C_K-edge_355nm_42', '264_C60-Cu_C_K-edge_355nm_42']

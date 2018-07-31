@@ -86,11 +86,13 @@ def standard_error(vals, lines, valAvg, lineAvg):
     xErr /= numVals
     xErr = np.sqrt(xErr)
     return xErr, yErr
-def sum_error(errs):
+def sum_error(errs, norm=False):
     standardErr = 0
     for err in errs:
         standardErr += err*err
     standardErr = np.sqrt(standardErr)
+    if norm:
+        standardErr /= np.sqrt( len(errs) )
     return standardErr
 def chunk_list(seq, size):
     return list( zip( *[iter(seq)]*size  ) )

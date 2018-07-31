@@ -63,4 +63,5 @@ TO DO:
 ##########################################################################################
 #	Make a better zero-intersection finder for integration instead of manually doing it.
 	Implement a way to see the new zero vertical line so that I can check it.
+#   Implement binning to original photon energies.
 ##########################################################################################

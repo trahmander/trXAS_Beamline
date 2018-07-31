@@ -16,7 +16,7 @@ import pandas as pd
 import csv
 import matplotlib.pyplot as plt
 from integrate import find_nearest_index
-from average import average_vals
+from average import average_vals, sum_error
 from average import chunk_list
 from config import (transColumn,
                     offSet)
@@ -147,34 +147,46 @@ def get_selected_bunches(dataFiles):
         else:
             bunchNum.append(high-end_ref-1)
     return bunchNum
-def bin_data(xVals, yVals, xOriginal):
-    binning = [find_nearest_index(xVals, x) for x in xOriginal]
-    xBin = np.zeros(len(binning))
-    yBin = np.zeros(len(binning))    
-    for i in range( len(binning)) :
-      cur = binning[i]
-      if i==0:
-          nxt = binning[i+1]
-          midNxt  = int( np.ceil( (cur+nxt )/2 ) )
-          xBin[i] = np.average(xVals[:midNxt])
-          yBin[i] = np.average(yVals[:midNxt])
-      elif i==len(binning)-1:
-          pre = binning[i-1]
-          midPre = int( np.floor( (cur+pre )/2 ) )
-          xBin[i] = np.average(xVals[midPre:])
-          yBin[i] = np.average(yVals[midPre:])
-      else:
-          pre = binning[i-1]
-          nxt = binning[i+1]
-          midPre = int( np.floor( (cur+pre )/2 ) )
-          midNxt  = int( np.ceil( (cur+nxt )/2 ) )
-          if midPre >= midNxt :
-              xBin[i] = xVals[midNxt]
-              yBin[i] = yVals[midNxt]
+def bin_data(splineCols, xOriginal):
+    xVals = splineCols[0]
+#    print(len(xOriginal))
+#    print(len(xVals))
+#    size = min( len(xVals), len(xOriginal) )
+
+    binning = [find_nearest_index(xVals, x) for x in xOriginal] 
+    binCols=[]
+    for j, yVals in enumerate(splineCols):    
+#        xBin = np.zeros(len(binning))
+        yBin = np.zeros(len(binning))
+        if j%2==0:
+            collect = np.average
+        else:
+            collect = lambda err : sum_error(err, norm=True)
+        for i in range( len(binning)) :
+          cur = binning[i]
+          if i==0:
+              nxt = binning[i+1]
+              midNxt  = int( np.ceil( (cur+nxt )/2 ) )
+#              xBin[i] = np.average(xVals[:midNxt])
+              yBin[i] = collect(yVals[:midNxt])
+          elif i==len(binning)-1:
+              pre = binning[i-1]
+              midPre = int( np.floor( (cur+pre )/2 ) )
+#              xBin[i] = np.average(xVals[midPre:])
+              yBin[i] = collect(yVals[midPre:])
           else:
-              xBin[i] = np.average(xVals[midPre:midNxt])
-              yBin[i] = np.average(yVals[midPre:midNxt])
-    return xBin, yBin
+              pre = binning[i-1]
+              nxt = binning[i+1]
+              midPre = int( np.floor( (cur+pre )/2 ) )
+              midNxt  = int( np.ceil( (cur+nxt )/2 ) )
+              if midPre >= midNxt :
+#                  xBin[i] = xVals[midNxt]
+                  yBin[i] = yVals[midNxt]
+              else:
+#                  xBin[i] = np.average(xVals[midPre:midNxt])
+                  yBin[i] = collect(yVals[midPre:midNxt])
+        binCols.append(yBin)
+    return binCols
 def save_file(xVals, xName, yVals, columnName, fileName, com='# '):
     head = xName+"\t"+columnName
     xVals = np.array(xVals)
@@ -206,16 +218,16 @@ def select_data(bunchSet, dataSet):
 #test function for load_files.
 ###############################################################################
 def test_load_files():
-    dataFiles = ["/home/busha/Documents/trXAS_Beamline/trXAS/CuO_O_K-edge_355nm_58pc/0195_0196_0197_0198_0199_0201_0202_avg/avg_bunch_1_3.txt",
-    "/home/busha/Downloads/avg_bunch_1_3_old.txt"]
-    labels= ["new", "old"]
+    dataFiles = ["C:\\Users\\2-310-GL group\\Desktop\ALS_beamtime\\trXAS\\CuO_O_K-edge_355nm_58pc\\0195_0196_0197_0198_0199_0201_0202_avg\\avg_bunch_-11_-11.txt",
+    "C:\\Users\\2-310-GL group\\Desktop\ALS_beamtime\\trXAS\\CuO_O_K-edge_355nm_58pc\\0195_0196_0197_0198_0199_0201_0202_avg\\avg_bunch_-11_-11_binned.txt"]
+    labels= ["unbinned", "binned"]
     dataSet, header = load_file(dataFiles[1])
     dataSets = [ np.array( load_file(file, wantHeader=False) ).T for file in dataFiles ]
     # print(header)
     # print(len(header))
     # print( [data.shape for data in dataSets] )
     for j, col in enumerate(header[:-1]):
-        if j <3:
+        if j%2!=0:
         # if j%2==1:
         # print(col)
 

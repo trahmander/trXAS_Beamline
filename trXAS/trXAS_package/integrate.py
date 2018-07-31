@@ -21,7 +21,7 @@ def find_nearest_index(xVals, x):
     return index
 def find_zero(yVals, xVals, xVal):
 	# integrationWindow = float(integrationWindow)
-	if -integrationWindow !=0.0 :
+	if integrationWindow !=0.0 :
 		wind = int( integrationWindow / stepSize / 2.0 )
 		ind = find_nearest_index(xVals, xVal)
 		nearZero = xVals[ind-wind:ind+wind]

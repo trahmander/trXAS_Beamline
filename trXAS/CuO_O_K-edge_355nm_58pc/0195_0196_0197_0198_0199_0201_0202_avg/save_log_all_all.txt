@@ -1,6 +1,182 @@
-Log Start: 2018-07-19 16:58:13.545763
+Log Start: 2018-07-30 12:55:11.591313
 
 Bunches:
 [-22, -21, -20, -19, -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143]
 Number of bunches:	165
 
+Saved Bunch:	-22_-22
+	Missing bunch:	['019', '0199', '0201', '0202']
+Saved Bunch:	-21_-21
+	Missing bunch:	['019', '0199', '0201', '0202']
+Saved Bunch:	-20_-20
+	Missing bunch:	['019', '0199', '0201', '0202']
+Saved Bunch:	-19_-19
+	Missing bunch:	['019', '0199', '0201', '0202']
+Saved Bunch:	-18_-18
+	Missing bunch:	['019', '0199', '0201', '0202']
+Saved Bunch:	-17_-17
+	Missing bunch:	['019', '0199', '0201', '0202']
+Saved Bunch:	-16_-16
+Saved Bunch:	-15_-15
+Saved Bunch:	-14_-14
+Saved Bunch:	-13_-13
+Saved Bunch:	-12_-12
+Saved Bunch:	-11_-11
+Saved Bunch:	-10_-10
+Saved Bunch:	-9_-9
+Saved Bunch:	-8_-8
+Saved Bunch:	-7_-7
+Saved Bunch:	-6_-6
+Saved Bunch:	-5_-5
+Saved Bunch:	-4_-4
+Saved Bunch:	-3_-3
+Saved Bunch:	-2_-2
+Saved Bunch:	-1_-1
+	Missing bunch:	['019', '019', '0196', '0197', '0199', '0201', '0202']
+Saved Bunch:	1_1
+Saved Bunch:	2_2
+Saved Bunch:	3_3
+Saved Bunch:	4_4
+Saved Bunch:	5_5
+Saved Bunch:	6_6
+Saved Bunch:	7_7
+Saved Bunch:	8_8
+Saved Bunch:	9_9
+Saved Bunch:	10_10
+Saved Bunch:	11_11
+Saved Bunch:	12_12
+Saved Bunch:	13_13
+Saved Bunch:	14_14
+Saved Bunch:	15_15
+Saved Bunch:	16_16
+Saved Bunch:	17_17
+Saved Bunch:	18_18
+Saved Bunch:	19_19
+Saved Bunch:	20_20
+Saved Bunch:	21_21
+Saved Bunch:	22_22
+Saved Bunch:	23_23
+Saved Bunch:	24_24
+Saved Bunch:	25_25
+Saved Bunch:	26_26
+Saved Bunch:	27_27
+Saved Bunch:	28_28
+Saved Bunch:	29_29
+Saved Bunch:	30_30
+Saved Bunch:	31_31
+Saved Bunch:	32_32
+Saved Bunch:	33_33
+Saved Bunch:	34_34
+Saved Bunch:	35_35
+Saved Bunch:	36_36
+Saved Bunch:	37_37
+Saved Bunch:	38_38
+Saved Bunch:	39_39
+Saved Bunch:	40_40
+Saved Bunch:	41_41
+Saved Bunch:	42_42
+Saved Bunch:	43_43
+Saved Bunch:	44_44
+Saved Bunch:	45_45
+Saved Bunch:	46_46
+Saved Bunch:	47_47
+Saved Bunch:	48_48
+Saved Bunch:	49_49
+Saved Bunch:	50_50
+Saved Bunch:	51_51
+Saved Bunch:	52_52
+Saved Bunch:	53_53
+Saved Bunch:	54_54
+Saved Bunch:	55_55
+Saved Bunch:	56_56
+Saved Bunch:	57_57
+Saved Bunch:	58_58
+Saved Bunch:	59_59
+Saved Bunch:	60_60
+Saved Bunch:	61_61
+Saved Bunch:	62_62
+Saved Bunch:	63_63
+Saved Bunch:	64_64
+Saved Bunch:	65_65
+Saved Bunch:	66_66
+Saved Bunch:	67_67
+Saved Bunch:	68_68
+Saved Bunch:	69_69
+Saved Bunch:	70_70
+Saved Bunch:	71_71
+Saved Bunch:	72_72
+Saved Bunch:	73_73
+Saved Bunch:	74_74
+Saved Bunch:	75_75
+Saved Bunch:	76_76
+Saved Bunch:	77_77
+Saved Bunch:	78_78
+Saved Bunch:	79_79
+Saved Bunch:	80_80
+Saved Bunch:	81_81
+Saved Bunch:	82_82
+Saved Bunch:	83_83
+Saved Bunch:	84_84
+Saved Bunch:	85_85
+Saved Bunch:	86_86
+Saved Bunch:	87_87
+Saved Bunch:	88_88
+Saved Bunch:	89_89
+Saved Bunch:	90_90
+Saved Bunch:	91_91
+Saved Bunch:	92_92
+Saved Bunch:	93_93
+Saved Bunch:	94_94
+Saved Bunch:	95_95
+Saved Bunch:	96_96
+Saved Bunch:	97_97
+Saved Bunch:	98_98
+Saved Bunch:	99_99
+Saved Bunch:	100_100
+Saved Bunch:	101_101
+Saved Bunch:	102_102
+Saved Bunch:	103_103
+Saved Bunch:	104_104
+Saved Bunch:	105_105
+Saved Bunch:	106_106
+Saved Bunch:	107_107
+Saved Bunch:	108_108
+Saved Bunch:	109_109
+Saved Bunch:	110_110
+Saved Bunch:	111_111
+Saved Bunch:	112_112
+Saved Bunch:	113_113
+Saved Bunch:	114_114
+Saved Bunch:	115_115
+Saved Bunch:	116_116
+Saved Bunch:	117_117
+Saved Bunch:	118_118
+Saved Bunch:	119_119
+Saved Bunch:	120_120
+Saved Bunch:	121_121
+Saved Bunch:	122_122
+Saved Bunch:	123_123
+Saved Bunch:	124_124
+Saved Bunch:	125_125
+Saved Bunch:	126_126
+Saved Bunch:	127_127
+Saved Bunch:	128_128
+Saved Bunch:	129_129
+Saved Bunch:	130_130
+Saved Bunch:	131_131
+Saved Bunch:	132_132
+Saved Bunch:	133_133
+Saved Bunch:	134_134
+Saved Bunch:	135_135
+Saved Bunch:	136_136
+Saved Bunch:	137_137
+Saved Bunch:	138_138
+Saved Bunch:	139_139
+Saved Bunch:	140_140
+Saved Bunch:	141_141
+Saved Bunch:	142_142
+Saved Bunch:	143_143
+
+Missing header:['0195_diff_spect_pump_149-149_minus_ref_1-22_data.txt', '0196_diff_spect_pump_145-145_minus_ref_1-22_data.txt', '0196_diff_spect_pump_63-63_minus_ref_1-22_data.txt', '0196_diff_spect_pump_66-66_minus_ref_1-22_data.txt', '0197_diff_spect_pump_113-113_minus_ref_1-22_data.txt', '0198_diff_spect_pump_137-137_minus_ref_1-16_data.txt', '0198_diff_spect_pump_30-30_minus_ref_1-16_data.txt', '0198_diff_spect_pump_6-6_minus_ref_1-16_data.txt', '0199_diff_spect_pump_93-93_minus_ref_1-16_data.txt', '0201_diff_spect_pump_11-11_minus_ref_1-16_data.txt', '0201_diff_spect_pump_33-33_minus_ref_1-16_data.txt', '0201_diff_spect_pump_63-63_minus_ref_1-16_data.txt', '0202_diff_spect_pump_103-103_minus_ref_1-16_data.txt', '0202_diff_spect_pump_15-15_minus_ref_1-16_data.txt']
+
+Saving Shifts: 2018-07-30 13:08:48.383044

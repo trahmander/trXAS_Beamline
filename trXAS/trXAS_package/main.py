@@ -74,11 +74,13 @@ from config import (openDirectory as direct,
                     saveTransients,
                     showTransients,
                     saveSplines,
+                    saveOriginalX,
                     showSplines,
                     saveAverage,
                     savePhaseShifter,
                     splines,
-                    lines)
+                    lines,
+                    xOrig)
 ###############################################################################
 ###############################################################################
 #Helper functions for main()
@@ -86,6 +88,7 @@ from config import (openDirectory as direct,
 def initialize():
     splines.clear()
     lines.clear()
+    xOrig.clear()
     return
 # def ask_user():
 #     direct = user_directory()
@@ -118,6 +121,7 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
         lineAvg=0      
         lineErr=0
         bunchIndices = [i for i,x in enumerate(bunchNumAll) if x == bunch]
+        peOrg = xOrig[ bunchIndices[0] ] - litDiff
         shiftedLines = [ shiftedEnergy[ind] for ind in bunchIndices]
          
         for j, col in enumerate( head[1:-1] ):
@@ -141,7 +145,7 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
                         for i in range( len(shiftedSplines) ):
                             plt.plot(shiftedLines[i], shiftedSplines[i], linewidth=0.5, linestyle = "--")
                         
-            lineAvg, valAvg = average_vals(shiftedSplines, shiftedLines)
+            lineAvg, valAvg  = average_vals(shiftedSplines, shiftedLines)
 
             lineErr, valErr = standard_error(shiftedSplines, shiftedLines, valAvg, lineAvg)
             if showSplines and col in columnName:
@@ -163,9 +167,13 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
         hdr = hdr[:-1]
         if not os.path.exists(saveDirectory):
            os.makedirs(saveDirectory)
-        save_multicolumn(avgColumns, header = hdr, filename = saveDirectory+os.sep+fileName, com = '')
-        print("Saved Bunch:\t"+first+"_"+last, file = log)
-        print("Saved Bunch:\t"+first+"_"+last)
+        if saveOriginalX:
+            fileName = "avg"+"_bunch_"+first+"_"+last+"_origX.txt"
+            avgColumns = bin_data(avgColumns, peOrg )
+        if saveSplines or saveOriginalX:
+            save_multicolumn(avgColumns, header = hdr, filename = saveDirectory+os.sep+fileName, com = '')
+            print("Saved Bunch:\t"+first+"_"+last, file = log)
+            print("Saved Bunch:\t"+first+"_"+last)
         if ( len(missingBunch)!=0 ):
             print("\tMissing bunch:\t"+str( sorted(missingBunch) ), file = log)
             missingBunch.clear()
@@ -221,6 +229,8 @@ def avg_bunches(dataSets, bunches, head, first, last, saveDirectory, binning=1):
                     avgColumns.append(err)
             avgColumns = np.array(avgColumns)
             fileName = "avg"+"_bunch_"+firstChunk+"_"+lastChunk+".txt"
+            if saveOriginalX:
+                fileName = "avg"+"_bunch_"+firstChunk+"_"+lastChunk+"_origX.txt"
             hdr=""
             for col in hd:
                 hdr += col+"\t"
@@ -388,7 +398,7 @@ def save_phase_shifter(head, paths, saveDirectory, missingHeader):
     saveCol=[delayAvg, transAvg]
     saveCol = pd.DataFrame(saveCol).values
     fileName = "ps_transient"+"_bunch_"+firstBunch+"_"+lastBunch+".txt"
-    header = "Delay [ns]\t"+transColumn
+    header = "Delay [ns]\t"+psColumn
     save_multicolumn(saveCol, header, saveDirectory + os.sep + fileName, com='')
     if showTransients:
         fig = plt.figure(dpi=100)
@@ -450,9 +460,9 @@ def main():
 #   calculates the linear interpolation and finds reference peaks from reference column.  
 
 #   averages and saves collumns from scans.
-    if saveSplines or saveTransients:
+    if saveSplines or saveAverage or saveOriginalX or saveTransients:
         shiftedEnergy, shiftedColumns, litDiff = make_shifts(dataFiles, paths, missingHeader, refColumnNum)
-        if saveSplines:
+        if saveSplines or saveAverage or saveOriginalX:
             save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader, saveDirectory, litDiff)
     #   averages and saves transients from all scans. Also saves each individual scan.
         if saveTransients:

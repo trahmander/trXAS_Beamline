@@ -8,21 +8,21 @@ import os
 ###############################################################################
 #Enter manual  user inputs.
 ###############################################################################
-#OpenDirectory is the name of the directory for your scans.
-openDirectory = os.path.normpath(os.pardir+ os.sep+ "TiO2_O_K-edge_355nm_49pc")
+#OpenDirectory is the name of the directory for your scans. os.pardir means
+# parent directory of this file. os.sep is the "/" in linux and "\" in windows
+openDirectory = os.path.normpath(os.pardir+ os.sep+ "C60-TiO2_O_K-edge_355nm_49pc")
 #column specifies the name of the column that you want to plot as a function of photon energy.
 #refColumn specifies the name of the column that you want to compare in order to determine the shifts
 column = ["Y all norm","StS norm"]
 transColumn = "StS norm"
 psColumn = "StS"
 refColumn = "Y all norm"
-#firstBunch determines the the earliest bunch before the pump to average. (Inclusive) 
+#firstBunch and lastBunch determine the earliest and latest bunches to to work with) 
 #lastBunch determines the latest bunch after the pump to average. (Inclusive)
 # These numbers can be negative. ie: Bunch -6 is the 6th bunch before the pump
-# and Bunch 1 is the pump. (There is no 0th Bunch). Choose "all" to select all 
-# bunches in your directory. If you only want to look at 1 bunch. Choose that for 
-# for both values. ie: firstBunch = "7", lastBunch = "7" would look at just the 
-# 7th bunch after time 0.
+# and Bunch 1 is the first after the pump. (There is no 0th Bunch). 
+#Choose "all" to select all  bunches in your directory. If you only want to 
+# look at 1 bunch. Choose that for first and last.
 #averageStart and averageEnd are for averaging different bunches together. This
 # must be within the range specified by firstBunch and lastBunch.
 #averageBinning is the binning for avereging different bunches together.
@@ -30,7 +30,7 @@ refColumn = "Y all norm"
 firstBunch = "all"
 lastBunch = "all"
 averageStart= "1"
-averageEnd = "5"
+averageEnd = "3"
 averageBinning="3"
 #These are the different options for the shifting method. Exactly one should be True.
 #ShiftNone means that that the spectra will remain unchanged. This is good for making
@@ -43,7 +43,7 @@ shiftPeak = False
 shiftCenter = False
 shiftMinimize = True
 #peakFindStart is the smaller energy in the window used to find peaks for shifting.
-#peakFindEnd is the larger energy in the window used to find peaks for shifting.
+#peakFindEnd is the larger energy in the window used to find pseaks for shifting.
 #Choose "all" to integrate on the entire photon energy axis. 
 peakFindStart = "533"
 peakFindEnd= "537"
@@ -51,19 +51,20 @@ peakFindEnd= "537"
 #photonEnergyEnd os the larger energy in the window to do an integration.
 #Choose "all" to integrate on the entire photon energy axis. 
 photonEnergyStart = "528.5"
-photonEnergyEnd= "529.5"
+photonEnergyEnd= "529.9"
 integrationWindow = 1.0
 #saveSplines is set to True if you want to calculate to save the shifted Splines.
 #showSplines is set to True if you want the plots for the column you set in column.
 #saveAverage is set to True if you want to average different bunches together.
 #saveTransients is set to True if you want calculate the transients for transColumn.
 #showTransients is set to True if you want the plots for the integrals for transColumn.
-saveSplines = False
+saveSplines = True
 showSplines = False
 saveAverage = False
-saveTransients = True
+saveOriginalX = True
+saveTransients = False
 savePhaseShifter = False
-showTransients = True
+showTransients = False
 #literaturePeakValue is a nominal value to shift the reference peak to.
 #   set this to 0 if you don't want to shift to this value.
 #stepSize determines how coarse the splining of your data is. Smaller stepSize is more expensive.
@@ -78,4 +79,5 @@ stepSize = 0.005
 ###############################################################################
 splines = []
 lines= []
+xOrig= []
 ###############################################################################
