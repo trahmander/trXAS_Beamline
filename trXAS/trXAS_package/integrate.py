@@ -108,8 +108,8 @@ def average_integrals(bunchNum, integrals):
 	# print( len(bunchNum) )
 	# print( len(integrals) )
 	return bunchNum, integrals
-def exp(t, A, T, t0):
-    return A*np.heaviside(t-t0, 0.5)*np.e**(-1*(t - t0)/T)    
+#def exp(t, A, T, t0):
+#    return A*np.heaviside(t-t0, 0.5)*np.e**(-1*(t - t0)/T)    
 ###############################################################################
 #Test function for integrate.py
 ###############################################################################

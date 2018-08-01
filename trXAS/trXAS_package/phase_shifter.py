@@ -6,42 +6,7 @@ Created on Wed Jun 20 12:02:24 2018
 """
 import random
 import numpy as np
-def data_to_column(dataSet, col, file):
-    dataSet = dataSet.T
-    try:
-        columns = (delay, #SEphotonE,
-            xRefNorm, #SExRefNorm,
-            xRef, #SExRef,
-            xPumpNorm, #SExPumpNorm, 
-            xPump, #SExPump,
-            yRefNorm, #SEyRefNorm,
-            yRef, #SEyRef,
-            yPumpNorm, #SEyPumpNorm,
-            yPump, #SEyPump,
-            xAllNorm, #SExAllNorm,
-            xAll, #SExAll,
-            yAllNorm, #SEyAllNorm,
-            yAll, #SEyAll,
-            xAllyRefNorm, #SExAllyRefNorm,
-            xAllyRef, #SExAllyRef,
-            yAllxRefNorm, #SEyAllxRefNorm, 
-            yAllxRef, #SEyAllxRef,
-            BCxHistNorm, #SEBCxHistNorm, 
-            BCyHistNorm, #SEBCyHistNorm,
-            stsNorm, #SEstsNorm,
-            BCSCNorm, #SEBCSCNorm, 
-            BCLRNorm, #SEBCLRNorm,
-            BCxHist, #SEBCxHist,
-            BCyHist, #SEBCyHist,
-            sts, #SEsts,
-            BCSC, #SEBCSC, 
-            BCLR, #SEBCLR,
-            #SE, #SE2
-            ) = dataSet                                
-    except Exception as e:
-        print("Didn't load to array:\t"+file)
-        print( e )           
-    return columns[col]
+# calculates time delays from bunch number
 def get_time_delays(file, delay):
     bunches = file.split("_pump_")[1].split("_minus_")[0]
     bunches = bunches.split("-")
@@ -59,6 +24,7 @@ def get_time_delays(file, delay):
         timeDelay = [ (2*bunch -2 + d ) if bunch>0 else (2*bunch + d) for d in delay]
     return timeDelay
 #puts together all the transiensts from all the files. 
+# Not used anywhere at the moment. 
 def combine_time(dataSets):
     allDelays=[]
     allCols= []

@@ -1,11 +1,8 @@
-Log Start: 2018-07-10 16:22:58.514020
+Log Start: 2018-07-30 18:03:25.110211
 
 Bunches:
 [1, 2, 3]
 Number of bunches:	3
 
-Saved Bunch:	1_1
-Saved Bunch:	2_2
-Saved Bunch:	3_3
 
-Saving Shifts: 2018-07-10 16:23:05.534889
+Saving Shifts: 2018-07-30 18:03:34.343388
