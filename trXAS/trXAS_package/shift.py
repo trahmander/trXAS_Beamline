@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 20 13:48:38 2018
-use: load the chosen files into arrays, create linear splines and shift peaks to match.
+use: stores files as arrays and adds to the lists in config. Used to do the shifting of files.
 @author: 2-310-GL group
 """
 ###############################################################################
@@ -21,10 +21,14 @@ from config import (lines,
                     peakFindStart,
                     peakFindEnd)
 ###############################################################################
-#finds the x-value of the peak specified around xlow and xhigh. Appends it to peaks.
+#finds the x-value of the max specified around xlow and xhigh of the ref spectrum. 
 def find_peak(func):
-    step = (float(peakFindEnd) - float(peakFindStart)) / stepSize
-    nearPeak = np.linspace(float(peakFindStart), float(peakFindEnd), step)
+    if peakFindEnd == "all" and peakFindStart =="all":
+        nearPeak = lines[-1]
+        return np.amax( func(nearPeak) )
+    else:
+        step = (float(peakFindEnd) - float(peakFindStart)) / stepSize
+        nearPeak = np.linspace(float(peakFindStart), float(peakFindEnd), step)
     feature = func(nearPeak)
     maxVal = feature[0]  
     peak = 0
@@ -32,17 +36,15 @@ def find_peak(func):
         if feature[i] > maxVal:
             maxVal = feature[i]
             peak = i
-#    peaks.append(nearPeak[peak])
-            
+#    peaks.append(nearPeak[peak])           
     return nearPeak[peak]
+#finds the geometric center of the ref spectrum.
 def find_center(xVals, func):
-#    step = (xhigh - xlow)/stepSize
-#    xVals = np.linspace(xhigh, xlow, step)
     yVals = func(xVals)
     mass = simps( yVals, xVals )
     centerOfMass = simps( xVals*yVals , xVals) / mass
     return centerOfMass
-#Interpolation of data. returns linear spline Appends it to splines
+#Interpolation of data. returns linear spline. Appends it to splines
 def get_spline(x, col, refCol):
     low = x[0]
     high = x[-1]
@@ -59,49 +61,43 @@ def get_spline(x, col, refCol):
     refSpline = colSpline[refCol]
     return refSpline
 #unpacks the 2d array into 1d arrays given by the columns. uses find_peak and get_spline.
+# wantSpline is true by default. If set to false, an array of the column specified by
+# colIndex is returned.
 def data_to_column(dataSet, colIndex, file, wantSpline=True):
     dataSet = dataSet.T
     try:
-        columns = (firstColumn, #SEphotonE,
-            xRefNorm, #SExRefNorm,
-            xRef, #SExRef,
-            xPumpNorm, #SExPumpNorm, 
-            xPump, #SExPump,
-            yRefNorm, #SEyRefNorm,
-            yRef, #SEyRef,
-            yPumpNorm, #SEyPumpNorm,
-            yPump, #SEyPump,
-            xAllNorm, #SExAllNorm,
-            xAll, #SExAll,
-            yAllNorm, #SEyAllNorm,
-            yAll, #SEyAll,
-            xAllyRefNorm, #SExAllyRefNorm,
-            xAllyRef, #SExAllyRef,
-            yAllxRefNorm, #SEyAllxRefNorm, 
-            yAllxRef, #SEyAllxRef,
-            BCxHistNorm, #SEBCxHistNorm, 
-            BCyHistNorm, #SEBCyHistNorm,
-            stsNorm, #SEstsNorm,
-            BCSCNorm, #SEBCSCNorm, 
-            BCLRNorm, #SEBCLRNorm,
-            BCxHist, #SEBCxHist,
-            BCyHist, #SEBCyHist,
-            sts, #SEsts,
-            BCSC, #SEBCSC, 
-            BCLR, #SEBCLR,
-            #SE, #SE2
+        columns = (firstColumn,
+            xRefNorm, 
+            xRef, 
+            xPumpNorm, 
+            xPump, 
+            yRefNorm, 
+            yRef, 
+            yPumpNorm, 
+            yPump, 
+            xAllNorm, 
+            xAll, 
+            yAllNorm, 
+            yAll, 
+            xAllyRefNorm, 
+            xAllyRef,
+            yAllxRefNorm, 
+            yAllxRef, 
+            BCxHistNorm,  
+            BCyHistNorm, 
+            stsNorm, 
+            BCSCNorm, 
+            BCLRNorm, 
+            BCxHist, 
+            BCyHist, 
+            sts,
+            BCSC, 
+            BCLR, 
             ) = dataSet
-#        lowE = photonE[0]
-#        highE = photonE[-1]
-#        refVals = columns[refCol]
-#        vals = columns[col]
-#        step = (highE - lowE) / stepSize
         if wantSpline:
             colData = get_spline(firstColumn, columns[1:], colIndex-1)
         else:
-            colData = columns[colIndex]
-#        if findPeak:
-#            peakEnergy = find_peak(float(peakFindStart), float(peakFindEnd), refSpline)                                       #should not be hardcoded.
+            colData = columns[colIndex]                                     #should not be hardcoded.
     except Exception as e:
         print("Didn't load to array:\t"+file)
         print(e)             
@@ -120,35 +116,31 @@ def shift_spline(splineNum, refPeaks, spline, line):
         for i in range (len(vals) - index ) :
             vals[i] = vals[i+index]
         return vals[:-index], line[splineNum][:-index]
-#def difference(ref):
+#returns index of value closes to the literature value.
 def ref_index(refFeature, litVal):
     diff = [ np.abs(ref-litVal) for  ref in refFeature  ] 
     index = diff.index( np.amin(diff) )
     return index
+#returns the standard error difference between ref and vals shifted by delta
 def difference_func(delta, ref, vals):
     if delta<stepSize/2 and delta> -1*stepSize/2:
         ind = 0    
     elif delta>0:
         ind = int( delta/stepSize )
         vals = [ vals[k + ind] for k in range( len(vals) - ind )  ]
-#        vals = vals[:-ind]
     elif delta<0:
         ind = int( -1*delta/stepSize )
+        #[::-1] reverses the order of the array.
         vals = [ vals[::-1][k+ ind] for k in range( len(vals) -ind)  ]
-        ref = ref[::-1]
-        
-#        vals = vals[:-ind][::-1]
-#    diff = 0
-#    for i in range( len(vals) ):
-#        sub = (vals[i] - ref[i])
-#        diff += sub*sub
-#    diff = np.sqrt(diff)
+        ref = ref[::-1]        
     smaller = min( len(vals), len(ref) )
     ref = ref[:smaller]
     vals = vals[:smaller]
     diff = np.std( vals - ref ) *  np.sqrt(smaller)
     return diff
-#    return difference_func
+#chooses the reference with peak/center closest to the literature Value.
+# if literatureVal is 0 then the earliest peak/center is taken. calculates the
+# difference between all peaks/centers and the reference.
 def get_deltas(refPeaks, litVal):
     if bool(litVal) :
         refIndex = ref_index(refPeaks, litVal)
@@ -162,6 +154,8 @@ def get_deltas(refPeaks, litVal):
         else:
             deltas.append(peak - ref)
     return deltas
+#determines deltas by minimizing the error given in diff_func by taking steps of
+# stepSize in config and making shifts in the interval (-bound, bound)
 def diff_deltas(splineCols, lines, scanSize, refPeaks, refCol, litVal):
     refSplines = [s[refCol] for s in splineCols] 
     scanIndex=[]
@@ -178,26 +172,21 @@ def diff_deltas(splineCols, lines, scanSize, refPeaks, refCol, litVal):
         ref = refSplines[refIndex]( lines[refIndex] )
     else:
         minIndex = refPeaks.index( min(refPeaks) )
-        ref = refSplines[minIndex]( lines[minIndex] )
-#    print(len(ref) )  
-   
+        ref = refSplines[minIndex]( lines[minIndex] )   
     deltas=[]
-#    iterate = int(0.65/stepSize/2)
     bound= 0.55
-    shifts = np.arange(-bound,bound, stepSize)
-    
+    shifts = np.arange(-bound,bound, stepSize)   
     for i , spline in enumerate(refSplines):
         vals = spline( lines[i] )
-#        print( len(vals) )
-#        res = opt.minimize( difference_func, 0, args=(ref, vals), bounds = [(-0.5,0.5)], options = {'maxiter':iterate} )
-#        deltas.append(res.x[0])
         error = [difference_func(s, ref, vals) for s in shifts]
         delt = shifts[ error.index( np.amin(error) ) ]
-        if np.abs(delt) == bound:
+        if np.abs(delt) == bound: # raises a warning if the smallest error corresponds to a maximum shift.
             raise RuntimeWarning("shift reached the bounds")
         for j in range( scanSize[i]  ):
             deltas.append( delt  )
     return deltas
+#shifts each column by delta ammount. Also shifts more so that the reference is at the literature Value.
+# if lit value is set to 0, then no additional shift occurs.
 def apply_shift(delta, splineCols, lines, refPeaks, litVal):
     if bool(litVal):
         refIndex = ref_index(refPeaks, litVal)
@@ -230,7 +219,6 @@ def apply_shift(delta, splineCols, lines, refPeaks, litVal):
     
         valuesAllCol.append(values)
     return lines, valuesAllCol, litDiff
-
 ###############################################################################
 #Test Functions for shift.py
 ###############################################################################

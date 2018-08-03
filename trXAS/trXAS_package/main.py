@@ -22,16 +22,13 @@ from matplotlib import pyplot as plt #used for plotting.
 from load_files import (get_data_files,
                         load_file,
                         select_files,
-                        select_data,
                         get_selected_bunches,
-                        save_file,
                         save_multicolumn,
                         bin_data)
 #stores files into 2d arrays. Stores values in xOrig, lines, splines list. Deals with shifting.
 from shift import (data_to_column,
                    find_peak,
                    find_center,
-                   shift_spline,
                    get_deltas,
                    diff_deltas,
                    apply_shift)
@@ -91,17 +88,16 @@ def initialize():
     return
 # for saving indivual bunches and averaged bunches to files and manipulating 2d-data.
 def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pathToFiles, log,  missingBunch, missingHeader, saveDirectory, litDiff):
-    print("Computing shifts...")
-    
+    print("Computing shifts...")    
     paths = pathToFiles.keys()
     if saveAverage:
         averageSplines = []
         averageBunches= []
     if saveOriginalX:
         print("saving with original x")
+    # first calculates averages of all scans for every bunch.
     for bunch in bunchNum  :
         first = last = str(bunch)
-
         for path in  paths :
             try:
                 f = select_files( pathToFiles[path], first, last )
@@ -109,15 +105,14 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
                     missingBunch.append( path.strip(direct) )
             except:
                 missingBunch.append( path.strip(direct) )
-        avgColumns = []
+        avgColumns = [] #list which compiles all the avg and error columns.
         lineAvg=0      
         lineErr=0
         bunchIndices = [i for i,x in enumerate(bunchNumAll) if x == bunch]
         peOrg = xOrig[ bunchIndices[0] ] - litDiff
-        shiftedLines = [ shiftedEnergy[ind] for ind in bunchIndices]
-         
+        shiftedLines = [ shiftedEnergy[ind] for ind in bunchIndices]       
+        # calculates averages of scans for each column and for given bunch.
         for j, col in enumerate( head[1:-1] ):
-
             shiftedSplines= [shiftedColumns[i][j] for i in bunchIndices ]
             title = col
             if showSplines and col in columnName:
@@ -125,7 +120,9 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
                 plt.title(title+" Bunches: "+first+"-"+last)
                 plt.ylabel(col)
                 plt.xlabel("Probe [eV]")        
-    
+                #plots columns in column in config. plots vertical dashed lines
+                # for the reference and the transient columns corresponding to
+                # the peakFind window and integration window
                 if showSplines and col in columnName:
                     plt.axhline(0, linestyle = "-", color= "grey")
                     if col == transColumn and bool( float(xLow) ):
@@ -135,17 +132,13 @@ def save_splines(shiftedEnergy, shiftedColumns, bunchNum, bunchNumAll, head, pat
                         plt.axvline(float(peakFindStart)-litDiff, linestyle = "-.", linewidth= 0.5, color = 'g' )
                         plt.axvline( float(peakFindEnd)-litDiff, linestyle = "-.", linewidth= 0.5, color = 'g' )
                         for i in range( len(shiftedSplines) ):
-                            plt.plot(shiftedLines[i], shiftedSplines[i], linewidth=0.5, linestyle = "--")
-                        
+                            plt.plot(shiftedLines[i], shiftedSplines[i], linewidth=0.5, linestyle = "--")                       
             lineAvg, valAvg  = average_vals(shiftedSplines, shiftedLines)
-
             lineErr, valErr = standard_error(shiftedSplines, shiftedLines, valAvg, lineAvg)
             if showSplines and col in columnName:
-                plt.plot(lineAvg, valAvg, linestyle = "-", linewidth =1.5 )
-            
+                plt.plot(lineAvg, valAvg, linestyle = "-", linewidth =1.5 )            
             avgColumns.append(valAvg)
-            avgColumns.append(valErr)
-    
+            avgColumns.append(valErr)    
         avgColumns.insert(0, lineAvg)
         avgColumns.insert(1, lineErr)
         avgColumns = np.array(avgColumns)
@@ -224,20 +217,23 @@ def avg_bunches(dataSets, bunches, head, first, last, saveDirectory, binning=1):
             for col in hd:
                 hdr += col+"\t"
             hdr = hdr[:-1]
-            # print(hdr)
             print("Saved Bunch:\t"+firstChunk+"_"+lastChunk)
             save_multicolumn(avgColumns, header = hdr, filename = saveDirectory+os.sep+fileName, com = '')
     return
 #helper function to save_integral. does integration and collect appropriate column from the interpolation matrix.
-def compute_integral( title, pathToFiles, head, transientColumns, bunch, shiftedEnergy, shiftedColumns,saveDirectory, savePlot= False, binning=1, wantPlot=False):        
+def compute_integral( title, head, transientColumns, bunch, shiftedEnergy, shiftedColumns,saveDirectory, savePlot= False, binning=1, wantPlot=False):        
     transIndex = head.index(transColumn)
+    #pick just the column for transients
     shiftedSplines = [ shiftedColumns[i][transIndex] for i in range( len(shiftedColumns) ) ]
+    #compute integrals
     integrals = [ def_integral( e,s, xLow,xHigh , wantPlot=wantPlot) for e,s in zip(shiftedEnergy, shiftedSplines) ]
+    #average together integrals from different scans.
     bunch, Int = average_integrals(bunch, integrals)
+    #sort integral and bunch list
     Int = [ I for b, I in sorted( zip(bunch, Int), key = lambda pair: pair[0] ) ]
     bunch.sort()
+    #get time Delays from bunch
     timeDelay =[ (2*b -2 + offSet) if b>0 else (2*b + offSet) for b in bunch]
-    # timeDelay, Int = remove_outliers(timeDelay, Int)
     transientColumns.append( timeDelay )
     transientColumns.append( Int )
     print("saved transient:\t"+title)
@@ -258,11 +254,12 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns,
     print("Computing transients...")
     scanType = direct.split(os.sep)[-1]
     saveDirectory = os.path.normpath(saveDirectory + os.sep + "transients")
-    transCol=[]
+    transCol=[] # list which keeps all data to be saved.
     header = "Delay[ns]\tAvg Transient\t"
     if not os.path.exists(saveDirectory):
         os.makedirs(saveDirectory)
-    compute_integral(saveDirectory.split(os.sep)[-1], pathToFiles, head, transCol, 
+    #compute average of transients from all scans
+    compute_integral(saveDirectory.split(os.sep)[-1], head, transCol, 
                       bunchNumAll, 
                       shiftedEnergy, 
                       shiftedColumns,
@@ -270,24 +267,23 @@ def save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns,
                       savePlot=True)
     start=0
     end=0
+    # compute transients from each scan
     for path, files in  pathToFiles.items():
         title = path.split(os.sep)[-1].split("_")[0]
         header += title+" Delay[ns]\t"+title+" Transient\t"
         end  = start + len( files )
-        compute_integral(title, pathToFiles, head, transCol, 
+        compute_integral(title, head, transCol, 
                       bunchNumAll[start:end], 
                       shiftedEnergy[start:end], 
                       shiftedColumns[start:end],
                       saveDirectory,
                       wantPlot=False)
         start = end
-
     header = header[:-1]
     transCol = pd.DataFrame(transCol).values
-
     fileName = "transient_"+xLow+"_"+xHigh+"_bunch_"+firstBunch+"_"+lastBunch+".txt"
     save_multicolumn(transCol, header, saveDirectory + os.sep + fileName)
-    # print( ("\nSaved Transients:\t"+fileName ), file = log )                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   )
+#    print( "\nSaving Transients: "+ str( datetime.now() ), file = log )                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   )
     return
 #Apply's the shifts to the interpolations based on the method chosen in config.
 def make_shifts(dataFiles, paths, missingHeader, refColumnNum):
@@ -336,6 +332,8 @@ def make_shifts(dataFiles, paths, missingHeader, refColumnNum):
     shiftedEnergy = cut_splines(shiftedEnergy,deltas)
     shiftedColumns = [ cut_splines(column, deltas) for column in shiftedColumns ]
     return shiftedEnergy, shiftedColumns, litDiff
+#averages different phase shifter scans together. saves files in saame format 
+# as transients from spectrum scans.
 def save_phase_shifter(head, paths, saveDirectory, missingHeader):
     print("Computing phase shifter transients")
     transIndex = head.index(psColumn)
@@ -344,7 +342,11 @@ def save_phase_shifter(head, paths, saveDirectory, missingHeader):
         os.makedirs(saveDirectory)
     allDelays=[]
     allTrans=[]
+    saveCol=[]
+    hdr = "Delay [ns]\tAvg "+psColumn+"\t"
     for path in paths:
+        title = path.split(os.sep)[-1].split("_")[0]
+        hdr += title+" Delay[ns]\t"+title+" "+psColumn+"\t"
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first = firstBunch, last = lastBunch)
         pathDelay=[]
@@ -362,27 +364,26 @@ def save_phase_shifter(head, paths, saveDirectory, missingHeader):
             pathTrans.extend(transCol)
             allDelays.extend( list(delay) )
             allTrans.extend( list(transCol) )
-
         delayAvg, transAvg = average_integrals(pathDelay, pathTrans)
-        # print(len(transAvg))
         transAvg = [ I for b, I in sorted( zip(delayAvg, transAvg), key = lambda pair: pair[0] ) ]
         delayAvg.sort()
+        saveCol.append(delayAvg)
+        saveCol.append(transAvg)
         if showTransients:
             fig = plt.figure(dpi=100)
             plt.title(path+" PS")
             plt.xlabel("Time Delay [ns]")
             plt.ylabel(psColumn)
             plt.plot(pathDelay, pathTrans, marker='d', linestyle = "None")
-    # print(len(allDelays))
     delayAvg, transAvg = average_integrals(allDelays, allTrans)
-    # print( len(delayAvg) )
     transAvg = [ I for b, I in sorted( zip(delayAvg, transAvg), key = lambda pair: pair[0] ) ]
     delayAvg.sort()
-    saveCol=[delayAvg, transAvg]
+    saveCol.insert(0,delayAvg)
+    saveCol.insert(1,transAvg)
     saveCol = pd.DataFrame(saveCol).values
     fileName = "ps_transient"+"_bunch_"+firstBunch+"_"+lastBunch+".txt"
-    header = "Delay [ns]\t"+psColumn
-    save_multicolumn(saveCol, header, saveDirectory + os.sep + fileName, com='')
+    hdr= hdr[:-1]
+    save_multicolumn(saveCol, hdr, saveDirectory + os.sep + fileName, com='')
     if showTransients:
         fig = plt.figure(dpi=100)
         plt.title("average PS")
@@ -396,33 +397,32 @@ def save_phase_shifter(head, paths, saveDirectory, missingHeader):
 #Main driver function for trXAS package
 ###############################################################################
 def main():
-    # startTime = timer()
-    initialize()
+    initialize() # clear lists in config.
+    #Create missing lists for files without a header, or scans missing a bunch.
     missingBunch = []
     missingHeader = []
-    
-    bunchNumAll = []
-    print( "Scans:\t" + direct.split(os.sep)[-1] )
+    bunchNumAll = [] #a list to gather all bunches from all scans (with repeats)
+    print( "Scans:\t" + direct.split(os.sep)[-1] ) #prints name of folder
     paths = os.listdir(direct)
     paths = [ os.path.join(direct, p) for p in paths if not "avg" in p ]
-    paths = sorted(paths)
+    paths = sorted(paths) #paths is a sorted list of all scans in forlder.
     saveDirectory= direct+os.sep
     for p in paths:
         saveDirectory += ( p.split(os.sep)[-1].split("_")[0] ) + "_"
-    saveDirectory +="avg"
+    saveDirectory +="avg" #Create a save folder based on scan names.
     if not os.path.exists(saveDirectory):
         os.makedirs(saveDirectory)
+    #Create a log file so that so output will be written to a text file.
     log = saveDirectory+os.sep+"save_log_"+firstBunch+"_"+lastBunch+".txt"    
     print("",file= open(log, "w+"))
     log = open(log, "w+")
     print( "Log Start: "+ str( datetime.now() )+"\n", file = log )
+    #Gets the header by loading the first file of the first scan.
     dataFiles = get_data_files(paths[1])
     dataSet, head = load_file(dataFiles[0])
     refColumnNum = head.index(refColumn)
-#   Load the data sets of all the scans and get the bunches found. Calculates
-#   the splines for splines for reference column from first file in scan.
-    pathToFiles = {} 
-    
+    pathToFiles = {} #dictionary where keys are the scan # and values are the list of files for that scan.
+    #load first file from all scans into arrays and grab the values of the refernce column.
     for path  in paths :
         dataFiles = get_data_files(path)
         dataFiles = select_files(dataFiles, first= firstBunch, last = lastBunch)
@@ -435,28 +435,27 @@ def main():
         file = dataFiles[0]
         dataSet, header = load_file(file)
         refSpline= data_to_column(dataSet, refColumnNum, file, wantSpline=False)
-    initialize()
-    bunchNum = sorted(remove_dup(bunchNumAll))
+    initialize() #reinitialize the lists in config, because they are non-empty after calling data_to_column.
+    bunchNum = sorted(remove_dup(bunchNumAll)) # a list of all the bunches from any scan (no repeats)
     print("Bunches:\n" + str(bunchNum), file = log)
     print("Bunches:\n" + str(bunchNum),)
-    print("Number of bunches:\t"+str( len(bunchNum) )+"\n", file = log )
-#   calculates the linear interpolation and finds reference peaks from reference column.  
-
+    print("Number of bunches:\t"+str( len(bunchNum) )+"\n", file = log ) 
 #   averages and saves collumns from scans.
     if saveSplines or saveAverage or saveOriginalX or saveTransients or showSplines:
+        #Calculates interpoltations and returns shifted splines based on reference column.
         shiftedEnergy, shiftedColumns, litDiff = make_shifts(dataFiles, paths, missingHeader, refColumnNum)
         if saveSplines or saveAverage or saveOriginalX or showSplines:
+            #save 2d array of columns to text file.
             save_splines(shiftedEnergy, shiftedColumns, bunchNum,bunchNumAll, head, pathToFiles, log, missingBunch, missingHeader, saveDirectory, litDiff)
     #   averages and saves transients from all scans. Also saves each individual scan.
         if saveTransients:
             save_integral(pathToFiles, head, bunchNumAll, shiftedEnergy, shiftedColumns, log, saveDirectory)
     elif savePhaseShifter:
+        #saves the phase shifter averages into text file.
         save_phase_shifter(head, paths, saveDirectory, missingHeader)
     log.close()
-    # endTime = timer()
-    # print( "Time:\t"+ str(endTime - startTime) )
     initialize()
-    if showSplines or showTransients:
+    if showSplines or showTransients: #Shows the plots
         plt.show()
         plt.close()
     return 

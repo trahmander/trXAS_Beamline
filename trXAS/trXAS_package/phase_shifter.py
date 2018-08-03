@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jun 20 12:02:24 2018
-
+use: A couple of functions to deal with time delays in the phase shifter scans.
 @author: 2-310-GL group
 """
 import random
 import numpy as np
-# calculates time delays from bunch number
+# calculates time delays from bunch number.
 def get_time_delays(file, delay):
     bunches = file.split("_pump_")[1].split("_minus_")[0]
     bunches = bunches.split("-")
@@ -31,9 +31,6 @@ def combine_time(dataSets):
     for data in dataSets:
         allDelays.extend(data)
     return allDelays
-#averages rows of the datafile that have the same time delay and returns a new non-redundant set.
-# def average_same_time(dataSets):
-#     return
 def test_phase_shifter():
     randomLists=[]
     for i in range(4):

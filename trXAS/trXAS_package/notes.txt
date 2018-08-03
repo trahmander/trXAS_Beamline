@@ -12,12 +12,16 @@ shiftNone = True
 shiftPeak = False
 shiftCenter = False
 shiftMinimize = False
-peakFindStart = "0.0"
-peakFindEnd= "0.0"
-photonEnergyStart = "0.0"
-photonEnergyEnd= "0.0"
+peakFindStart = "all"
+peakFindEnd= "all"
+photonEnergyStart = "all"
+photonEnergyEnd= "all"
+integrationWindow = 0.5
 saveSplines = True
 showSplines = True
+saveOriginalX = False
+saveAverage = False
+savePhaseShifter = False
 saveTransients = False
 showTransients = False
 literaturePeakValue = 0.0
@@ -58,10 +62,20 @@ CALCULATING AVERAGES AND TRANSIENTS:
 ##########################################################################################
 AVERAGE PHASE SHIFTER SCANS:
 ##########################################################################################
+1.  Specify the directory for the phase shifter scan.
+2.  Set desired firstBunch and lastBunch
+3.  Set the following changes to run in phase shifter mode.
+saveSplines = False
+showSplines = False
+saveOriginalX = False
+saveAverage = False
+savePhaseShifter = True
+saveTransients = False
+showTransients = False
+4.  If you would like to see the transients, then set showTransients to True.
 ##########################################################################################
-TO DO:
+MAJOR IMPROVEMENTS:
 ##########################################################################################
 #	Make a better zero-intersection finder for integration instead of manually doing it.
 	Implement a way to see the new zero vertical line so that I can check it.
-#   Implement binning to original photon energies.
 ##########################################################################################
